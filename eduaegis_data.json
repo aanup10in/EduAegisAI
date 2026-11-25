@@ -1,0 +1,784 @@
+{
+  "students": [
+    {
+      "id": "STU-101",
+      "username": "Anup",
+      "name": "Anup Sharma",
+      "studentClass": 9,
+      "board": "CBSE (All India)",
+      "email": "anup.sharma@school.edu",
+      "phone": "+91 98765 43210",
+      "cityState": "Bangalore, Karnataka",
+      "createdAt": "2025-11-15T10:00:00Z"
+    },
+    {
+      "id": "STU-102",
+      "username": "Nandita",
+      "name": "Nandita Roy",
+      "studentClass": 9,
+      "board": "ICSE / CISCE",
+      "email": "nandita.roy@school.edu",
+      "phone": "+91 91234 56789",
+      "cityState": "Kolkata, West Bengal",
+      "createdAt": "2025-11-20T11:30:00Z"
+    }
+  ],
+  "teacherInstructions": {
+    "force_and_laws": {
+      "id": "instr_1",
+      "topicId": "force_and_laws",
+      "specificInstructions": "Focus strictly on proper statement of Newton's 2nd Law (rate of change of momentum). Penalize 0.5 marks if SI units (N, kg, m/s²) are omitted. Allow partial marks for mathematical derivation steps.",
+      "strictSIUnits": true,
+      "partialCreditForSteps": true,
+      "lenientSpelling": true,
+      "weights": {
+        "facts": 0.3,
+        "concepts": 0.4,
+        "terminology": 0.2,
+        "derivation": 0.1
+      },
+      "updatedAt": "2026-11-04T17:19:04.435Z"
+    }
+  },
+  "submissions": [
+    {
+      "id": "sub_1793814625510",
+      "studentId": "std_default_aarav",
+      "studentName": "Aarav Sharma",
+      "board": "CBSE (All India)",
+      "className": "Class 9th",
+      "subjectName": "Physics",
+      "chapterTitle": "Force and Laws of Motion",
+      "topicName": "Force and Laws of Motion",
+      "submittedAt": "2026-11-04T17:50:25.510Z",
+      "totalMaxMarks": 20.0,
+      "totalAwardedMarks": 5.5,
+      "status": "PENDING_TEACHER_RELEASE",
+      "teacherInstructionsUsed": "Focus strictly on proper statement of Newton's 2nd Law (rate of change of momentum). Penalize 0.5 marks if SI units (N, kg, m/s²) are omitted. Allow partial marks for mathematical derivation steps.",
+      "questions": [
+        {
+          "questionId": "q1",
+          "questionText": "State Newton's Second Law of Motion. Derive the mathematical expression F = ma from this law, defining all terms with their SI units.",
+          "studentAnswer": "newton's second law is F = ma i.e. Force is equal to mass and acceleration",
+          "maxMarks": 5.0,
+          "awardedMarks": 2.3,
+          "stepBreakdown": [
+            {
+              "stepNumber": 1,
+              "stepFocus": "Statement of Newton's Second Law",
+              "marksAwarded": 0.2,
+              "maxMarks": 1,
+              "whyAwardedOrDeducted": "Partially stated; omitted either 'rate of change of momentum' or 'direction of force'."
+            },
+            {
+              "stepNumber": 2,
+              "stepFocus": "Initial and Final Momentum Formulation",
+              "marksAwarded": 0.3,
+              "maxMarks": 1.5,
+              "whyAwardedOrDeducted": "Omitted explicit algebraic initial/final momentum steps."
+            },
+            {
+              "stepNumber": 3,
+              "stepFocus": "Substitution of a = (v-u)/t and Proportionality Constant k=1",
+              "marksAwarded": 0.8,
+              "maxMarks": 1.5,
+              "whyAwardedOrDeducted": "Directly jumped to F = ma without showing intermediate acceleration equivalence."
+            },
+            {
+              "stepNumber": 4,
+              "stepFocus": "Specification of SI Units for All Quantities",
+              "marksAwarded": 1,
+              "maxMarks": 1,
+              "whyAwardedOrDeducted": "Correctly specified SI units for Force (N), Mass (kg), and Acceleration (m/s²)."
+            }
+          ],
+          "strengths": [],
+          "gapsAndMisconceptions": [],
+          "deductionExplanation": "Evaluated strictly per NCERT syllabus rubrics and teacher instructions.",
+          "referenceChapter": "Force and Laws of Motion (NCERT Class 9 - Chapter 8)",
+          "authenticReferences": [
+            {
+              "title": "NCERT Class 9 Physics - Force & Laws of Motion",
+              "url": "https://ncert.nic.in/textbook.php?iesc1=8-15",
+              "source": "NCERT Official Portal"
+            },
+            {
+              "title": "Khan Academy: Newton's Second Law of Motion",
+              "url": "https://www.khanacademy.org/science/in-in-class9th-physics-india/in-in-forces-and-laws-of-motion",
+              "source": "Khan Academy India"
+            },
+            {
+              "title": "HyperPhysics - Georgia State University: Newton's Laws",
+              "url": "http://hyperphysics.phy-astr.gsu.edu/hbase/newt.html",
+              "source": "HyperPhysics"
+            }
+          ],
+          "question": "State Newton's Second Law of Motion. Derive the mathematical expression F = ma from this law, defining all terms with their SI units.",
+          "score": 2.3,
+          "max": 5.0,
+          "student_ans": "newton's second law is F = ma i.e. Force is equal to mass and acceleration"
+        },
+        {
+          "questionId": "q2",
+          "questionText": "Why does a fielder pull his hands backward while catching a fast-moving cricket ball? Explain the physical mechanism using Newton's Second Law.",
+          "studentAnswer": "",
+          "maxMarks": 3.0,
+          "awardedMarks": 0.7,
+          "stepBreakdown": [
+            {
+              "stepNumber": 1,
+              "stepFocus": "Statement of Newton's Second Law",
+              "marksAwarded": 0.2,
+              "maxMarks": 1,
+              "whyAwardedOrDeducted": "Partially stated; omitted either 'rate of change of momentum' or 'direction of force'."
+            },
+            {
+              "stepNumber": 2,
+              "stepFocus": "Initial and Final Momentum Formulation",
+              "marksAwarded": 0.3,
+              "maxMarks": 1.5,
+              "whyAwardedOrDeducted": "Omitted explicit algebraic initial/final momentum steps."
+            },
+            {
+              "stepNumber": 3,
+              "stepFocus": "Substitution of a = (v-u)/t and Proportionality Constant k=1",
+              "marksAwarded": 0.2,
+              "maxMarks": 1.5,
+              "whyAwardedOrDeducted": "Directly jumped to F = ma without showing intermediate acceleration equivalence."
+            },
+            {
+              "stepNumber": 4,
+              "stepFocus": "Specification of SI Units for All Quantities",
+              "marksAwarded": 0,
+              "maxMarks": 1,
+              "whyAwardedOrDeducted": "Did not specify units for physical quantities."
+            }
+          ],
+          "strengths": [],
+          "gapsAndMisconceptions": [
+            "Teacher Directive Violation: SI units (Newton / N, kg, m/s²) were omitted (-1.0).",
+            "Answer is excessively brief. In subjective board exams, full marks require step-by-step elaboration."
+          ],
+          "deductionExplanation": "Teacher Directive Violation: SI units (Newton / N, kg, m/s²) were omitted (-1.0). Answer is excessively brief. In subjective board exams, full marks require step-by-step elaboration.",
+          "referenceChapter": "Force and Laws of Motion (NCERT Class 9 - Chapter 8)",
+          "authenticReferences": [
+            {
+              "title": "NCERT Class 9 Physics - Force & Laws of Motion",
+              "url": "https://ncert.nic.in/textbook.php?iesc1=8-15",
+              "source": "NCERT Official Portal"
+            },
+            {
+              "title": "Khan Academy: Newton's Second Law of Motion",
+              "url": "https://www.khanacademy.org/science/in-in-class9th-physics-india/in-in-forces-and-laws-of-motion",
+              "source": "Khan Academy India"
+            },
+            {
+              "title": "HyperPhysics - Georgia State University: Newton's Laws",
+              "url": "http://hyperphysics.phy-astr.gsu.edu/hbase/newt.html",
+              "source": "HyperPhysics"
+            }
+          ],
+          "question": "Why does a fielder pull his hands backward while catching a fast-moving cricket ball? Explain the physical mechanism using Newton's Second Law.",
+          "score": 0.7,
+          "max": 3.0,
+          "student_ans": ""
+        },
+        {
+          "questionId": "q3",
+          "questionText": "Define Inertia. State its three types with one daily-life example for each. Name the physical quantity that measures inertia.",
+          "studentAnswer": "",
+          "maxMarks": 3.0,
+          "awardedMarks": 0.4,
+          "stepBreakdown": [
+            {
+              "stepNumber": 1,
+              "stepFocus": "Definition of Inertia",
+              "marksAwarded": 0.4,
+              "maxMarks": 1,
+              "whyAwardedOrDeducted": "Definition lacked scientific precision."
+            },
+            {
+              "stepNumber": 2,
+              "stepFocus": "Three Types of Inertia with Daily Examples",
+              "marksAwarded": 0,
+              "maxMarks": 1.5,
+              "whyAwardedOrDeducted": "Missing one or more categories of inertia."
+            },
+            {
+              "stepNumber": 3,
+              "stepFocus": "Measurement of Inertia (Mass)",
+              "marksAwarded": 0,
+              "maxMarks": 0.5,
+              "whyAwardedOrDeducted": "Omitted that mass measures inertia."
+            }
+          ],
+          "strengths": [],
+          "gapsAndMisconceptions": [
+            "Answer is excessively brief. In subjective board exams, full marks require step-by-step elaboration."
+          ],
+          "deductionExplanation": "Answer is excessively brief. In subjective board exams, full marks require step-by-step elaboration.",
+          "referenceChapter": "Force and Laws of Motion (NCERT Class 9 - Chapter 8)",
+          "authenticReferences": [
+            {
+              "title": "NCERT Class 9 Physics - Force & Laws of Motion",
+              "url": "https://ncert.nic.in/textbook.php?iesc1=8-15",
+              "source": "NCERT Official Portal"
+            },
+            {
+              "title": "Khan Academy: Newton's Second Law of Motion",
+              "url": "https://www.khanacademy.org/science/in-in-class9th-physics-india/in-in-forces-and-laws-of-motion",
+              "source": "Khan Academy India"
+            },
+            {
+              "title": "HyperPhysics - Georgia State University: Newton's Laws",
+              "url": "http://hyperphysics.phy-astr.gsu.edu/hbase/newt.html",
+              "source": "HyperPhysics"
+            }
+          ],
+          "question": "Define Inertia. State its three types with one daily-life example for each. Name the physical quantity that measures inertia.",
+          "score": 0.4,
+          "max": 3.0,
+          "student_ans": ""
+        },
+        {
+          "questionId": "q4",
+          "questionText": "A motorcar of mass 1200 kg is moving along a straight line with a uniform velocity of 90 km/h. Its velocity is slowed down to 18 km/h in 4 seconds by an unbalanced external force. Calculate the acceleration and the change in momentum. Also calculate the magnitude of the force required.",
+          "studentAnswer": "",
+          "maxMarks": 5.0,
+          "awardedMarks": 1.0,
+          "stepBreakdown": [
+            {
+              "stepNumber": 1,
+              "stepFocus": "Velocity Unit Conversion (km/h -> m/s)",
+              "marksAwarded": 0.2,
+              "maxMarks": 1,
+              "whyAwardedOrDeducted": "Missed or incorrect conversion to SI units."
+            },
+            {
+              "stepNumber": 2,
+              "stepFocus": "Acceleration Calculation (a = (v-u)/t)",
+              "marksAwarded": 0.2,
+              "maxMarks": 1.5,
+              "whyAwardedOrDeducted": "Error in acceleration computation or missing negative sign."
+            },
+            {
+              "stepNumber": 3,
+              "stepFocus": "Change in Momentum Calculation",
+              "marksAwarded": 0.3,
+              "maxMarks": 1,
+              "whyAwardedOrDeducted": "Omitted or miscalculated change in momentum."
+            },
+            {
+              "stepNumber": 4,
+              "stepFocus": "Force Magnitude Calculation and Units",
+              "marksAwarded": 0.3,
+              "maxMarks": 1.5,
+              "whyAwardedOrDeducted": "Incorrect final force value or missing SI unit."
+            }
+          ],
+          "strengths": [],
+          "gapsAndMisconceptions": [
+            "Answer is excessively brief. In subjective board exams, full marks require step-by-step elaboration."
+          ],
+          "deductionExplanation": "Answer is excessively brief. In subjective board exams, full marks require step-by-step elaboration.",
+          "referenceChapter": "Force and Laws of Motion (NCERT Class 9 - Chapter 8)",
+          "authenticReferences": [
+            {
+              "title": "NCERT Class 9 Physics - Force & Laws of Motion",
+              "url": "https://ncert.nic.in/textbook.php?iesc1=8-15",
+              "source": "NCERT Official Portal"
+            },
+            {
+              "title": "Khan Academy: Newton's Second Law of Motion",
+              "url": "https://www.khanacademy.org/science/in-in-class9th-physics-india/in-in-forces-and-laws-of-motion",
+              "source": "Khan Academy India"
+            },
+            {
+              "title": "HyperPhysics - Georgia State University: Newton's Laws",
+              "url": "http://hyperphysics.phy-astr.gsu.edu/hbase/newt.html",
+              "source": "HyperPhysics"
+            }
+          ],
+          "question": "A motorcar of mass 1200 kg is moving along a straight line with a uniform velocity of 90 km/h. Its velocity is slowed down to 18 km/h in 4 seconds by an unbalanced external force. Calculate the acceleration and the change in momentum. Also calculate the magnitude of the force required.",
+          "score": 1.0,
+          "max": 5.0,
+          "student_ans": ""
+        },
+        {
+          "questionId": "q5",
+          "questionText": "State Newton's Third Law of Motion. Why do action and reaction forces not cancel each other even though they are equal in magnitude and opposite in direction?",
+          "studentAnswer": "",
+          "maxMarks": 4.0,
+          "awardedMarks": 1.1,
+          "stepBreakdown": [
+            {
+              "stepNumber": 1,
+              "stepFocus": "Statement of Newton's Third Law",
+              "marksAwarded": 0.3,
+              "maxMarks": 1,
+              "whyAwardedOrDeducted": "Incomplete statement of Third Law."
+            },
+            {
+              "stepNumber": 2,
+              "stepFocus": "Forces Act Simultaneously on Two Different Bodies",
+              "marksAwarded": 0.5,
+              "maxMarks": 2,
+              "whyAwardedOrDeducted": "Failed to mention that forces act on different bodies, which is the primary reason they don't cancel."
+            },
+            {
+              "stepNumber": 3,
+              "stepFocus": "Real-world Practical Illustration",
+              "marksAwarded": 0.3,
+              "maxMarks": 1,
+              "whyAwardedOrDeducted": "Missing or unclear example."
+            }
+          ],
+          "strengths": [],
+          "gapsAndMisconceptions": [
+            "Answer is excessively brief. In subjective board exams, full marks require step-by-step elaboration."
+          ],
+          "deductionExplanation": "Answer is excessively brief. In subjective board exams, full marks require step-by-step elaboration.",
+          "referenceChapter": "Force and Laws of Motion (NCERT Class 9 - Chapter 8)",
+          "authenticReferences": [
+            {
+              "title": "NCERT Class 9 Physics - Force & Laws of Motion",
+              "url": "https://ncert.nic.in/textbook.php?iesc1=8-15",
+              "source": "NCERT Official Portal"
+            },
+            {
+              "title": "Khan Academy: Newton's Second Law of Motion",
+              "url": "https://www.khanacademy.org/science/in-in-class9th-physics-india/in-in-forces-and-laws-of-motion",
+              "source": "Khan Academy India"
+            },
+            {
+              "title": "HyperPhysics - Georgia State University: Newton's Laws",
+              "url": "http://hyperphysics.phy-astr.gsu.edu/hbase/newt.html",
+              "source": "HyperPhysics"
+            }
+          ],
+          "question": "State Newton's Third Law of Motion. Why do action and reaction forces not cancel each other even though they are equal in magnitude and opposite in direction?",
+          "score": 1.1,
+          "max": 4.0,
+          "student_ans": ""
+        }
+      ],
+      "topic": "Force and Laws of Motion",
+      "subject": "Physics",
+      "totalAwarded": 5.5,
+      "totalMax": 20.0
+    },
+    {
+      "id": "sub_hist_p1",
+      "studentId": "STU-101",
+      "studentName": "Anup Sharma",
+      "board": "CBSE (All India)",
+      "className": "Class 9th",
+      "subject": "Physics",
+      "subjectName": "Physics",
+      "topic": "Newton's Second Law & Momentum",
+      "totalMax": 20.0,
+      "totalAwarded": 18.5,
+      "status": "ACCEPTED",
+      "evaluatorTeacher": "Ankur",
+      "evaluatorTeacherId": "TCH-201",
+      "submittedAt": "2025-12-20T14:00:00Z",
+      "releasedAt": "2025-12-20T14:24:00Z",
+      "turnaroundMinutes": 24.0,
+      "questions": []
+    },
+    {
+      "id": "sub_hist_p2",
+      "studentId": "STU-102",
+      "studentName": "Nandita Roy",
+      "board": "ICSE / CISCE",
+      "className": "Class 9th",
+      "subject": "Physics",
+      "subjectName": "Physics",
+      "topic": "Inertia and Laws of Motion",
+      "totalMax": 20.0,
+      "totalAwarded": 16.0,
+      "status": "RELEASED",
+      "evaluatorTeacher": "Ankur",
+      "evaluatorTeacherId": "TCH-201",
+      "submittedAt": "2026-01-29T14:00:00Z",
+      "releasedAt": "2026-01-29T14:45:00Z",
+      "turnaroundMinutes": 45.0,
+      "questions": []
+    },
+    {
+      "id": "sub_hist_p3",
+      "studentId": "STU-101",
+      "studentName": "Anup Sharma",
+      "board": "CBSE (All India)",
+      "className": "Class 9th",
+      "subject": "Physics",
+      "subjectName": "Physics",
+      "topic": "Universal Gravitation & Floatation",
+      "totalMax": 20.0,
+      "totalAwarded": 19.0,
+      "status": "ACCEPTED",
+      "evaluatorTeacher": "Ankur",
+      "evaluatorTeacherId": "TCH-201",
+      "submittedAt": "2026-03-25T14:00:00Z",
+      "releasedAt": "2026-03-25T14:18:00Z",
+      "turnaroundMinutes": 18.0,
+      "questions": []
+    },
+    {
+      "id": "sub_hist_p4",
+      "studentId": "STU-102",
+      "studentName": "Nandita Roy",
+      "board": "ICSE / CISCE",
+      "className": "Class 9th",
+      "subject": "Physics",
+      "subjectName": "Physics",
+      "topic": "Work, Energy & Power Principles",
+      "totalMax": 20.0,
+      "totalAwarded": 17.5,
+      "status": "RELEASED",
+      "evaluatorTeacher": "Ankur",
+      "evaluatorTeacherId": "TCH-201",
+      "submittedAt": "2026-05-29T14:00:00Z",
+      "releasedAt": "2026-05-29T14:32:00Z",
+      "turnaroundMinutes": 32.0,
+      "questions": []
+    },
+    {
+      "id": "sub_hist_p5",
+      "studentId": "STU-101",
+      "studentName": "Anup Sharma",
+      "board": "CBSE (All India)",
+      "className": "Class 9th",
+      "subject": "Physics",
+      "subjectName": "Physics",
+      "topic": "Sound Waves & Frequency Calculations",
+      "totalMax": 20.0,
+      "totalAwarded": 15.0,
+      "status": "RELEASED",
+      "evaluatorTeacher": "Ankur",
+      "evaluatorTeacherId": "TCH-201",
+      "submittedAt": "2026-07-28T14:00:00Z",
+      "releasedAt": "2026-07-28T14:28:00Z",
+      "turnaroundMinutes": 28.0,
+      "questions": []
+    },
+    {
+      "id": "sub_hist_p6",
+      "studentId": "STU-102",
+      "studentName": "Nandita Roy",
+      "board": "ICSE / CISCE",
+      "className": "Class 9th",
+      "subject": "Physics",
+      "subjectName": "Physics",
+      "topic": "Momentum & Collisions Lab",
+      "totalMax": 20.0,
+      "totalAwarded": 18.0,
+      "status": "ACCEPTED",
+      "evaluatorTeacher": "Ankur",
+      "evaluatorTeacherId": "TCH-201",
+      "submittedAt": "2026-10-11T14:00:00Z",
+      "releasedAt": "2026-10-11T14:15:00Z",
+      "turnaroundMinutes": 15.0,
+      "questions": []
+    },
+    {
+      "id": "sub_hist_c1",
+      "studentId": "STU-101",
+      "studentName": "Anup Sharma",
+      "board": "CBSE (All India)",
+      "className": "Class 9th",
+      "subject": "Chemistry",
+      "subjectName": "Chemistry",
+      "topic": "Evaporation & Latent Heat of Vaporization",
+      "totalMax": 20.0,
+      "totalAwarded": 17.0,
+      "status": "ACCEPTED",
+      "evaluatorTeacher": "Akanksha",
+      "evaluatorTeacherId": "TCH-202",
+      "submittedAt": "2026-01-09T14:00:00Z",
+      "releasedAt": "2026-01-09T14:22:00Z",
+      "turnaroundMinutes": 22.0,
+      "questions": []
+    },
+    {
+      "id": "sub_hist_c2",
+      "studentId": "STU-102",
+      "studentName": "Nandita Roy",
+      "board": "ICSE / CISCE",
+      "className": "Class 9th",
+      "subject": "Chemistry",
+      "subjectName": "Chemistry",
+      "topic": "States of Matter & Phase Transitions",
+      "totalMax": 20.0,
+      "totalAwarded": 19.5,
+      "status": "ACCEPTED",
+      "evaluatorTeacher": "Akanksha",
+      "evaluatorTeacherId": "TCH-202",
+      "submittedAt": "2026-02-28T14:00:00Z",
+      "releasedAt": "2026-02-28T14:16:00Z",
+      "turnaroundMinutes": 16.0,
+      "questions": []
+    },
+    {
+      "id": "sub_hist_m1",
+      "studentId": "STU-101",
+      "studentName": "Anup Sharma",
+      "board": "CBSE (All India)",
+      "className": "Class 9th",
+      "subject": "Mathematics",
+      "subjectName": "Mathematics",
+      "topic": "Rational vs Irrational Numbers",
+      "totalMax": 20.0,
+      "totalAwarded": 18.0,
+      "status": "RELEASED",
+      "evaluatorTeacher": "Akanksha",
+      "evaluatorTeacherId": "TCH-202",
+      "submittedAt": "2026-04-29T14:00:00Z",
+      "releasedAt": "2026-04-29T14:35:00Z",
+      "turnaroundMinutes": 35.0,
+      "questions": []
+    },
+    {
+      "id": "sub_hist_c3",
+      "studentId": "STU-101",
+      "studentName": "Anup Sharma",
+      "board": "CBSE (All India)",
+      "className": "Class 9th",
+      "subject": "Chemistry",
+      "subjectName": "Chemistry",
+      "topic": "Atoms, Molecules & Chemical Formulas",
+      "totalMax": 20.0,
+      "totalAwarded": 16.5,
+      "status": "ACCEPTED",
+      "evaluatorTeacher": "Akanksha",
+      "evaluatorTeacherId": "TCH-202",
+      "submittedAt": "2026-06-28T14:00:00Z",
+      "releasedAt": "2026-06-28T14:25:00Z",
+      "turnaroundMinutes": 25.0,
+      "questions": []
+    },
+    {
+      "id": "sub_hist_m2",
+      "studentId": "STU-102",
+      "studentName": "Nandita Roy",
+      "board": "ICSE / CISCE",
+      "className": "Class 9th",
+      "subject": "Mathematics",
+      "subjectName": "Mathematics",
+      "topic": "Laws of Exponents & Polynomials",
+      "totalMax": 20.0,
+      "totalAwarded": 19.0,
+      "status": "ACCEPTED",
+      "evaluatorTeacher": "Akanksha",
+      "evaluatorTeacherId": "TCH-202",
+      "submittedAt": "2026-08-27T14:00:00Z",
+      "releasedAt": "2026-08-27T14:19:00Z",
+      "turnaroundMinutes": 19.0,
+      "questions": []
+    },
+    {
+      "id": "sub_hist_c4",
+      "studentId": "STU-102",
+      "studentName": "Nandita Roy",
+      "board": "ICSE / CISCE",
+      "className": "Class 9th",
+      "subject": "Chemistry",
+      "subjectName": "Chemistry",
+      "topic": "Structure of the Atom & Valence",
+      "totalMax": 20.0,
+      "totalAwarded": 18.0,
+      "status": "RELEASED",
+      "evaluatorTeacher": "Akanksha",
+      "evaluatorTeacherId": "TCH-202",
+      "submittedAt": "2026-10-26T14:00:00Z",
+      "releasedAt": "2026-10-26T14:27:00Z",
+      "turnaroundMinutes": 27.0,
+      "questions": []
+    },
+    {
+      "id": "sub_pend_p1",
+      "studentId": "STU-101",
+      "studentName": "Anup Sharma",
+      "board": "CBSE (All India)",
+      "className": "Class 9th",
+      "subject": "Physics",
+      "subjectName": "Physics",
+      "topic": "Force and Laws of Motion (Newton's 2nd Law)",
+      "totalMax": 20.0,
+      "totalAwarded": 14.0,
+      "status": "PENDING_TEACHER_RELEASE",
+      "submittedAt": "2026-11-25T11:45:00Z",
+      "releasedAt": null,
+      "turnaroundMinutes": null,
+      "questions": [
+        {
+          "question": "State Newton's Second Law of Motion. Derive F = ma with SI units.",
+          "max": 5.0,
+          "score": 3.5,
+          "student_ans": "Newton's Second Law states that rate of change of momentum is proportional to applied force. F = ma.",
+          "stepBreakdown": [
+            {
+              "stepNumber": 1,
+              "stepFocus": "Concept Formulation",
+              "marksAwarded": 1.5,
+              "maxMarks": 2.5,
+              "whyAwardedOrDeducted": "Stated proportionality accurately."
+            },
+            {
+              "stepNumber": 2,
+              "stepFocus": "Mathematical Derivation & Units",
+              "marksAwarded": 2.0,
+              "maxMarks": 2.5,
+              "whyAwardedOrDeducted": "Derived F = ma; SI unit of Newton specified."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "sub_pend_p2",
+      "studentId": "STU-102",
+      "studentName": "Nandita Roy",
+      "board": "ICSE / CISCE",
+      "className": "Class 9th",
+      "subject": "Physics",
+      "subjectName": "Physics",
+      "topic": "Momentum & Cricket Ball Impulse Question",
+      "totalMax": 20.0,
+      "totalAwarded": 15.5,
+      "status": "PENDING_TEACHER_RELEASE",
+      "submittedAt": "2026-11-25T08:20:00Z",
+      "releasedAt": null,
+      "turnaroundMinutes": null,
+      "questions": [
+        {
+          "question": "Why does a fielder pull his hands backward while catching a fast cricket ball?",
+          "max": 3.0,
+          "score": 2.5,
+          "student_ans": "Pulling hands back increases the time taken to bring ball to rest, thus reducing the rate of change of momentum and impact force on palms.",
+          "stepBreakdown": [
+            {
+              "stepNumber": 1,
+              "stepFocus": "Time Increase Explanation",
+              "marksAwarded": 1.5,
+              "maxMarks": 1.5,
+              "whyAwardedOrDeducted": "Clearly explained time factor."
+            },
+            {
+              "stepNumber": 2,
+              "stepFocus": "Force Formula Correlation",
+              "marksAwarded": 1.0,
+              "maxMarks": 1.5,
+              "whyAwardedOrDeducted": "Linked directly to F = dp/dt."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "sub_pend_c1",
+      "studentId": "STU-101",
+      "studentName": "Anup Sharma",
+      "board": "CBSE (All India)",
+      "className": "Class 9th",
+      "subject": "Chemistry",
+      "subjectName": "Chemistry",
+      "topic": "Evaporation & Factors Affecting Rate of Evaporation",
+      "totalMax": 20.0,
+      "totalAwarded": 16.0,
+      "status": "PENDING_TEACHER_RELEASE",
+      "submittedAt": "2026-11-25T12:50:00Z",
+      "releasedAt": null,
+      "turnaroundMinutes": null,
+      "questions": [
+        {
+          "question": "Define Evaporation. Explain four factors affecting evaporation with examples.",
+          "max": 5.0,
+          "score": 4.0,
+          "student_ans": "Evaporation is the transition of liquid into vapor below boiling point. Factors: Surface area, temperature, humidity, and wind speed.",
+          "stepBreakdown": [
+            {
+              "stepNumber": 1,
+              "stepFocus": "Definition",
+              "marksAwarded": 1.0,
+              "maxMarks": 1.0,
+              "whyAwardedOrDeducted": "Accurate surface phenomenon definition."
+            },
+            {
+              "stepNumber": 2,
+              "stepFocus": "Four Factors",
+              "marksAwarded": 3.0,
+              "maxMarks": 4.0,
+              "whyAwardedOrDeducted": "Listed all four; examples provided for three."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "sub_pend_m1",
+      "studentId": "STU-102",
+      "studentName": "Nandita Roy",
+      "board": "ICSE / CISCE",
+      "className": "Class 9th",
+      "subject": "Mathematics",
+      "subjectName": "Mathematics",
+      "topic": "Rationalizing the Denominator and Real Numbers",
+      "totalMax": 20.0,
+      "totalAwarded": 17.0,
+      "status": "PENDING_TEACHER_RELEASE",
+      "submittedAt": "2026-11-25T10:35:00Z",
+      "releasedAt": null,
+      "turnaroundMinutes": null,
+      "questions": [
+        {
+          "question": "Rationalize the denominator of 1 / (7 + 3*sqrt(2)).",
+          "max": 3.0,
+          "score": 3.0,
+          "student_ans": "Multiply numerator and denominator by conjugate (7 - 3*sqrt(2)). Result is (7 - 3*sqrt(2)) / 31.",
+          "stepBreakdown": [
+            {
+              "stepNumber": 1,
+              "stepFocus": "Conjugate Multiplication",
+              "marksAwarded": 1.5,
+              "maxMarks": 1.5,
+              "whyAwardedOrDeducted": "Correct conjugate chosen."
+            },
+            {
+              "stepNumber": 2,
+              "stepFocus": "Simplification",
+              "marksAwarded": 1.5,
+              "maxMarks": 1.5,
+              "whyAwardedOrDeducted": "Correct simplification using a^2 - b^2."
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "teachers": [
+    {
+      "id": "TCH-201",
+      "username": "Ankur",
+      "name": "Ankur Verma",
+      "role": "teacher",
+      "subjects": [
+        "Physics"
+      ],
+      "email": "ankur.verma@eduaegis.org",
+      "department": "Department of Physical Sciences"
+    },
+    {
+      "id": "TCH-202",
+      "username": "Akanksha",
+      "name": "Akanksha Singh",
+      "role": "teacher",
+      "subjects": [
+        "Chemistry",
+        "Mathematics"
+      ],
+      "email": "akanksha.singh@eduaegis.org",
+      "department": "Department of Chemical & Mathematical Sciences"
+    }
+  ]
+}
