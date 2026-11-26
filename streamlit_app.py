@@ -859,6 +859,26 @@ def update_user_password(username, new_pw):
             t["password"] = new_pw
     save_db(db)
 
+def get_all_users_list():
+    """Returns a unified list of all registered users (students, teachers, admin) with active passwords."""
+    user_map = {}
+    for uname, prof in DEFAULT_USERS.items():
+        user_map[uname] = dict(prof)
+    for s in db.get("students", []):
+        uname = s.get("username", s.get("name"))
+        if uname:
+            user_map[uname] = dict(s)
+    for t in db.get("teachers", []):
+        uname = t.get("username", t.get("name"))
+        if uname:
+            user_map[uname] = dict(t)
+    
+    result = []
+    for uname, u in user_map.items():
+        u["active_password"] = get_user_password(uname)
+        result.append(u)
+    return result
+
 # Helper to format duration
 def format_minutes(mins):
     if mins is None:
@@ -1368,7 +1388,8 @@ with st.sidebar:
         """, unsafe_allow_html=True)
 
     # In-App Password Update feature in Sidebar
-    with st.expander("🔑 Change Password", expanded=False):
+    pw_expander_title = "🔑 Change My Password" if user_role == "admin" else "🔑 Change Password"
+    with st.expander(pw_expander_title, expanded=False):
         chg_curr = st.text_input("Current Password", type="password", key="side_chg_curr")
         chg_new = st.text_input("New Password", type="password", key="side_chg_new")
         chg_conf = st.text_input("Confirm New Password", type="password", key="side_chg_conf")
@@ -1385,6 +1406,31 @@ with st.sidebar:
                 current_user["password"] = chg_new
                 st.session_state["logged_in_user"] = current_user
                 st.success("Password updated successfully!")
+
+    # Admin Quick Reset Any User Password in Sidebar
+    if user_role == "admin":
+        with st.expander("🔐 Reset Any User Password (Admin)", expanded=False):
+            st.caption("Super User Override: Reset password for any student or teacher upon request.")
+            sb_candidates = [u for u in get_all_users_list() if u.get("role") != "admin"]
+            if sb_candidates:
+                sb_labels = [f"{u.get('name')} ({u.get('id')} • {u.get('role').capitalize()})" for u in sb_candidates]
+                sb_idx = st.selectbox("Select User to Reset:", range(len(sb_labels)), format_func=lambda i: sb_labels[i], key="sb_adm_sel_user_idx")
+                sb_sel_user = sb_candidates[sb_idx]
+                sb_target_uname = sb_sel_user.get("username", sb_sel_user.get("name"))
+                sb_active_pw = get_user_password(sb_target_uname)
+                st.markdown(f"<div style='font-size: 12.5px; color: #475569; margin-bottom: 8px;'>Current Password: <code style='font-weight: 800; color: #1D4ED8; background: #EEF2FF; padding: 2px 7px; border-radius: 4px;'>{sb_active_pw}</code></div>", unsafe_allow_html=True)
+                sb_new_p = st.text_input(f"New Password for {sb_sel_user.get('name')}", type="password", key=f"sb_npw_{sb_target_uname}")
+                sb_conf_p = st.text_input("Confirm New Password", type="password", key=f"sb_cpw_{sb_target_uname}")
+                if st.button("💾 Save User Password", use_container_width=True, key=f"sb_btn_set_{sb_target_uname}"):
+                    if len(sb_new_p) < 4:
+                        st.error("Password must be at least 4 characters.")
+                    elif sb_new_p != sb_conf_p:
+                        st.error("New passwords do not match.")
+                    else:
+                        update_user_password(sb_target_uname, sb_new_p)
+                        st.success(f"Password updated for {sb_sel_user.get('name')}!")
+                        time.sleep(0.4)
+                        st.rerun()
 
     if st.button("🚪 Log Out", use_container_width=True):
         st.session_state["logged_in_user"] = None
@@ -2827,7 +2873,151 @@ if tab_admin is not None:
 
         st.markdown("<hr>", unsafe_allow_html=True)
 
-        # 4. Global Directory & User Management
+        # 4. Administrative User Credential & Password Management (Admin Can View & Change Any User's Password)
+        st.markdown("### 🔐 Administrative User Credential & Password Management")
+        st.caption("As Administrator, you have full authority to view and update/reset login passwords for any student or teacher upon request or security requirement.")
+
+        manageable_users = [u for u in get_all_users_list() if u.get("role") != "admin"]
+
+        col_admin_pw_left, col_admin_pw_right = st.columns([1.5, 2.5])
+
+        with col_admin_pw_left:
+            st.markdown("<div style='font-size: 14px; font-weight: 700; color: #1E293B; margin-bottom: 6px;'>1. Select Candidate or Faculty Profile:</div>", unsafe_allow_html=True)
+            adm_role_filter = st.selectbox(
+                "Filter by Role:",
+                ["All Users (Students & Teachers)", "Students Only", "Teachers Only"],
+                key="adm_tab_role_filter"
+            )
+
+            if adm_role_filter == "Students Only":
+                filtered_target_users = [u for u in manageable_users if u.get("role") == "student"]
+            elif adm_role_filter == "Teachers Only":
+                filtered_target_users = [u for u in manageable_users if u.get("role") == "teacher"]
+            else:
+                filtered_target_users = manageable_users
+
+            if not filtered_target_users:
+                st.info("No users found matching filter.")
+                selected_target_user = None
+            else:
+                target_user_labels = [
+                    f"{u.get('name')} ({u.get('id')} • {u.get('role').capitalize()} • {str(u.get('board') or u.get('department') or '').split(' ')[0]})"
+                    for u in filtered_target_users
+                ]
+                sel_idx = st.selectbox(
+                    "Choose Profile to View & Change Password:",
+                    range(len(filtered_target_users)),
+                    format_func=lambda i: target_user_labels[i],
+                    key="adm_tab_target_user_idx"
+                )
+                selected_target_user = filtered_target_users[sel_idx]
+
+            if selected_target_user:
+                t_uname = selected_target_user.get("username", selected_target_user.get("name"))
+                t_name = selected_target_user.get("name", t_uname)
+                t_id = selected_target_user.get("id", "N/A")
+                t_role = selected_target_user.get("role", "student")
+                t_email = selected_target_user.get("email", "Not provided")
+                t_board = selected_target_user.get("board") or selected_target_user.get("department", "Sciences")
+                t_current_pw = get_user_password(t_uname)
+
+                badge_style = "role-badge-student" if t_role == "student" else "role-badge-teacher"
+
+                st.markdown(f"""
+                <div style="background: #FFFFFF; border: 1.5px solid #CBD5E1; border-radius: 12px; padding: 14px 16px; margin-top: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <div>
+                            <span style="font-size: 15px; font-weight: 800; color: #0F172A;">{t_name}</span>
+                            <span style="font-size: 12px; font-weight: 700; color: #475569; margin-left: 6px;">({t_id})</span>
+                        </div>
+                        <span class="{badge_style}" style="padding: 2px 8px; border-radius: 999px;">{t_role.capitalize()}</span>
+                    </div>
+                    <div style="font-size: 12.5px; color: #475569; line-height: 1.5;">
+                        👤 <strong>Login Username:</strong> <code>{t_uname}</code><br>
+                        📧 <strong>Email:</strong> {t_email}<br>
+                        🏛️ <strong>Affiliation:</strong> {t_board}
+                    </div>
+                    <div style="margin-top: 10px; padding: 10px 12px; background: #F1F5F9; border-radius: 8px; border: 1px solid #E2E8F0; display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 12.5px; font-weight: 700; color: #1E293B;">🔑 Current Active Password:</span>
+                        <code style="font-size: 14px; font-weight: 800; background: #EEF2FF; color: #1D4ED8; padding: 4px 10px; border-radius: 6px; border: 1px solid #BFDBFE;">{t_current_pw}</code>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+
+        with col_admin_pw_right:
+            if selected_target_user:
+                st.markdown(f"<div style='font-size: 14px; font-weight: 700; color: #1E293B; margin-bottom: 6px;'>2. Set New Password for {t_name} ({t_id}):</div>", unsafe_allow_html=True)
+                
+                with st.form(key=f"adm_pw_form_{t_uname}"):
+                    col_p1, col_p2 = st.columns(2)
+                    with col_p1:
+                        adm_new_pw = st.text_input(
+                            "New Password *",
+                            type="password",
+                            placeholder="Min 4 characters",
+                            key=f"adm_form_npw_{t_uname}",
+                            help=f"Enter the new password to assign to {t_name} ({t_uname})."
+                        )
+                    with col_p2:
+                        adm_conf_pw = st.text_input(
+                            "Confirm New Password *",
+                            type="password",
+                            placeholder="Re-enter new password",
+                            key=f"adm_form_cpw_{t_uname}"
+                        )
+
+                    btn_submit_pw = st.form_submit_button("🔐 Enforce & Update Password Immediately", type="primary", use_container_width=True)
+
+                    if btn_submit_pw:
+                        if len(adm_new_pw) < 4:
+                            st.error("Password must be at least 4 characters long.")
+                        elif adm_new_pw != adm_conf_pw:
+                            st.error("New password and confirmation password do not match.")
+                        else:
+                            update_user_password(t_uname, adm_new_pw)
+                            st.success(f"🎉 Password successfully updated for {t_name} ({t_id})! New active password: '{adm_new_pw}'. The user can now immediately log in with this password.")
+                            time.sleep(0.5)
+                            st.rerun()
+
+                # Quick 1-Click Reset to Institutional Default
+                col_rst1, col_rst2 = st.columns([1.5, 1])
+                with col_rst1:
+                    if st.button(f"🔄 1-Click Reset {t_name}'s Password to 'eduaegis123'", key=f"btn_quick_rst_{t_uname}", use_container_width=True):
+                        update_user_password(t_uname, "eduaegis123")
+                        st.success(f"Reset password for {t_name} to institutional default: 'eduaegis123'!")
+                        time.sleep(0.4)
+                        st.rerun()
+                with col_rst2:
+                    st.caption("Standard institutional recovery protocol.")
+
+        # Master Credential Directory & Viewer Table
+        st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
+        with st.expander("📋 Master Institutional Credentials Directory & Passwords Viewer (All Users)", expanded=False):
+            st.caption("Institutional security audit table displaying all active accounts with their current login passwords.")
+            show_plain_pw = st.checkbox("👁️ Reveal Plaintext Passwords in Master Table (Security Clearance Active)", value=True, key="chk_reveal_master_pw")
+
+            all_master_rows = []
+            for u in manageable_users:
+                u_un = u.get("username", u.get("name"))
+                act_pw = get_user_password(u_un)
+                display_pw = act_pw if show_plain_pw else "••••••••"
+                all_master_rows.append({
+                    "User ID": u.get("id", "N/A"),
+                    "Full Name": u.get("name", u_un),
+                    "Login Username": u_un,
+                    "Role": u.get("role", "student").capitalize(),
+                    "Curriculum Board / Department": u.get("board") or u.get("department", "Sciences"),
+                    "Email Address": u.get("email", "N/A"),
+                    "Active Password": display_pw,
+                    "Account Status": "🟢 Active"
+                })
+
+            df_master_cred = pd.DataFrame(all_master_rows)
+            st.dataframe(df_master_cred, use_container_width=True, hide_index=True)
+
+        st.markdown("<hr>", unsafe_allow_html=True)
+
+        # 5. Global Directory & User Management
         with st.expander("👥 Institutional Directory: Registered Students & Faculty IDs", expanded=False):
             col_reg1, col_reg2 = st.columns(2)
             with col_reg1:
