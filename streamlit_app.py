@@ -79,14 +79,46 @@ st.markdown(f"""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
     
+    :root {{
+        color-scheme: light !important;
+    }}
+
+    @media (prefers-color-scheme: dark) {{
+        :root {{
+            color-scheme: light !important;
+        }}
+        body, .stApp, [data-testid="stAppViewContainer"] {{
+            background-color: #F8FAFC !important;
+            color: #0F172A !important;
+        }}
+    }}
+
     html, body, [class*="css"] {{
-        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+        -webkit-font-smoothing: antialiased;
+        color: #0F172A !important;
+    }}
+
+    /* Universal Text Readability - Guarantees dark text on light backgrounds across all mobile browsers */
+    .stApp, p, span, label, div, h1, h2, h3, h4, h5, h6,
+    [data-testid="stMarkdownContainer"] p, 
+    [data-testid="stMarkdownContainer"] span,
+    [data-testid="stMarkdownContainer"] div,
+    [data-testid="stMarkdownContainer"] li,
+    [data-testid="stMarkdownContainer"] strong,
+    [data-testid="stMarkdownContainer"] em {{
+        color: #0F172A !important;
+    }}
+
+    .stCaption, [data-testid="stCaptionContainer"] p, [data-testid="stCaptionContainer"] * {{
+        color: #475569 !important;
+        font-size: 13px !important;
     }}
 
     /* Global Space Optimization - Eliminates excessive top whitespace */
     .block-container {{
-        padding-top: 0.7rem !important;
-        padding-bottom: 1.5rem !important;
+        padding-top: 0.8rem !important;
+        padding-bottom: 2rem !important;
         padding-left: 1.5rem !important;
         padding-right: 1.5rem !important;
         max-width: 98% !important;
@@ -99,7 +131,7 @@ st.markdown(f"""
 
     /* Atmospheric Watermark Background with Soft Ambient Mesh */
     .stApp {{
-        background-color: #F8FAFC;
+        background-color: #F8FAFC !important;
         background-image: 
             radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.08) 0px, transparent 45%),
             radial-gradient(at 100% 0%, rgba(16, 185, 129, 0.07) 0px, transparent 45%),
@@ -112,97 +144,96 @@ st.markdown(f"""
     
     /* Sleek, Space-Optimized Header */
     .aegis-header {{
-        background: linear-gradient(135deg, #0F172A 0%, #1E1B4B 45%, #312E81 85%, #0F172A 100%);
-        padding: 10px 18px;
-        border-radius: 14px;
-        color: white;
-        margin-bottom: 10px;
-        border: 1px solid rgba(99, 102, 241, 0.35);
-        box-shadow: 0 4px 15px -3px rgba(15, 23, 42, 0.2);
+        background: linear-gradient(135deg, #0F172A 0%, #1E1B4B 45%, #1E3A8A 85%, #0F172A 100%) !important;
+        padding: 12px 20px !important;
+        border-radius: 14px !important;
+        color: #FFFFFF !important;
+        margin-bottom: 12px !important;
+        border: 1px solid rgba(99, 102, 241, 0.4) !important;
+        box-shadow: 0 4px 15px -3px rgba(15, 23, 42, 0.25) !important;
     }}
     
     .aegis-title {{
-        font-size: 19px;
-        font-weight: 800;
-        letter-spacing: -0.3px;
-        color: #FFFFFF;
-        display: flex;
-        align-items: center;
-        gap: 8px;
+        font-size: 20px !important;
+        font-weight: 800 !important;
+        letter-spacing: -0.3px !important;
+        color: #FFFFFF !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
     }}
     
     .aegis-badge {{
-        background: rgba(16, 185, 129, 0.2);
-        color: #34D399;
-        font-size: 10.5px;
-        font-weight: 700;
-        padding: 3px 9px;
-        border-radius: 9999px;
-        border: 1px solid rgba(16, 185, 129, 0.4);
-        text-transform: uppercase;
-        letter-spacing: 0.4px;
+        background: rgba(16, 185, 129, 0.2) !important;
+        color: #34D399 !important;
+        font-size: 12px !important;
+        font-weight: 700 !important;
+        padding: 3px 10px !important;
+        border-radius: 9999px !important;
+        border: 1px solid rgba(16, 185, 129, 0.4) !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.4px !important;
     }}
 
     .role-badge-student {{
-        background: #EFF6FF;
-        color: #1D4ED8;
-        font-size: 10px;
-        font-weight: 700;
-        padding: 2px 8px;
-        border-radius: 9999px;
-        border: 1px solid #BFDBFE;
+        background: #EFF6FF !important;
+        color: #1D4ED8 !important;
+        font-size: 12px !important;
+        font-weight: 700 !important;
+        padding: 3px 10px !important;
+        border-radius: 9999px !important;
+        border: 1px solid #BFDBFE !important;
     }}
 
     .role-badge-teacher {{
-        background: #ECFDF5;
-        color: #047857;
-        font-size: 10px;
-        font-weight: 700;
-        padding: 2px 8px;
-        border-radius: 9999px;
-        border: 1px solid #A7F3D0;
+        background: #ECFDF5 !important;
+        color: #047857 !important;
+        font-size: 12px !important;
+        font-weight: 700 !important;
+        padding: 3px 10px !important;
+        border-radius: 9999px !important;
+        border: 1px solid #A7F3D0 !important;
     }}
 
     .role-badge-admin {{
-        background: #FAF5FF;
-        color: #7E22CE;
-        font-size: 10px;
-        font-weight: 700;
-        padding: 2px 8px;
-        border-radius: 9999px;
-        border: 1px solid #E9D5FF;
+        background: #FAF5FF !important;
+        color: #7E22CE !important;
+        font-size: 12px !important;
+        font-weight: 700 !important;
+        padding: 3px 10px !important;
+        border-radius: 9999px !important;
+        border: 1px solid #E9D5FF !important;
     }}
     
     .aegis-subtext {{
-        font-size: 11.5px;
-        color: #CBD5E1;
-        margin-top: 2px;
-        line-height: 1.35;
+        font-size: 13px !important;
+        color: #CBD5E1 !important;
+        margin-top: 3px !important;
+        line-height: 1.4 !important;
     }}
     
     /* Compact Persistent Board Pill */
     .board-pill {{
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-        background: #EEF2FF;
-        color: #4338CA;
-        font-weight: 700;
-        font-size: 11px;
-        padding: 4px 10px;
-        border-radius: 9999px;
-        border: 1px solid #C7D2FE;
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+        background: #EEF2FF !important;
+        color: #3730A3 !important;
+        font-weight: 700 !important;
+        font-size: 12.5px !important;
+        padding: 4px 12px !important;
+        border-radius: 9999px !important;
+        border: 1px solid #C7D2FE !important;
     }}
     
-    /* Solid Glassmorphism Card for 100% Crisp Readability */
+    /* Solid White Card for 100% Crisp Mobile & Desktop Readability */
     .soothing-card {{
-        background: rgba(255, 255, 255, 0.95) !important;
-        backdrop-filter: blur(12px) !important;
-        border: 1px solid rgba(226, 232, 240, 0.9) !important;
+        background: #FFFFFF !important;
+        border: 1.5px solid #E2E8F0 !important;
         border-radius: 14px !important;
-        padding: 14px 16px !important;
-        box-shadow: 0 4px 14px -2px rgba(15, 23, 42, 0.04) !important;
-        margin-bottom: 10px !important;
+        padding: 18px 20px !important;
+        box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.05) !important;
+        margin-bottom: 12px !important;
     }}
 
     /* Rich Profile Card with Decorative Background Illustration */
@@ -213,145 +244,240 @@ st.markdown(f"""
         background-position: center !important;
         border: 1px solid rgba(129, 140, 248, 0.45) !important;
         border-radius: 12px !important;
-        padding: 12px 14px !important;
-        margin-bottom: 8px !important;
+        padding: 14px 16px !important;
+        margin-bottom: 10px !important;
         box-shadow: 0 4px 14px rgba(15, 23, 42, 0.25) !important;
+        color: #FFFFFF !important;
+    }}
+    .sidebar-profile-card * {{
         color: #FFFFFF !important;
     }}
 
     /* Tighten Sidebar Padding */
     [data-testid="stSidebar"] {{
-        background: rgba(255, 255, 255, 0.96) !important;
+        background: #FFFFFF !important;
         border-right: 1px solid #E2E8F0 !important;
     }}
     [data-testid="stSidebar"] > div:first-child {{
-        padding-top: 0.8rem !important;
-        padding-left: 0.9rem !important;
-        padding-right: 0.9rem !important;
+        padding-top: 1rem !important;
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
     }}
 
     /* ========================================================================= */
-    /* BLUE BOX SPREAD-ACROSS TABS (100% WIDTH EQUALLY DIVIDED IRRESPECTIVE OF COUNT) */
+    /* BLUE BOX SPREAD-ACROSS TABS (RESPONSIVE, NEVER TRUNCATES) */
     /* ========================================================================= */
     .stTabs [data-baseweb="tab-list"] {{
         display: flex !important;
         width: 100% !important;
-        background: linear-gradient(135deg, #1E1B4B 0%, #1D4ED8 50%, #2563EB 100%) !important;
-        padding: 5px !important;
+        background: linear-gradient(135deg, #0F172A 0%, #1E3A8A 50%, #2563EB 100%) !important;
+        padding: 6px !important;
         border-radius: 12px !important;
         border: 1px solid rgba(99, 102, 241, 0.4) !important;
         gap: 6px !important;
-        box-shadow: 0 4px 14px rgba(29, 78, 216, 0.2) !important;
-        margin-bottom: 12px !important;
+        box-shadow: 0 4px 14px rgba(29, 78, 216, 0.18) !important;
+        margin-bottom: 14px !important;
+        flex-wrap: wrap !important;
     }}
     
     .stTabs [data-baseweb="tab"] {{
-        flex: 1 1 0 !important;
-        width: 100% !important;
-        max-width: 100% !important;
+        flex: 1 1 auto !important;
+        min-width: 140px !important;
         text-align: center !important;
         justify-content: center !important;
         border-radius: 8px !important;
-        padding: 8px 8px !important;
+        padding: 10px 18px !important;
         color: #E2E8F0 !important;
         font-weight: 700 !important;
-        font-size: 12.5px !important;
+        font-size: 13.5px !important;
         background: transparent !important;
         border: none !important;
-        white-space: nowrap !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
+        white-space: normal !important; /* CRITICAL: Never truncate text with ellipsis! */
+        word-break: normal !important;
+        overflow: visible !important;
+        text-overflow: unset !important;
         transition: all 0.2s ease-in-out !important;
     }}
 
+    .stTabs [data-baseweb="tab"],
+    .stTabs [data-baseweb="tab"] > div,
+    .stTabs [data-baseweb="tab"] p,
+    .stTabs [data-baseweb="tab"] span,
+    .stTabs [data-baseweb="tab"] * {{
+        white-space: normal !important;
+        overflow: visible !important;
+        text-overflow: unset !important;
+        word-break: normal !important;
+    }}
+
     .stTabs [data-baseweb="tab"]:hover {{
-        background: rgba(255, 255, 255, 0.18) !important;
+        background: rgba(255, 255, 255, 0.2) !important;
         color: #FFFFFF !important;
     }}
 
     .stTabs [aria-selected="true"] {{
         background: #FFFFFF !important;
-        color: #1E1B4B !important;
+        color: #0F172A !important;
         font-weight: 800 !important;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25) !important;
+    }}
+    .stTabs [aria-selected="true"] * {{
+        color: #0F172A !important;
+        -webkit-text-fill-color: #0F172A !important;
+    }}
+    .stTabs [aria-selected="false"] {{
+        color: #E2E8F0 !important;
+    }}
+    .stTabs [aria-selected="false"] * {{
+        color: #E2E8F0 !important;
+        -webkit-text-fill-color: #E2E8F0 !important;
     }}
 
     /* Vibrant Compact KPI Summary Cards */
     .kpi-box {{
-        background: rgba(255, 255, 255, 0.95);
-        border: 1px solid #E2E8F0;
-        border-radius: 12px;
-        padding: 10px 14px;
-        text-align: center;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+        background: #FFFFFF !important;
+        border: 1px solid #E2E8F0 !important;
+        border-radius: 12px !important;
+        padding: 12px 16px !important;
+        text-align: center !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.03) !important;
     }}
     .kpi-num {{
-        font-size: 22px;
-        font-weight: 800;
-        color: #0F172A;
+        font-size: 22px !important;
+        font-weight: 800 !important;
+        color: #0F172A !important;
     }}
     .kpi-label {{
-        font-size: 11px;
-        font-weight: 600;
-        color: #64748B;
-        text-transform: uppercase;
-        letter-spacing: 0.4px;
-        margin-top: 2px;
+        font-size: 12px !important;
+        font-weight: 700 !important;
+        color: #475569 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.4px !important;
+        margin-top: 3px !important;
     }}
 
     /* Compact Timer Pill */
     .timer-pill {{
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-        background: #FFFBEB;
-        color: #B45309;
-        font-weight: 700;
-        font-size: 10.5px;
-        padding: 3px 8px;
-        border-radius: 9999px;
-        border: 1px solid #FDE68A;
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+        background: #FFFBEB !important;
+        color: #92400E !important;
+        font-weight: 700 !important;
+        font-size: 12px !important;
+        padding: 3px 9px !important;
+        border-radius: 9999px !important;
+        border: 1px solid #FDE68A !important;
     }}
     
     .blind-banner {{
-        background: #F0FDF4;
-        border: 1px solid #BBF7D0;
-        border-radius: 10px;
-        padding: 9px 12px;
-        color: #166534;
-        font-size: 12px;
-        font-weight: 600;
-        margin-bottom: 10px;
-        display: flex;
-        align-items: center;
-        gap: 6px;
+        background: #F0FDF4 !important;
+        border: 1px solid #BBF7D0 !important;
+        border-radius: 10px !important;
+        padding: 10px 14px !important;
+        color: #166534 !important;
+        font-size: 13px !important;
+        font-weight: 600 !important;
+        margin-bottom: 10px !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
     }}
 
     .step-item {{
-        background: #F8FAFC;
-        border: 1px solid #E2E8F0;
-        border-radius: 10px;
-        padding: 10px 14px;
-        margin-bottom: 6px;
+        background: #F8FAFC !important;
+        border: 1px solid #E2E8F0 !important;
+        border-radius: 10px !important;
+        padding: 12px 16px !important;
+        margin-bottom: 8px !important;
     }}
 
     .sidebar-resource-card {{
-        background: #FFFFFF;
-        border: 1px solid #E2E8F0;
-        border-radius: 8px;
-        padding: 8px 10px;
-        margin-bottom: 8px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.03);
-        transition: transform 0.15s ease, border-color 0.15s ease;
+        background: #FFFFFF !important;
+        border: 1px solid #E2E8F0 !important;
+        border-radius: 8px !important;
+        padding: 10px 12px !important;
+        margin-bottom: 10px !important;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.03) !important;
+        transition: transform 0.15s ease, border-color 0.15s ease !important;
     }}
     .sidebar-resource-card:hover {{
-        transform: translateY(-1px);
-        border-color: #93C5FD;
-        box-shadow: 0 3px 8px rgba(37,99,235,0.08);
+        transform: translateY(-1px) !important;
+        border-color: #93C5FD !important;
+        box-shadow: 0 3px 8px rgba(37,99,235,0.08) !important;
+    }}
+
+    /* Form Controls & Inputs - High Contrast & Clean Sizing */
+    input, textarea, [data-baseweb="input"] input, [data-baseweb="textarea"] textarea,
+    .stTextInput input, .stTextArea textarea {{
+        color: #0F172A !important;
+        -webkit-text-fill-color: #0F172A !important;
+        background-color: #FFFFFF !important;
+        border: 1.5px solid #CBD5E1 !important;
+        border-radius: 8px !important;
+        font-size: 14px !important;
+    }}
+    input:focus, textarea:focus {{
+        border-color: #2563EB !important;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
+    }}
+
+    /* Selectboxes and Dropdowns */
+    [data-baseweb="select"] > div {{
+        background-color: #FFFFFF !important;
+        color: #0F172A !important;
+        -webkit-text-fill-color: #0F172A !important;
+        border: 1.5px solid #CBD5E1 !important;
+        border-radius: 8px !important;
+        font-size: 14px !important;
+    }}
+    [data-baseweb="select"] * {{
+        color: #0F172A !important;
+        -webkit-text-fill-color: #0F172A !important;
+    }}
+    ul[role="listbox"], [data-baseweb="popover"] [role="listbox"] {{
+        background-color: #FFFFFF !important;
+        border: 1px solid #CBD5E1 !important;
+    }}
+    li[role="option"] {{
+        color: #0F172A !important;
+        -webkit-text-fill-color: #0F172A !important;
+        font-size: 14px !important;
+        background-color: #FFFFFF !important;
+    }}
+    li[role="option"]:hover, li[role="option"][aria-selected="true"] {{
+        background-color: #EFF6FF !important;
+        color: #1D4ED8 !important;
+        -webkit-text-fill-color: #1D4ED8 !important;
+    }}
+
+    /* Radio Buttons */
+    [data-testid="stRadio"] label, [data-testid="stRadio"] div, [data-testid="stRadio"] span, [data-testid="stRadio"] p {{
+        color: #0F172A !important;
+        -webkit-text-fill-color: #0F172A !important;
+        font-size: 14px !important;
+        font-weight: 600 !important;
+    }}
+
+    /* Primary Buttons */
+    button[kind="primary"], .stButton > button[kind="primary"] {{
+        background: linear-gradient(135deg, #1D4ED8 0%, #2563EB 100%) !important;
+        color: #FFFFFF !important;
+        font-weight: 700 !important;
+        font-size: 14px !important;
+        border-radius: 8px !important;
+        padding: 9px 18px !important;
+        border: none !important;
+        box-shadow: 0 2px 8px rgba(37,99,235,0.25) !important;
+    }}
+    button[kind="primary"]:hover, .stButton > button[kind="primary"]:hover {{
+        background: linear-gradient(135deg, #1E40AF 0%, #1D4ED8 100%) !important;
+        box-shadow: 0 4px 12px rgba(37,99,235,0.35) !important;
     }}
 
     hr {{
-        margin: 10px 0 !important;
+        margin: 12px 0 !important;
+        border-color: #E2E8F0 !important;
     }}
 </style>
 """, unsafe_allow_html=True)
@@ -940,16 +1066,16 @@ if "logged_in_user" not in st.session_state:
 # If not logged in, render the Login Screen
 if st.session_state["logged_in_user"] is None:
     st.markdown("""
-    <div style="max-width: 600px; margin: 30px auto 14px auto; text-align: center;">
+    <div style="max-width: 780px; margin: 25px auto 16px auto; text-align: center;">
         <div style="font-size: 34px;">🛡️</div>
         <h1 style="font-size: 26px; font-weight: 800; color: #0F172A; margin-bottom: 4px;">Welcome to EduAegis</h1>
-        <p style="color: #64748B; font-size: 13.5px; margin-bottom: 16px;">
+        <p style="color: #475569; font-size: 14.5px; margin-bottom: 16px;">
             Responsible AI Tutor & Governed Grader • Role-Based Authentication Portal
         </p>
     </div>
     """, unsafe_allow_html=True)
 
-    col_space1, col_login, col_space2 = st.columns([1, 2, 1])
+    col_space1, col_login, col_space2 = st.columns([0.08, 3.84, 0.08])
 
     with col_login:
         tab_auth_signin, tab_auth_signup = st.tabs(["🔐 Sign In to Portal", "📝 Sign Up / Create New Profile"])
@@ -957,7 +1083,7 @@ if st.session_state["logged_in_user"] is None:
         with tab_auth_signin:
             st.markdown("""
             <div class="soothing-card" style="border: 2px solid #E0E7FF; box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.12);">
-                <div style="font-size: 15px; font-weight: 700; color: #1E1B4B; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
+                <div style="font-size: 16px; font-weight: 700; color: #1E1B4B; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
                     <span>🔐 Access Your Portal</span>
                 </div>
             """, unsafe_allow_html=True)
@@ -1029,8 +1155,8 @@ if st.session_state["logged_in_user"] is None:
                         update_user_password(rst_user, rst_new)
                         st.success(f"Password updated successfully for {rst_user}! You can now log in.")
 
-            st.markdown("<hr style='margin: 10px 0;'>", unsafe_allow_html=True)
-            st.markdown("<div style='font-size: 11px; font-weight: 700; color: #475569; margin-bottom: 6px;'>⚡ Quick Persona Switch:</div>", unsafe_allow_html=True)
+            st.markdown("<hr style='margin: 12px 0;'>", unsafe_allow_html=True)
+            st.markdown("<div style='font-size: 13px; font-weight: 700; color: #334155; margin-bottom: 8px;'>⚡ Quick Persona Switch:</div>", unsafe_allow_html=True)
             col_q1, col_q2 = st.columns(2)
             with col_q1:
                 if st.button("👤 Anup (Student - CBSE)", use_container_width=True):
@@ -1058,7 +1184,7 @@ if st.session_state["logged_in_user"] is None:
                 <div style="font-size: 15px; font-weight: 700; color: #064E3B; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
                     <span>📝 Sign Up / Register New Profile</span>
                 </div>
-                <div style="font-size: 12px; color: #64748B; margin-bottom: 12px;">
+                <div style="font-size: 13.5px; color: #475569; margin-bottom: 12px; line-height: 1.45;">
                     Create an institutional profile to access AI tutoring, dynamic rubrics, and automated evaluations.
                 </div>
             """, unsafe_allow_html=True)
@@ -1200,10 +1326,10 @@ with st.sidebar:
         st.markdown(f"""
         <div class="sidebar-profile-card">
             <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span style="font-weight: 800; font-size: 13.5px; color: #FFFFFF;">👤 {current_user.get('name')}</span>
+                <span style="font-weight: 800; font-size: 15px; color: #FFFFFF;">👤 {current_user.get('name')}</span>
                 <span class="role-badge-student" style="background: rgba(255,255,255,0.2); color: #93C5FD; border-color: #60A5FA;">Student</span>
             </div>
-            <div style="font-size: 11px; color: #E0E7FF; margin-top: 4px;">
+            <div style="font-size: 12.5px; color: #E0E7FF; margin-top: 5px; line-height: 1.45;">
                 <code>{current_user.get('id')}</code> • Class {current_user.get('studentClass', 9)}th • {current_user.get('board', 'CBSE').split(' ')[0]}<br>
                 📍 {current_user.get('cityState', 'Bangalore')}
             </div>
@@ -1215,15 +1341,15 @@ with st.sidebar:
         st.markdown(f"""
         <div class="sidebar-profile-card">
             <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span style="font-weight: 800; font-size: 13.5px; color: #FFFFFF;">🛡️ {current_user.get('name')}</span>
+                <span style="font-weight: 800; font-size: 15px; color: #FFFFFF;">🛡️ {current_user.get('name')}</span>
                 <span class="role-badge-teacher" style="background: rgba(16,185,129,0.25); color: #6EE7B7; border-color: #34D399;">Teacher</span>
             </div>
-            <div style="font-size: 11px; color: #E0E7FF; margin-top: 4px;">
+            <div style="font-size: 12.5px; color: #E0E7FF; margin-top: 5px; line-height: 1.45;">
                 <code>{current_user.get('id')}</code> • Domain: <strong>{subj_list}</strong><br>
                 {current_user.get('department', 'Academic Faculty')}
             </div>
         </div>
-        <div class="blind-banner" style="font-size: 10.5px; padding: 5px 9px; margin-bottom: 8px;">
+        <div class="blind-banner">
             🔒 <strong>Blind Evaluation:</strong> Student names masked.
         </div>
         """, unsafe_allow_html=True)
@@ -1232,10 +1358,10 @@ with st.sidebar:
         st.markdown(f"""
         <div class="sidebar-profile-card">
             <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span style="font-weight: 800; font-size: 13.5px; color: #FFFFFF;">👑 {current_user.get('name')}</span>
+                <span style="font-weight: 800; font-size: 15px; color: #FFFFFF;">👑 {current_user.get('name')}</span>
                 <span class="role-badge-admin" style="background: rgba(168,85,247,0.25); color: #D8B4FE; border-color: #C084FC;">Admin</span>
             </div>
-            <div style="font-size: 11px; color: #E0E7FF; margin-top: 4px;">
+            <div style="font-size: 12.5px; color: #E0E7FF; margin-top: 5px; line-height: 1.45;">
                 <code>{current_user.get('id')}</code> • Super User (Executive Governance)
             </div>
         </div>
@@ -1275,9 +1401,9 @@ with st.sidebar:
         board_short = "CBSE" if "CBSE" in stu_board else ("ICSE" if "ICSE" in stu_board else "State Board")
 
         st.markdown(f"""
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-            <span style="font-weight: 800; font-size: 12.5px; color: #1E293B; letter-spacing: 0.3px;">📚 NCERT & Reference Books</span>
-            <span style="font-size: 9.5px; background: #EFF6FF; color: #1D4ED8; font-weight: 700; padding: 2px 7px; border-radius: 999px; border: 1px solid #BFDBFE;">Class {stu_class}th • {board_short}</span>
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+            <span style="font-weight: 800; font-size: 13.5px; color: #1E293B; letter-spacing: 0.3px;">📚 NCERT & Reference Books</span>
+            <span style="font-size: 12.5px; background: #EFF6FF; color: #1D4ED8; font-weight: 700; padding: 3px 8px; border-radius: 999px; border: 1px solid #BFDBFE;">Class {stu_class}th • {board_short}</span>
         </div>
         """, unsafe_allow_html=True)
 
@@ -1296,52 +1422,52 @@ with st.sidebar:
 
         st.markdown(f"""
         <div class="sidebar-resource-card">
-            <div style="display: flex; gap: 8px; align-items: flex-start;">
-                <span style="font-size: 16px;">📘</span>
+            <div style="display: flex; gap: 10px; align-items: flex-start;">
+                <span style="font-size: 18px;">📘</span>
                 <div style="flex: 1;">
-                    <div style="font-weight: 700; font-size: 11px; color: #0F172A;">NCERT Science Textbook (Class {stu_class}th)</div>
-                    <div style="font-size: 9.5px; color: #64748B;">{sci_desc}</div>
-                    <div style="margin-top: 4px;">
-                        <a href="https://ncert.nic.in/textbook.php?{ncert_sci_code}" target="_blank" style="text-decoration:none; font-size: 10px; font-weight: 700; color: #1D4ED8; background: #EFF6FF; padding: 2px 7px; border-radius: 4px; border: 1px solid #BFDBFE;">📖 Open Official PDF</a>
+                    <div style="font-weight: 700; font-size: 13px; color: #0F172A;">NCERT Science Textbook (Class {stu_class}th)</div>
+                    <div style="font-size: 12.5px; color: #475569; margin-top: 2px;">{sci_desc}</div>
+                    <div style="margin-top: 5px;">
+                        <a href="https://ncert.nic.in/textbook.php?{ncert_sci_code}" target="_blank" style="text-decoration:none; font-size: 12.5px; font-weight: 700; color: #1D4ED8; background: #EFF6FF; padding: 4px 10px; border-radius: 4px; border: 1px solid #BFDBFE;">📖 Open Official PDF</a>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="sidebar-resource-card">
-            <div style="display: flex; gap: 8px; align-items: flex-start;">
-                <span style="font-size: 16px;">📐</span>
+            <div style="display: flex; gap: 10px; align-items: flex-start;">
+                <span style="font-size: 18px;">📐</span>
                 <div style="flex: 1;">
-                    <div style="font-weight: 700; font-size: 11px; color: #0F172A;">NCERT Mathematics (Class {stu_class}th)</div>
-                    <div style="font-size: 9.5px; color: #64748B;">Complete Theory, Solved Examples & Exercises</div>
-                    <div style="margin-top: 4px;">
-                        <a href="https://ncert.nic.in/textbook.php?{ncert_math_code}" target="_blank" style="text-decoration:none; font-size: 10px; font-weight: 700; color: #1D4ED8; background: #EFF6FF; padding: 2px 7px; border-radius: 4px; border: 1px solid #BFDBFE;">📖 Open Official PDF</a>
+                    <div style="font-weight: 700; font-size: 13px; color: #0F172A;">NCERT Mathematics (Class {stu_class}th)</div>
+                    <div style="font-size: 12.5px; color: #475569; margin-top: 2px;">Complete Theory, Solved Examples & Exercises</div>
+                    <div style="margin-top: 5px;">
+                        <a href="https://ncert.nic.in/textbook.php?{ncert_math_code}" target="_blank" style="text-decoration:none; font-size: 12.5px; font-weight: 700; color: #1D4ED8; background: #EFF6FF; padding: 4px 10px; border-radius: 4px; border: 1px solid #BFDBFE;">📖 Open Official PDF</a>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="sidebar-resource-card">
-            <div style="display: flex; gap: 8px; align-items: flex-start;">
-                <span style="font-size: 16px;">🔬</span>
+            <div style="display: flex; gap: 10px; align-items: flex-start;">
+                <span style="font-size: 18px;">🔬</span>
                 <div style="flex: 1;">
-                    <div style="font-weight: 700; font-size: 11px; color: #0F172A;">NCERT Exemplar Problems</div>
-                    <div style="font-size: 9.5px; color: #64748B;">HOTS Questions, Numericals & Step Rubrics</div>
-                    <div style="margin-top: 4px;">
-                        <a href="https://ncert.nic.in/exemplar-problems.php" target="_blank" style="text-decoration:none; font-size: 10px; font-weight: 700; color: #047857; background: #ECFDF5; padding: 2px 7px; border-radius: 4px; border: 1px solid #A7F3D0;">🔬 View Exemplar</a>
+                    <div style="font-weight: 700; font-size: 13px; color: #0F172A;">NCERT Exemplar Problems</div>
+                    <div style="font-size: 12.5px; color: #475569; margin-top: 2px;">HOTS Questions, Numericals & Step Rubrics</div>
+                    <div style="margin-top: 5px;">
+                        <a href="https://ncert.nic.in/exemplar-problems.php" target="_blank" style="text-decoration:none; font-size: 12.5px; font-weight: 700; color: #047857; background: #ECFDF5; padding: 4px 10px; border-radius: 4px; border: 1px solid #A7F3D0;">🔬 View Exemplar</a>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="sidebar-resource-card">
-            <div style="display: flex; gap: 8px; align-items: flex-start;">
-                <span style="font-size: 16px;">🏛️</span>
+            <div style="display: flex; gap: 10px; align-items: flex-start;">
+                <span style="font-size: 18px;">🏛️</span>
                 <div style="flex: 1;">
-                    <div style="font-weight: 700; font-size: 11px; color: #0F172A;">DIKSHA National Portal</div>
-                    <div style="font-size: 9.5px; color: #64748B;">MoE Govt of India QR Interactive Textbooks</div>
-                    <div style="margin-top: 4px;">
-                        <a href="https://diksha.gov.in/" target="_blank" style="text-decoration:none; font-size: 10px; font-weight: 700; color: #6D28D9; background: #F5F3FF; padding: 2px 7px; border-radius: 4px; border: 1px solid #DDD6FE;">🌐 Open DIKSHA</a>
+                    <div style="font-weight: 700; font-size: 13px; color: #0F172A;">DIKSHA National Portal</div>
+                    <div style="font-size: 12.5px; color: #475569; margin-top: 2px;">MoE Govt of India QR Interactive Textbooks</div>
+                    <div style="margin-top: 5px;">
+                        <a href="https://diksha.gov.in/" target="_blank" style="text-decoration:none; font-size: 12.5px; font-weight: 700; color: #6D28D9; background: #F5F3FF; padding: 4px 10px; border-radius: 4px; border: 1px solid #DDD6FE;">🌐 Open DIKSHA</a>
                     </div>
                 </div>
             </div>
@@ -1387,49 +1513,49 @@ with st.sidebar:
 
     elif user_role == "teacher":
         st.markdown("""
-        <div style="font-weight: 800; font-size: 12.5px; color: #1E293B; margin-bottom: 8px;">
+        <div style="font-weight: 800; font-size: 13.5px; color: #1E293B; margin-bottom: 10px;">
             📚 Faculty Pedagogical References
         </div>
         <div class="sidebar-resource-card">
-            <div style="font-weight: 700; font-size: 11px; color: #0F172A;">NCERT Learning Outcomes Manual</div>
-            <div style="font-size: 9.5px; color: #64748B;">Competency-based pedagogical standards for Secondary stage.</div>
-            <div style="margin-top: 4px;">
-                <a href="https://ncert.nic.in/pdf/programmes/learning_outcomes_sec.pdf" target="_blank" style="text-decoration:none; font-size: 10px; font-weight: 700; color: #1D4ED8; background: #EFF6FF; padding: 2px 7px; border-radius: 4px; border: 1px solid #BFDBFE;">📋 View NCERT Guidelines</a>
+            <div style="font-weight: 700; font-size: 13px; color: #0F172A;">NCERT Learning Outcomes Manual</div>
+            <div style="font-size: 12.5px; color: #475569; margin-top: 2px;">Competency-based pedagogical standards for Secondary stage.</div>
+            <div style="margin-top: 5px;">
+                <a href="https://ncert.nic.in/pdf/programmes/learning_outcomes_sec.pdf" target="_blank" style="text-decoration:none; font-size: 12.5px; font-weight: 700; color: #1D4ED8; background: #EFF6FF; padding: 4px 10px; border-radius: 4px; border: 1px solid #BFDBFE;">📋 View NCERT Guidelines</a>
             </div>
         </div>
         <div class="sidebar-resource-card">
-            <div style="font-weight: 700; font-size: 11px; color: #0F172A;">Bloom's Taxonomy Rubrics Guide</div>
-            <div style="font-size: 9.5px; color: #64748B;">Framework for step-by-step subjective assessment and partial credits.</div>
-            <div style="margin-top: 4px;">
-                <a href="https://cbseacademic.nic.in/" target="_blank" style="text-decoration:none; font-size: 10px; font-weight: 700; color: #047857; background: #ECFDF5; padding: 2px 7px; border-radius: 4px; border: 1px solid #A7F3D0;">🎯 CBSE Assessment Manual</a>
+            <div style="font-weight: 700; font-size: 13px; color: #0F172A;">Bloom's Taxonomy Rubrics Guide</div>
+            <div style="font-size: 12.5px; color: #475569; margin-top: 2px;">Framework for step-by-step subjective assessment and partial credits.</div>
+            <div style="margin-top: 5px;">
+                <a href="https://cbseacademic.nic.in/" target="_blank" style="text-decoration:none; font-size: 12.5px; font-weight: 700; color: #047857; background: #ECFDF5; padding: 4px 10px; border-radius: 4px; border: 1px solid #A7F3D0;">🎯 CBSE Assessment Manual</a>
             </div>
         </div>
         <div class="sidebar-resource-card">
-            <div style="font-weight: 700; font-size: 11px; color: #0F172A;">NITI Aayog Responsible AI in Schools</div>
-            <div style="font-size: 9.5px; color: #64748B;">Human-in-the-Loop & blind evaluation governance protocols.</div>
-            <div style="margin-top: 4px;">
-                <a href="https://www.niti.gov.in/" target="_blank" style="text-decoration:none; font-size: 10px; font-weight: 700; color: #6D28D9; background: #F5F3FF; padding: 2px 7px; border-radius: 4px; border: 1px solid #DDD6FE;">⚖️ Governance Principles</a>
+            <div style="font-weight: 700; font-size: 13px; color: #0F172A;">NITI Aayog Responsible AI in Schools</div>
+            <div style="font-size: 12.5px; color: #475569; margin-top: 2px;">Human-in-the-Loop & blind evaluation governance protocols.</div>
+            <div style="margin-top: 5px;">
+                <a href="https://www.niti.gov.in/" target="_blank" style="text-decoration:none; font-size: 12.5px; font-weight: 700; color: #6D28D9; background: #F5F3FF; padding: 4px 10px; border-radius: 4px; border: 1px solid #DDD6FE;">⚖️ Governance Principles</a>
             </div>
         </div>
         """, unsafe_allow_html=True)
 
     else:  # Admin
         st.markdown("""
-        <div style="font-weight: 800; font-size: 12.5px; color: #1E293B; margin-bottom: 8px;">
+        <div style="font-weight: 800; font-size: 13.5px; color: #1E293B; margin-bottom: 10px;">
             📚 Institutional Governance Hub
         </div>
         <div class="sidebar-resource-card">
-            <div style="font-weight: 700; font-size: 11px; color: #0F172A;">DPDP Act 2023 Compliance Handbook</div>
-            <div style="font-size: 9.5px; color: #64748B;">Digital Personal Data Protection Act compliance requirements for minors.</div>
-            <div style="margin-top: 4px;">
-                <a href="https://www.meity.gov.in/content/digital-personal-data-protection-act-2023" target="_blank" style="text-decoration:none; font-size: 10px; font-weight: 700; color: #1D4ED8; background: #EFF6FF; padding: 2px 7px; border-radius: 4px; border: 1px solid #BFDBFE;">🛡️ DPDP Act 2023 Official</a>
+            <div style="font-weight: 700; font-size: 13px; color: #0F172A;">DPDP Act 2023 Compliance Handbook</div>
+            <div style="font-size: 12.5px; color: #475569; margin-top: 2px;">Digital Personal Data Protection Act compliance requirements for minors.</div>
+            <div style="margin-top: 5px;">
+                <a href="https://www.meity.gov.in/content/digital-personal-data-protection-act-2023" target="_blank" style="text-decoration:none; font-size: 12.5px; font-weight: 700; color: #1D4ED8; background: #EFF6FF; padding: 4px 10px; border-radius: 4px; border: 1px solid #BFDBFE;">🛡️ DPDP Act 2023 Official</a>
             </div>
         </div>
         <div class="sidebar-resource-card">
-            <div style="font-weight: 700; font-size: 11px; color: #0F172A;">NEP 2020 Pedagogical Framework</div>
-            <div style="font-size: 9.5px; color: #64748B;">National Education Policy 5+3+3+4 curriculum & evaluation reforms.</div>
-            <div style="margin-top: 4px;">
-                <a href="https://www.education.gov.in/sites/upload_files/mhrd/files/NEP_Final_English_0.pdf" target="_blank" style="text-decoration:none; font-size: 10px; font-weight: 700; color: #047857; background: #ECFDF5; padding: 2px 7px; border-radius: 4px; border: 1px solid #A7F3D0;">🏛️ NEP 2020 Document</a>
+            <div style="font-weight: 700; font-size: 13px; color: #0F172A;">NEP 2020 Pedagogical Framework</div>
+            <div style="font-size: 12.5px; color: #475569; margin-top: 2px;">National Education Policy 5+3+3+4 curriculum & evaluation reforms.</div>
+            <div style="margin-top: 5px;">
+                <a href="https://www.education.gov.in/sites/upload_files/mhrd/files/NEP_Final_English_0.pdf" target="_blank" style="text-decoration:none; font-size: 12.5px; font-weight: 700; color: #047857; background: #ECFDF5; padding: 4px 10px; border-radius: 4px; border: 1px solid #A7F3D0;">🏛️ NEP 2020 Document</a>
             </div>
         </div>
         """, unsafe_allow_html=True)
@@ -1449,7 +1575,7 @@ with col_head_left:
                 <span style="font-size: 20px;">🛡️</span>
                 <span class="aegis-title">EduAegis</span>
                 <span class="aegis-badge">AI Tutor & Governed Grader</span>
-                <span style="font-size: 10.5px; background: rgba(255,255,255,0.18); color: #E2E8F0; padding: 2px 7px; border-radius: 999px; font-weight: 600;">{role_display}</span>
+                <span style="font-size: 12px; background: rgba(255,255,255,0.18); color: #E2E8F0; padding: 3px 9px; border-radius: 999px; font-weight: 600;">{role_display}</span>
             </div>
         </div>
         <div class="aegis-subtext">
@@ -1718,14 +1844,14 @@ if tab_grader is not None:
             display_obj_set_num = (active_obj_idx % total_obj_sets) + 1
 
             st.markdown(f"""
-            <div style="display: flex; justify-content: space-between; align-items: center; background: #F8FAFC; border-left: 4px solid #10B981; border-radius: 6px; padding: 7px 14px; margin-bottom: 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; background: #F8FAFC; border-left: 4px solid #10B981; border-radius: 8px; padding: 10px 16px; margin-bottom: 14px;">
                 <div>
-                    <span style="font-weight: 800; font-size: 12.5px; color: #1E293B;">📄 Objective Set {display_obj_set_num} of {total_obj_sets}:</span>
-                    <span style="font-size: 12px; color: #059669; font-weight: 700;"> {active_obj_title}</span>
-                    <span style="font-size: 11px; color: #64748B;"> (Class {g_class}th • {g_subject})</span>
+                    <span style="font-weight: 800; font-size: 13.5px; color: #1E293B;">📄 Objective Set {display_obj_set_num} of {total_obj_sets}:</span>
+                    <span style="font-size: 13px; color: #059669; font-weight: 700;"> {active_obj_title}</span>
+                    <span style="font-size: 12.5px; color: #475569;"> (Class {g_class}th • {g_subject})</span>
                 </div>
                 <div>
-                    <span style="font-size: 11px; background: #D1FAE5; color: #065F46; font-weight: 700; padding: 3px 8px; border-radius: 999px;">Total 5 Marks (1 Mark / Question)</span>
+                    <span style="font-size: 12px; background: #D1FAE5; color: #065F46; font-weight: 700; padding: 4px 10px; border-radius: 999px;">Total 5 Marks (1 Mark / Question)</span>
                 </div>
             </div>
             """, unsafe_allow_html=True)
@@ -1740,7 +1866,7 @@ if tab_grader is not None:
 
             user_mcq_answers = {}
             for q_i, q in enumerate(obj_questions):
-                st.markdown(f"<div style='font-size: 13.5px; font-weight: 700; color: #0F172A; margin-top: 10px; margin-bottom: 4px;'>Q{q_i+1} (1.0 Mark): {q['question']}</div>", unsafe_allow_html=True)
+                st.markdown(f"<div style='font-size: 15px; font-weight: 700; color: #0F172A; margin-top: 12px; margin-bottom: 6px;'>Q{q_i+1} (1.0 Mark): {q['question']}</div>", unsafe_allow_html=True)
                 def_idx = q["correct_index"] if is_obj_demo else None
                 user_mcq_choice = st.radio(
                     f"Select answer for Q{q_i+1}:",
@@ -1769,19 +1895,19 @@ if tab_grader is not None:
                 obj_pct = int(round((obj_score / 5.0) * 100))
                 
                 st.markdown(f"""
-                <div style="background: linear-gradient(135deg, #0F172A 0%, #1E1B4B 50%, #2563EB 100%); color: #FFFFFF; border-radius: 12px; padding: 16px 20px; margin: 16px 0; box-shadow: 0 4px 14px rgba(37,99,235,0.2);">
+                <div style="background: linear-gradient(135deg, #0F172A 0%, #1E1B4B 50%, #2563EB 100%); color: #FFFFFF; border-radius: 12px; padding: 18px 22px; margin: 16px 0; box-shadow: 0 4px 16px rgba(37,99,235,0.22);">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <div>
-                            <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: #93C5FD; font-weight: 700;">Instant Objective Evaluation Completed</div>
-                            <div style="font-size: 24px; font-weight: 800; color: #FFFFFF; margin-top: 2px;">
+                            <div style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.8px; color: #93C5FD; font-weight: 700;">Instant Objective Evaluation Completed</div>
+                            <div style="font-size: 24px; font-weight: 800; color: #FFFFFF; margin-top: 3px;">
                                 🎯 Score: {obj_score} / 5.0 Marks ({obj_pct}%)
                             </div>
-                            <div style="font-size: 12px; color: #E0E7FF; margin-top: 3px;">
-                                Candidate: <strong>{current_user.get('name')}</strong> (<code>{current_user.get('id')}</code>) • Evaluated immediately by EduAegis Objective Assessment Engine
+                            <div style="font-size: 13px; color: #E0E7FF; margin-top: 4px;">
+                                Candidate: <strong>{current_user.get('name')}</strong> (<code>{current_user.get('id')}</code>) • Evaluated immediately by EduAegis Objective Engine
                             </div>
                         </div>
                         <div style="text-align: right;">
-                            <span style="font-size: 32px;">{'🌟' if obj_score == 5.0 else ('👍' if obj_score >= 3.0 else '📚')}</span>
+                            <span style="font-size: 34px;">{'🌟' if obj_score == 5.0 else ('👍' if obj_score >= 3.0 else '📚')}</span>
                         </div>
                     </div>
                 </div>
@@ -1793,27 +1919,27 @@ if tab_grader is not None:
                     is_correct = (chosen == q["correct_option"])
                     if is_correct:
                         st.markdown(f"""
-                        <div style="background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 8px; padding: 10px 14px; margin-bottom: 8px;">
+                        <div style="background: #F0FDF4; border: 1.5px solid #BBF7D0; border-radius: 10px; padding: 12px 16px; margin-bottom: 10px;">
                             <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <strong style="color: #166534; font-size: 13px;">✅ Q{q_i+1}: Correct (+1.0 Mark)</strong>
-                                <span style="font-size: 11px; font-weight: 700; background: #DCFCE7; color: #15803D; padding: 2px 7px; border-radius: 999px;">Awarded: 1.0 / 1.0</span>
+                                <strong style="color: #166534; font-size: 14px;">✅ Q{q_i+1}: Correct (+1.0 Mark)</strong>
+                                <span style="font-size: 12px; font-weight: 700; background: #DCFCE7; color: #15803D; padding: 3px 9px; border-radius: 999px;">Awarded: 1.0 / 1.0</span>
                             </div>
-                            <div style="font-size: 12px; color: #1E293B; margin-top: 4px;"><strong>Your Answer:</strong> {chosen}</div>
-                            <div style="font-size: 11.5px; color: #166534; margin-top: 4px; background: rgba(255,255,255,0.7); padding: 5px 8px; border-radius: 6px;">💡 <strong>Explanation:</strong> {q['explanation']}</div>
+                            <div style="font-size: 13.5px; color: #1E293B; margin-top: 5px;"><strong>Your Answer:</strong> {chosen}</div>
+                            <div style="font-size: 13px; color: #166534; margin-top: 5px; background: rgba(255,255,255,0.8); padding: 7px 10px; border-radius: 6px; line-height: 1.45;">💡 <strong>Explanation:</strong> {q['explanation']}</div>
                         </div>
                         """, unsafe_allow_html=True)
                     else:
                         st.markdown(f"""
-                        <div style="background: #FEF2F2; border: 1px solid #FECACA; border-radius: 8px; padding: 10px 14px; margin-bottom: 8px;">
+                        <div style="background: #FEF2F2; border: 1.5px solid #FECACA; border-radius: 10px; padding: 12px 16px; margin-bottom: 10px;">
                             <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <strong style="color: #991B1B; font-size: 13px;">❌ Q{q_i+1}: Incorrect (0.0 Marks)</strong>
-                                <span style="font-size: 11px; font-weight: 700; background: #FEE2E2; color: #B91C1C; padding: 2px 7px; border-radius: 999px;">Awarded: 0.0 / 1.0</span>
+                                <strong style="color: #991B1B; font-size: 14px;">❌ Q{q_i+1}: Incorrect (0.0 Marks)</strong>
+                                <span style="font-size: 12px; font-weight: 700; background: #FEE2E2; color: #B91C1C; padding: 3px 9px; border-radius: 999px;">Awarded: 0.0 / 1.0</span>
                             </div>
-                            <div style="font-size: 12px; color: #1E293B; margin-top: 4px;">
+                            <div style="font-size: 13.5px; color: #1E293B; margin-top: 5px;">
                                 <strong>Your Answer:</strong> {chosen if chosen else '<em>Unattempted</em>'}<br>
                                 <strong style="color: #166534;">Correct Answer:</strong> <strong>{q['correct_option']}</strong>
                             </div>
-                            <div style="font-size: 11.5px; color: #475569; margin-top: 4px; background: rgba(255,255,255,0.7); padding: 5px 8px; border-radius: 6px;">💡 <strong>Explanation:</strong> {q['explanation']}</div>
+                            <div style="font-size: 13px; color: #475569; margin-top: 5px; background: rgba(255,255,255,0.8); padding: 7px 10px; border-radius: 6px; line-height: 1.45;">💡 <strong>Explanation:</strong> {q['explanation']}</div>
                         </div>
                         """, unsafe_allow_html=True)
 
@@ -1879,133 +2005,133 @@ if tab_grader is not None:
             col_hdr_q, col_ref_q = st.columns([3.0, 1.2])
             with col_hdr_q:
                 st.markdown("#### 📝 Subjective Curriculum Paper (Step-by-Step Scoring)")
-        with col_ref_q:
-            if st.button("🔄 Refresh 5 Questions", key="btn_refresh_sample_questions", help="Click to load a brand new set of 5 questions for this class and subject", use_container_width=True):
-                st.session_state["active_q_set_idx"] = st.session_state.get("active_q_set_idx", 0) + 1
+            with col_ref_q:
+                if st.button("🔄 Refresh 5 Questions", key="btn_refresh_sample_questions", help="Click to load a brand new set of 5 questions for this class and subject", use_container_width=True):
+                    st.session_state["active_q_set_idx"] = st.session_state.get("active_q_set_idx", 0) + 1
+                    st.session_state["demo_mode_state"] = None
+                    st.toast("🔄 Loaded fresh new 5-question curriculum set!")
+                    st.rerun()
+
+            active_set_idx = st.session_state.get("active_q_set_idx", 0)
+            q_data = get_question_set(g_subject, g_class, custom_topic=custom_grader_topic.strip(), set_index=active_set_idx)
+            questions = q_data["questions"]
+            active_set_title = q_data["topic_title"]
+            total_available_sets = q_data["total_sets"]
+            display_set_num = (active_set_idx % total_available_sets) + 1
+
+            st.markdown(f"""
+            <div style="display: flex; justify-content: space-between; align-items: center; background: #F1F5F9; border-left: 4px solid #2563EB; border-radius: 8px; padding: 10px 16px; margin-bottom: 14px;">
+                <div>
+                    <span style="font-weight: 800; font-size: 14px; color: #1E293B;">📄 Active Question Set {display_set_num} of {total_available_sets}:</span>
+                    <span style="font-size: 13.5px; color: #2563EB; font-weight: 700;"> {active_set_title}</span>
+                    <span style="font-size: 12.5px; color: #64748B;"> (Class {g_class}th • {g_subject})</span>
+                </div>
+                <div>
+                    <span style="font-size: 12.5px; background: #E0E7FF; color: #3730A3; font-weight: 700; padding: 4px 10px; border-radius: 999px;">Total 20 Marks</span>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+            col_d1, col_d2, col_d3 = st.columns(3)
+            if "demo_mode_state" not in st.session_state:
                 st.session_state["demo_mode_state"] = None
-                st.toast("🔄 Loaded fresh new 5-question curriculum set!")
-                st.rerun()
 
-        active_set_idx = st.session_state.get("active_q_set_idx", 0)
-        q_data = get_question_set(g_subject, g_class, custom_topic=custom_grader_topic.strip(), set_index=active_set_idx)
-        questions = q_data["questions"]
-        active_set_title = q_data["topic_title"]
-        total_available_sets = q_data["total_sets"]
-        display_set_num = (active_set_idx % total_available_sets) + 1
+            with col_d1:
+                if st.button("🌟 1-Click: Exemplary Answer", use_container_width=True, key=f"btn_demo_high_{display_set_num}"):
+                    st.session_state["demo_mode_state"] = "high"
+                    st.rerun()
+            with col_d2:
+                if st.button("⚖️ 1-Click: Average Answer", use_container_width=True, key=f"btn_demo_avg_{display_set_num}"):
+                    st.session_state["demo_mode_state"] = "avg"
+                    st.rerun()
+            with col_d3:
+                if st.button("⚠️ 1-Click: Test 0 Marks (Blank/NA)", use_container_width=True, key=f"btn_demo_zero_{display_set_num}"):
+                    st.session_state["demo_mode_state"] = "zero"
+                    st.rerun()
 
-        st.markdown(f"""
-        <div style="display: flex; justify-content: space-between; align-items: center; background: #F1F5F9; border-left: 4px solid #2563EB; border-radius: 6px; padding: 7px 14px; margin-bottom: 12px;">
-            <div>
-                <span style="font-weight: 800; font-size: 12.5px; color: #1E293B;">📄 Active Question Set {display_set_num} of {total_available_sets}:</span>
-                <span style="font-size: 12px; color: #2563EB; font-weight: 700;"> {active_set_title}</span>
-                <span style="font-size: 11px; color: #64748B;"> (Class {g_class}th • {g_subject})</span>
-            </div>
-            <div>
-                <span style="font-size: 11px; background: #E0E7FF; color: #3730A3; font-weight: 700; padding: 3px 8px; border-radius: 999px;">Total 20 Marks</span>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
+            active_demo = st.session_state.get("demo_mode_state")
 
-        col_d1, col_d2, col_d3 = st.columns(3)
-        if "demo_mode_state" not in st.session_state:
-            st.session_state["demo_mode_state"] = None
-
-        with col_d1:
-            if st.button("🌟 1-Click: Exemplary Answer", use_container_width=True, key=f"btn_demo_high_{display_set_num}"):
-                st.session_state["demo_mode_state"] = "high"
-                st.rerun()
-        with col_d2:
-            if st.button("⚖️ 1-Click: Average Answer", use_container_width=True, key=f"btn_demo_avg_{display_set_num}"):
-                st.session_state["demo_mode_state"] = "avg"
-                st.rerun()
-        with col_d3:
-            if st.button("⚠️ 1-Click: Test 0 Marks (Blank/NA)", use_container_width=True, key=f"btn_demo_zero_{display_set_num}"):
-                st.session_state["demo_mode_state"] = "zero"
-                st.rerun()
-
-        active_demo = st.session_state.get("demo_mode_state")
-
-        user_answers = {}
-        for idx, q in enumerate(questions):
-            st.markdown(f"**Q{idx+1} ({q['marks']} Marks):** {q['text']}")
-            default_val = ""
-            if active_demo == "high":
-                default_val = q.get("exemplar", "")
-            elif active_demo == "avg":
-                default_val = q.get("avg_ans", "")
-            elif active_demo == "zero":
-                zero_tests = ["NA", "", "I don't know the answer", "Photosynthesis is the process of plants making food", "n/a"]
-                default_val = zero_tests[idx % len(zero_tests)]
-
-            user_answers[q["id"]] = st.text_area(
-                f"Your Subjective Answer for Q{idx+1}:",
-                value=default_val,
-                height=75,
-                key=f"ans_{q['id']}_{g_class}_{g_subject}_{display_set_num}"
-            )
-
-        submit_button = st.button("🚀 Submit Paper for AI & Teacher Evaluation", type="primary")
-
-        if submit_button:
-            total_score = 0
-            max_score = sum(q["marks"] for q in questions)
-            evaluation_results = []
-
+            user_answers = {}
             for idx, q in enumerate(questions):
-                raw_ans = user_answers[q["id"]]
-                q_max = q["marks"]
+                st.markdown(f"<div style='font-size: 15px; font-weight: 700; color: #0F172A; margin-top: 14px; margin-bottom: 6px;'>Q{idx+1} ({q['marks']} Marks): {q['text']}</div>", unsafe_allow_html=True)
+                default_val = ""
+                if active_demo == "high":
+                    default_val = q.get("exemplar", "")
+                elif active_demo == "avg":
+                    default_val = q.get("avg_ans", "")
+                elif active_demo == "zero":
+                    zero_tests = ["NA", "", "I don't know the answer", "Photosynthesis is the process of plants making food", "n/a"]
+                    default_val = zero_tests[idx % len(zero_tests)]
 
-                # Strict evaluation: awards 0 marks for blank, NA, or irrelevant
-                eval_out = evaluate_student_answer(g_subject, idx, q["text"], raw_ans, q_max, expected_keywords=q.get("keywords"))
-                score = eval_out["score"]
-                total_score += score
+                user_answers[q["id"]] = st.text_area(
+                    f"Your Subjective Answer for Q{idx+1}:",
+                    value=default_val,
+                    height=80,
+                    key=f"ans_{q['id']}_{g_class}_{g_subject}_{display_set_num}"
+                )
 
-                evaluation_results.append({
-                    "question": q["text"],
-                    "questionText": q["text"],
-                    "max": q_max,
-                    "maxMarks": q_max,
-                    "score": score,
-                    "awardedMarks": score,
-                    "student_ans": raw_ans,
-                    "studentAnswer": raw_ans,
-                    "evalStatus": eval_out.get("status", "EVALUATED"),
-                    "stepBreakdown": eval_out["stepBreakdown"]
-                })
+            submit_button = st.button("🚀 Submit Paper for AI & Teacher Evaluation", type="primary")
 
-            total_score = round(total_score, 1)
+            if submit_button:
+                total_score = 0
+                max_score = sum(q["marks"] for q in questions)
+                evaluation_results = []
 
-            assigned_std_id = current_user.get("id", "STU-101")
-            assigned_std_name = current_user.get("name", "Anup Sharma")
+                for idx, q in enumerate(questions):
+                    raw_ans = user_answers[q["id"]]
+                    q_max = q["marks"]
 
-            sub_board = current_user.get("board", "CBSE (All India)") if (user_role == "student" or g_board == "All Board") else g_board
-            sub_topic = active_set_title if active_set_title else active_grade_topic
-            new_sub = {
-                "id": f"sub_{int(time.time() * 1000)}",
-                "studentId": assigned_std_id,
-                "studentName": assigned_std_name,
-                "board": sub_board,
-                "className": f"Class {g_class}th",
-                "subject": g_subject,
-                "subjectName": g_subject,
-                "topic": sub_topic,
-                "chapterTitle": sub_topic,
-                "topicName": sub_topic,
-                "totalAwarded": total_score,
-                "totalAwardedMarks": total_score,
-                "totalMax": max_score,
-                "totalMaxMarks": max_score,
-                "status": "PENDING_TEACHER_RELEASE",
-                "submittedAt": datetime.now().isoformat() + "Z",
-                "releasedAt": None,
-                "turnaroundMinutes": None,
-                "questions": evaluation_results
-            }
-            db.setdefault("submissions", []).insert(0, normalize_submission(new_sub, 0))
-            save_db(db)
+                    # Strict evaluation: awards 0 marks for blank, NA, or irrelevant
+                    eval_out = evaluate_student_answer(g_subject, idx, q["text"], raw_ans, q_max, expected_keywords=q.get("keywords"))
+                    score = eval_out["score"]
+                    total_score += score
 
-            st.success(f"Paper submitted! Raw AI Score: {total_score} / {max_score}")
-            st.warning(f"🛡️ **AI Governance Protocol Active:** Marks for Candidate **{assigned_std_id}** are currently held in **Pending Teacher Audit Queue**. Timer has started. Your subject teacher must audit, verify, and release your marks.")
+                    evaluation_results.append({
+                        "question": q["text"],
+                        "questionText": q["text"],
+                        "max": q_max,
+                        "maxMarks": q_max,
+                        "score": score,
+                        "awardedMarks": score,
+                        "student_ans": raw_ans,
+                        "studentAnswer": raw_ans,
+                        "evalStatus": eval_out.get("status", "EVALUATED"),
+                        "stepBreakdown": eval_out["stepBreakdown"]
+                    })
+
+                total_score = round(total_score, 1)
+
+                assigned_std_id = current_user.get("id", "STU-101")
+                assigned_std_name = current_user.get("name", "Anup Sharma")
+
+                sub_board = current_user.get("board", "CBSE (All India)") if (user_role == "student" or g_board == "All Board") else g_board
+                sub_topic = active_set_title if active_set_title else active_grade_topic
+                new_sub = {
+                    "id": f"sub_{int(time.time() * 1000)}",
+                    "studentId": assigned_std_id,
+                    "studentName": assigned_std_name,
+                    "board": sub_board,
+                    "className": f"Class {g_class}th",
+                    "subject": g_subject,
+                    "subjectName": g_subject,
+                    "topic": sub_topic,
+                    "chapterTitle": sub_topic,
+                    "topicName": sub_topic,
+                    "totalAwarded": total_score,
+                    "totalAwardedMarks": total_score,
+                    "totalMax": max_score,
+                    "totalMaxMarks": max_score,
+                    "status": "PENDING_TEACHER_RELEASE",
+                    "submittedAt": datetime.now().isoformat() + "Z",
+                    "releasedAt": None,
+                    "turnaroundMinutes": None,
+                    "questions": evaluation_results
+                }
+                db.setdefault("submissions", []).insert(0, normalize_submission(new_sub, 0))
+                save_db(db)
+
+                st.success(f"Paper submitted! Raw AI Score: {total_score} / {max_score}")
+                st.warning(f"🛡️ **AI Governance Protocol Active:** Marks for Candidate **{assigned_std_id}** are currently held in **Pending Teacher Audit Queue**. Timer has started. Your subject teacher must audit, verify, and release your marks.")
 
 # =============================================================================
 # TAB: MY EVALUATIONS & APPEALS (Student Scoped vs Faculty History vs Admin)
@@ -2371,9 +2497,9 @@ if tab_teacher is not None:
                                     st.markdown(f"**Q{q_i+1} ({q_mx} Marks):** {q_txt}")
                                     st.markdown(f"**Student Answer:** *\"{stu_ans}\"*")
                                     if q_is_rel:
-                                        st.markdown(f'<span style="background: #DCFCE7; color: #15803D; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; border: 1px solid #86EFAC;">🟢 Q{q_i+1} Released: <strong>{app_q_score} / {q_mx}</strong></span>', unsafe_allow_html=True)
+                                        st.markdown(f'<span style="background: #DCFCE7; color: #15803D; font-size: 12.5px; font-weight: 700; padding: 3px 10px; border-radius: 999px; border: 1px solid #86EFAC;">🟢 Q{q_i+1} Released: <strong>{app_q_score} / {q_mx}</strong></span>', unsafe_allow_html=True)
                                     else:
-                                        st.markdown(f'<span style="background: #FEF3C7; color: #92400E; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px; border: 1px solid #FCD34D;">⏳ Pending Question Release</span>', unsafe_allow_html=True)
+                                        st.markdown(f'<span style="background: #FEF3C7; color: #92400E; font-size: 12.5px; font-weight: 600; padding: 3px 10px; border-radius: 999px; border: 1px solid #FCD34D;">⏳ Pending Question Release</span>', unsafe_allow_html=True)
 
                                 with col_qb:
                                     # Teacher editable mark input per question with instant Enter callback
@@ -2423,7 +2549,7 @@ if tab_teacher is not None:
                         <div style="background: linear-gradient(135deg, #EFF6FF, #DBEAFE); border: 1.5px solid #3B82F6; border-radius: 8px; padding: 12px 18px; margin: 12px 0;">
                             <div style="display: flex; justify-content: space-between; align-items: center;">
                                 <div>
-                                    <span style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: #1E40AF; letter-spacing: 0.5px;">Live Calculated Total Score (Instant Update)</span>
+                                    <span style="font-size: 12px; text-transform: uppercase; font-weight: 700; color: #1E40AF; letter-spacing: 0.5px;">Live Calculated Total Score (Instant Update)</span>
                                     <div style="font-size: 24px; font-weight: 800; color: #1D4ED8;">{live_calc_sum} <span style="font-size: 14px; font-weight: 600; color: #475569;">/ {max_m} Marks</span> <span style="font-size: 15px; color: #059669; font-weight: 700;">({live_pct}%)</span></div>
                                 </div>
                                 <div style="text-align: right;">
@@ -2719,7 +2845,7 @@ if tab_admin is not None:
 # -----------------------------------------------------------------------------
 st.markdown("<hr>", unsafe_allow_html=True)
 st.markdown("""
-<div style="text-align:center; font-size:11.5px; color:#64748B;">
+<div style="text-align:center; font-size:13px; color:#475569; line-height:1.5;">
     🛡️ <strong>EduAegis</strong> • Responsible AI Tutor & Governed Grader • IIM Capstone Project<br>
     DPDP Act 2023 Aligned • Blind Evaluation Compliance • NITI Aayog Responsible AI Frameworks
 </div>

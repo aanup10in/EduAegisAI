@@ -31,7 +31,19 @@
       "board": "ICSE / CISCE",
       "email": "daksh.gupta@eduaegis.com",
       "cityState": "Pune",
-      "password": "eduaegis123"
+      "password": "daksh@123"
+    },
+    {
+      "id": "STU-104",
+      "username": "Daksh_1",
+      "name": "Daksh",
+      "role": "student",
+      "password": "Daksh@123",
+      "studentClass": 9,
+      "board": "CBSE (All India)",
+      "cityState": "Pune",
+      "email": "daksh@gmail.com",
+      "phone": "+91 98000 00000"
     }
   ],
   "teacherInstructions": {
@@ -1051,6 +1063,166 @@
     "Nandita": "eduaegis123",
     "Ankur": "eduaegis123",
     "Akanksha": "eduaegis123",
-    "Admin": "eduaegis123"
-  }
+    "Admin": "eduaegis123",
+    "Daksh_1": "Daksh@123",
+    "Daksh": "daksh@123"
+  },
+  "objective_submissions": [
+    {
+      "id": "obj_sub_1795718953146",
+      "studentId": "TCH-201",
+      "studentName": "Ankur Verma",
+      "board": "CBSE (All India)",
+      "className": "Class 9th",
+      "subject": "Physics",
+      "topic": "Motion (Kinematics, Graphs & Equations)",
+      "score": 5.0,
+      "maxMarks": 5.0,
+      "submittedAt": "2026-11-27T00:19:13.146637Z"
+    },
+    {
+      "id": "obj_sub_1795718369764",
+      "studentId": "TCH-201",
+      "studentName": "Ankur Verma",
+      "board": "CBSE (All India)",
+      "className": "Class 9th",
+      "subject": "Physics",
+      "topic": "Motion (Kinematics, Graphs & Equations)",
+      "score": 2.0,
+      "maxMarks": 5.0,
+      "submittedAt": "2026-11-27T00:09:29.764554Z"
+    },
+    {
+      "id": "obj_sub_1795718312838",
+      "studentId": "STU-102",
+      "studentName": "Nandita Roy",
+      "board": "ICSE / CISCE",
+      "className": "Class 9th",
+      "subject": "Physics",
+      "topic": "Motion (Kinematics, Graphs & Equations)",
+      "score": 2.0,
+      "maxMarks": 5.0,
+      "submittedAt": "2026-11-27T00:08:32.838881Z"
+    },
+    {
+      "id": "obj_sub_1795718311556",
+      "studentId": "STU-102",
+      "studentName": "Nandita Roy",
+      "board": "ICSE / CISCE",
+      "className": "Class 9th",
+      "subject": "Physics",
+      "topic": "Motion (Kinematics, Graphs & Equations)",
+      "score": 3.0,
+      "maxMarks": 5.0,
+      "submittedAt": "2026-11-27T00:08:31.556124Z"
+    },
+    {
+      "id": "obj_sub_1795718300229",
+      "studentId": "STU-102",
+      "studentName": "Nandita Roy",
+      "board": "ICSE / CISCE",
+      "className": "Class 9th",
+      "subject": "Physics",
+      "topic": "Motion (Kinematics, Graphs & Equations)",
+      "score": 4.0,
+      "maxMarks": 5.0,
+      "submittedAt": "2026-11-27T00:08:20.229268Z"
+    },
+    {
+      "id": "obj_sub_1795718212590",
+      "studentId": "STU-102",
+      "studentName": "Nandita Roy",
+      "board": "ICSE / CISCE",
+      "className": "Class 9th",
+      "subject": "Physics",
+      "topic": "Motion (Kinematics, Graphs & Equations)",
+      "score": 4.0,
+      "maxMarks": 5.0,
+      "submittedAt": "2026-11-27T00:06:52.590994Z"
+    },
+    {
+      "id": "obj_sub_1795718207189",
+      "studentId": "STU-102",
+      "studentName": "Nandita Roy",
+      "board": "ICSE / CISCE",
+      "className": "Class 9th",
+      "subject": "Physics",
+      "topic": "Motion (Kinematics, Graphs & Equations)",
+      "score": 4.0,
+      "maxMarks": 5.0,
+      "submittedAt": "2026-11-27T00:06:47.189263Z"
+    },
+    {
+      "id": "obj_sub_1795718205492",
+      "studentId": "STU-102",
+      "studentName": "Nandita Roy",
+      "board": "ICSE / CISCE",
+      "className": "Class 9th",
+      "subject": "Physics",
+      "topic": "Motion (Kinematics, Graphs & Equations)",
+      "score": 4.0,
+      "maxMarks": 5.0,
+      "submittedAt": "2026-11-27T00:06:45.492029Z"
+    },
+    {
+      "id": "obj_sub_1795718204221",
+      "studentId": "STU-102",
+      "studentName": "Nandita Roy",
+      "board": "ICSE / CISCE",
+      "className": "Class 9th",
+      "subject": "Physics",
+      "topic": "Motion (Kinematics, Graphs & Equations)",
+      "score": 3.0,
+      "maxMarks": 5.0,
+      "submittedAt": "2026-11-27T00:06:44.221575Z"
+    },
+    {
+      "id": "obj_sub_1795718202640",
+      "studentId": "STU-102",
+      "studentName": "Nandita Roy",
+      "board": "ICSE / CISCE",
+      "className": "Class 9th",
+      "subject": "Physics",
+      "topic": "Motion (Kinematics, Graphs & Equations)",
+      "score": 4.0,
+      "maxMarks": 5.0,
+      "submittedAt": "2026-11-27T00:06:42.640728Z"
+    },
+    {
+      "id": "obj_sub_1795718118914",
+      "studentId": "STU-102",
+      "studentName": "Nandita Roy",
+      "board": "ICSE / CISCE",
+      "className": "Class 9th",
+      "subject": "Physics",
+      "topic": "Motion (Kinematics, Graphs & Equations)",
+      "score": 4.0,
+      "maxMarks": 5.0,
+      "submittedAt": "2026-11-27T00:05:18.914600Z"
+    },
+    {
+      "id": "obj_sub_1795718116013",
+      "studentId": "STU-102",
+      "studentName": "Nandita Roy",
+      "board": "ICSE / CISCE",
+      "className": "Class 9th",
+      "subject": "Physics",
+      "topic": "Motion (Kinematics, Graphs & Equations)",
+      "score": 4.0,
+      "maxMarks": 5.0,
+      "submittedAt": "2026-11-27T00:05:16.013422Z"
+    },
+    {
+      "id": "obj_sub_1795718104380",
+      "studentId": "STU-102",
+      "studentName": "Nandita Roy",
+      "board": "ICSE / CISCE",
+      "className": "Class 9th",
+      "subject": "Physics",
+      "topic": "Motion (Kinematics, Graphs & Equations)",
+      "score": 4.0,
+      "maxMarks": 5.0,
+      "submittedAt": "2026-11-27T00:05:04.380784Z"
+    }
+  ]
 }
