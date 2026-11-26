@@ -15,6 +15,7 @@ from datetime import datetime, timedelta
 import streamlit as st
 import streamlit.components.v1 as components
 import pandas as pd
+from curriculum_question_bank import get_question_set
 
 # Page Configuration with Soothing Theme
 st.set_page_config(
@@ -331,6 +332,21 @@ st.markdown(f"""
         border-radius: 10px;
         padding: 10px 14px;
         margin-bottom: 6px;
+    }}
+
+    .sidebar-resource-card {{
+        background: #FFFFFF;
+        border: 1px solid #E2E8F0;
+        border-radius: 8px;
+        padding: 8px 10px;
+        margin-bottom: 8px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+        transition: transform 0.15s ease, border-color 0.15s ease;
+    }}
+    .sidebar-resource-card:hover {{
+        transform: translateY(-1px);
+        border-color: #93C5FD;
+        box-shadow: 0 3px 8px rgba(37,99,235,0.08);
     }}
 
     hr {{
@@ -676,7 +692,7 @@ def format_minutes(mins):
 # -----------------------------------------------------------------------------
 # STRICT RELEVANCE & ZERO-MARK EVALUATION ENGINE
 # -----------------------------------------------------------------------------
-def evaluate_student_answer(subject, q_idx, q_text, raw_student_answer, q_max):
+def evaluate_student_answer(subject, q_idx, q_text, raw_student_answer, q_max, expected_keywords=None):
     """
     Strict Subjective Evaluation:
     - If answer is blank / empty -> 0.0 marks.
@@ -762,7 +778,9 @@ def evaluate_student_answer(subject, q_idx, q_text, raw_student_answer, q_max):
         4: ["irrational", "rational", "pi", "sqrt", "root", "integer", "non-terminating", "classify"]
     }
     
-    if subject == "Physics":
+    if expected_keywords and len(expected_keywords) > 0:
+        target_keys = expected_keywords
+    elif subject == "Physics":
         target_keys = p_keywords.get(q_idx, ["physics", "force"])
     elif subject == "Chemistry":
         target_keys = c_keywords.get(q_idx, ["chemistry", "matter"])
@@ -1071,6 +1089,176 @@ with st.sidebar:
         st.session_state["logged_in_user"] = None
         st.rerun()
 
+    # -------------------------------------------------------------------------
+    # ACADEMIC RESOURCES & NCERT REFERENCE BOOKS HUB (Space Utilization)
+    # -------------------------------------------------------------------------
+    st.markdown("<hr style='margin: 14px 0 10px 0; border: none; border-top: 1px solid rgba(226, 232, 240, 0.8);'>", unsafe_allow_html=True)
+
+    if user_role == "student":
+        stu_class = current_user.get("studentClass", 9)
+        stu_board = current_user.get("board", "CBSE (All India)")
+        board_short = "CBSE" if "CBSE" in stu_board else ("ICSE" if "ICSE" in stu_board else "State Board")
+
+        st.markdown(f"""
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+            <span style="font-weight: 800; font-size: 12.5px; color: #1E293B; letter-spacing: 0.3px;">📚 NCERT & Reference Books</span>
+            <span style="font-size: 9.5px; background: #EFF6FF; color: #1D4ED8; font-weight: 700; padding: 2px 7px; border-radius: 999px; border: 1px solid #BFDBFE;">Class {stu_class}th • {board_short}</span>
+        </div>
+        """, unsafe_allow_html=True)
+
+        if stu_class == 8:
+            ncert_sci_code = "hesc1=0-18"
+            ncert_math_code = "hemh1=0-16"
+            sci_desc = "Force, Friction, Sound, Combustion & Cells"
+        elif stu_class == 10:
+            ncert_sci_code = "jesc1=0-16"
+            ncert_math_code = "jemh1=0-15"
+            sci_desc = "Light, Electricity, Reactions, Acids & Carbon"
+        else:  # Class 9
+            ncert_sci_code = "iesc1=0-15"
+            ncert_math_code = "iemh1=0-15"
+            sci_desc = "Motion, Force, Gravitation, Matter & Atoms"
+
+        st.markdown(f"""
+        <div class="sidebar-resource-card">
+            <div style="display: flex; gap: 8px; align-items: flex-start;">
+                <span style="font-size: 16px;">📘</span>
+                <div style="flex: 1;">
+                    <div style="font-weight: 700; font-size: 11px; color: #0F172A;">NCERT Science Textbook (Class {stu_class}th)</div>
+                    <div style="font-size: 9.5px; color: #64748B;">{sci_desc}</div>
+                    <div style="margin-top: 4px;">
+                        <a href="https://ncert.nic.in/textbook.php?{ncert_sci_code}" target="_blank" style="text-decoration:none; font-size: 10px; font-weight: 700; color: #1D4ED8; background: #EFF6FF; padding: 2px 7px; border-radius: 4px; border: 1px solid #BFDBFE;">📖 Open Official PDF</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar-resource-card">
+            <div style="display: flex; gap: 8px; align-items: flex-start;">
+                <span style="font-size: 16px;">📐</span>
+                <div style="flex: 1;">
+                    <div style="font-weight: 700; font-size: 11px; color: #0F172A;">NCERT Mathematics (Class {stu_class}th)</div>
+                    <div style="font-size: 9.5px; color: #64748B;">Complete Theory, Solved Examples & Exercises</div>
+                    <div style="margin-top: 4px;">
+                        <a href="https://ncert.nic.in/textbook.php?{ncert_math_code}" target="_blank" style="text-decoration:none; font-size: 10px; font-weight: 700; color: #1D4ED8; background: #EFF6FF; padding: 2px 7px; border-radius: 4px; border: 1px solid #BFDBFE;">📖 Open Official PDF</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar-resource-card">
+            <div style="display: flex; gap: 8px; align-items: flex-start;">
+                <span style="font-size: 16px;">🔬</span>
+                <div style="flex: 1;">
+                    <div style="font-weight: 700; font-size: 11px; color: #0F172A;">NCERT Exemplar Problems</div>
+                    <div style="font-size: 9.5px; color: #64748B;">HOTS Questions, Numericals & Step Rubrics</div>
+                    <div style="margin-top: 4px;">
+                        <a href="https://ncert.nic.in/exemplar-problems.php" target="_blank" style="text-decoration:none; font-size: 10px; font-weight: 700; color: #047857; background: #ECFDF5; padding: 2px 7px; border-radius: 4px; border: 1px solid #A7F3D0;">🔬 View Exemplar</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar-resource-card">
+            <div style="display: flex; gap: 8px; align-items: flex-start;">
+                <span style="font-size: 16px;">🏛️</span>
+                <div style="flex: 1;">
+                    <div style="font-weight: 700; font-size: 11px; color: #0F172A;">DIKSHA National Portal</div>
+                    <div style="font-size: 9.5px; color: #64748B;">MoE Govt of India QR Interactive Textbooks</div>
+                    <div style="margin-top: 4px;">
+                        <a href="https://diksha.gov.in/" target="_blank" style="text-decoration:none; font-size: 10px; font-weight: 700; color: #6D28D9; background: #F5F3FF; padding: 2px 7px; border-radius: 4px; border: 1px solid #DDD6FE;">🌐 Open DIKSHA</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        with st.expander(f"📑 Direct Chapter NCERT PDFs (Class {stu_class}th)", expanded=False):
+            if stu_class == 9:
+                st.markdown("""
+                - 📘 [Ch 8: Motion (NCERT PDF)](https://ncert.nic.in/textbook/pdf/iesc108.pdf)
+                - 📘 [Ch 9: Force & Laws of Motion](https://ncert.nic.in/textbook/pdf/iesc109.pdf)
+                - 📘 [Ch 10: Gravitation & Floatation](https://ncert.nic.in/textbook/pdf/iesc110.pdf)
+                - 📘 [Ch 11: Work & Energy](https://ncert.nic.in/textbook/pdf/iesc111.pdf)
+                - 📘 [Ch 1: Matter in Our Surroundings](https://ncert.nic.in/textbook/pdf/iesc101.pdf)
+                - 📘 [Ch 2: Is Matter Around Us Pure](https://ncert.nic.in/textbook/pdf/iesc102.pdf)
+                - 📘 [Ch 3: Atoms & Molecules](https://ncert.nic.in/textbook/pdf/iesc103.pdf)
+                - 📐 [Ch 1: Number Systems (Maths)](https://ncert.nic.in/textbook/pdf/iemh101.pdf)
+                - 📐 [Ch 2: Polynomials (Maths)](https://ncert.nic.in/textbook/pdf/iemh102.pdf)
+                """)
+            elif stu_class == 10:
+                st.markdown("""
+                - 📘 [Ch 10: Light - Reflection & Refraction](https://ncert.nic.in/textbook/pdf/jesc110.pdf)
+                - 📘 [Ch 12: Electricity (NCERT PDF)](https://ncert.nic.in/textbook/pdf/jesc112.pdf)
+                - 📘 [Ch 13: Magnetic Effects of Current](https://ncert.nic.in/textbook/pdf/jesc113.pdf)
+                - 📘 [Ch 1: Chemical Reactions & Equations](https://ncert.nic.in/textbook/pdf/jesc101.pdf)
+                - 📘 [Ch 2: Acids, Bases & Salts](https://ncert.nic.in/textbook/pdf/jesc102.pdf)
+                - 📘 [Ch 4: Carbon & Its Compounds](https://ncert.nic.in/textbook/pdf/jesc104.pdf)
+                - 📐 [Ch 1: Real Numbers (Maths)](https://ncert.nic.in/textbook/pdf/jemh101.pdf)
+                - 📐 [Ch 4: Quadratic Equations (Maths)](https://ncert.nic.in/textbook/pdf/jemh104.pdf)
+                - 📐 [Ch 8: Introduction to Trigonometry](https://ncert.nic.in/textbook/pdf/jemh108.pdf)
+                """)
+            else:  # Class 8
+                st.markdown("""
+                - 📘 [Ch 11: Force & Pressure](https://ncert.nic.in/textbook/pdf/hesc111.pdf)
+                - 📘 [Ch 12: Friction (NCERT PDF)](https://ncert.nic.in/textbook/pdf/hesc112.pdf)
+                - 📘 [Ch 13: Sound (NCERT PDF)](https://ncert.nic.in/textbook/pdf/hesc113.pdf)
+                - 📘 [Ch 3: Synthetic Fibres & Plastics](https://ncert.nic.in/textbook/pdf/hesc103.pdf)
+                - 📘 [Ch 4: Combustion & Flame](https://ncert.nic.in/textbook/pdf/hesc104.pdf)
+                - 📐 [Ch 1: Rational Numbers (Maths)](https://ncert.nic.in/textbook/pdf/hemh101.pdf)
+                - 📐 [Ch 2: Linear Equations in One Variable](https://ncert.nic.in/textbook/pdf/hemh102.pdf)
+                - 📐 [Ch 6: Squares & Square Roots](https://ncert.nic.in/textbook/pdf/hemh106.pdf)
+                """)
+
+    elif user_role == "teacher":
+        st.markdown("""
+        <div style="font-weight: 800; font-size: 12.5px; color: #1E293B; margin-bottom: 8px;">
+            📚 Faculty Pedagogical References
+        </div>
+        <div class="sidebar-resource-card">
+            <div style="font-weight: 700; font-size: 11px; color: #0F172A;">NCERT Learning Outcomes Manual</div>
+            <div style="font-size: 9.5px; color: #64748B;">Competency-based pedagogical standards for Secondary stage.</div>
+            <div style="margin-top: 4px;">
+                <a href="https://ncert.nic.in/pdf/programmes/learning_outcomes_sec.pdf" target="_blank" style="text-decoration:none; font-size: 10px; font-weight: 700; color: #1D4ED8; background: #EFF6FF; padding: 2px 7px; border-radius: 4px; border: 1px solid #BFDBFE;">📋 View NCERT Guidelines</a>
+            </div>
+        </div>
+        <div class="sidebar-resource-card">
+            <div style="font-weight: 700; font-size: 11px; color: #0F172A;">Bloom's Taxonomy Rubrics Guide</div>
+            <div style="font-size: 9.5px; color: #64748B;">Framework for step-by-step subjective assessment and partial credits.</div>
+            <div style="margin-top: 4px;">
+                <a href="https://cbseacademic.nic.in/" target="_blank" style="text-decoration:none; font-size: 10px; font-weight: 700; color: #047857; background: #ECFDF5; padding: 2px 7px; border-radius: 4px; border: 1px solid #A7F3D0;">🎯 CBSE Assessment Manual</a>
+            </div>
+        </div>
+        <div class="sidebar-resource-card">
+            <div style="font-weight: 700; font-size: 11px; color: #0F172A;">NITI Aayog Responsible AI in Schools</div>
+            <div style="font-size: 9.5px; color: #64748B;">Human-in-the-Loop & blind evaluation governance protocols.</div>
+            <div style="margin-top: 4px;">
+                <a href="https://www.niti.gov.in/" target="_blank" style="text-decoration:none; font-size: 10px; font-weight: 700; color: #6D28D9; background: #F5F3FF; padding: 2px 7px; border-radius: 4px; border: 1px solid #DDD6FE;">⚖️ Governance Principles</a>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    else:  # Admin
+        st.markdown("""
+        <div style="font-weight: 800; font-size: 12.5px; color: #1E293B; margin-bottom: 8px;">
+            📚 Institutional Governance Hub
+        </div>
+        <div class="sidebar-resource-card">
+            <div style="font-weight: 700; font-size: 11px; color: #0F172A;">DPDP Act 2023 Compliance Handbook</div>
+            <div style="font-size: 9.5px; color: #64748B;">Digital Personal Data Protection Act compliance requirements for minors.</div>
+            <div style="margin-top: 4px;">
+                <a href="https://www.meity.gov.in/content/digital-personal-data-protection-act-2023" target="_blank" style="text-decoration:none; font-size: 10px; font-weight: 700; color: #1D4ED8; background: #EFF6FF; padding: 2px 7px; border-radius: 4px; border: 1px solid #BFDBFE;">🛡️ DPDP Act 2023 Official</a>
+            </div>
+        </div>
+        <div class="sidebar-resource-card">
+            <div style="font-weight: 700; font-size: 11px; color: #0F172A;">NEP 2020 Pedagogical Framework</div>
+            <div style="font-size: 9.5px; color: #64748B;">National Education Policy 5+3+3+4 curriculum & evaluation reforms.</div>
+            <div style="margin-top: 4px;">
+                <a href="https://www.education.gov.in/sites/upload_files/mhrd/files/NEP_Final_English_0.pdf" target="_blank" style="text-decoration:none; font-size: 10px; font-weight: 700; color: #047857; background: #ECFDF5; padding: 2px 7px; border-radius: 4px; border: 1px solid #A7F3D0;">🏛️ NEP 2020 Document</a>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
 # -----------------------------------------------------------------------------
 # TOP HEADER WITH INTEGRATED CURRICULUM SELECTOR (INCLUDES 'All Board' OPTION)
 # -----------------------------------------------------------------------------
@@ -1348,85 +1536,74 @@ if tab_grader is not None:
                     - **Step 3:** Subtract Eq 1 from Eq 2: 9x = 3 => x = 3/9 = 1/3 in p/q form. *(+1 Mark)*
                     """)
 
-        # 5-Question Subjective Paper
-        st.markdown("### ✍️ 5-Question Practice Subjective Paper (20 Total Marks)")
+        # 5-Question Subjective Paper with Refresh Icon / Button
+        col_hdr_q, col_ref_q = st.columns([3.0, 1.2])
+        with col_hdr_q:
+            st.markdown("### ✍️ 5-Question Practice Subjective Paper (20 Total Marks)")
+        with col_ref_q:
+            if st.button("🔄 Refresh 5 Questions", key="btn_refresh_sample_questions", help="Click to load a brand new set of 5 questions for this class and subject", use_container_width=True):
+                st.session_state["active_q_set_idx"] = st.session_state.get("active_q_set_idx", 0) + 1
+                st.session_state["demo_mode_state"] = None
+                st.toast("🔄 Loaded fresh new 5-question curriculum set!")
+                st.rerun()
+
+        active_set_idx = st.session_state.get("active_q_set_idx", 0)
+        q_data = get_question_set(g_subject, g_class, custom_topic=custom_grader_topic.strip(), set_index=active_set_idx)
+        questions = q_data["questions"]
+        active_set_title = q_data["topic_title"]
+        total_available_sets = q_data["total_sets"]
+        display_set_num = (active_set_idx % total_available_sets) + 1
+
+        st.markdown(f"""
+        <div style="display: flex; justify-content: space-between; align-items: center; background: #F1F5F9; border-left: 4px solid #2563EB; border-radius: 6px; padding: 7px 14px; margin-bottom: 12px;">
+            <div>
+                <span style="font-weight: 800; font-size: 12.5px; color: #1E293B;">📄 Active Question Set {display_set_num} of {total_available_sets}:</span>
+                <span style="font-size: 12px; color: #2563EB; font-weight: 700;"> {active_set_title}</span>
+                <span style="font-size: 11px; color: #64748B;"> (Class {g_class}th • {g_subject})</span>
+            </div>
+            <div>
+                <span style="font-size: 11px; background: #E0E7FF; color: #3730A3; font-weight: 700; padding: 3px 8px; border-radius: 999px;">Total 20 Marks</span>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
 
         col_d1, col_d2, col_d3 = st.columns(3)
-        load_demo = None
-        with col_d1:
-            if st.button("🌟 1-Click: Exemplary Answer"):
-                load_demo = "high"
-        with col_d2:
-            if st.button("⚖️ 1-Click: Average Answer"):
-                load_demo = "avg"
-        with col_d3:
-            if st.button("⚠️ 1-Click: Blank / NA / Irrelevant (Test 0 Marks)"):
-                load_demo = "zero"
+        if "demo_mode_state" not in st.session_state:
+            st.session_state["demo_mode_state"] = None
 
-        # Define 5 Questions based on Subject
-        if g_subject == "Physics":
-            questions = [
-                {"id": "q1", "text": "State Newton's Second Law of Motion. Derive the formula F = ma defining all SI units.", "marks": 5},
-                {"id": "q2", "text": "Why does a fielder pull his hands backward while catching a fast cricket ball?", "marks": 3},
-                {"id": "q3", "text": "Define Inertia. Name its three types with daily-life examples and state its measure.", "marks": 3},
-                {"id": "q4", "text": "A 1200 kg car slows from 90 km/h to 18 km/h in 4 s. Calculate acceleration and force.", "marks": 5},
-                {"id": "q5", "text": "State Newton's Third Law. Why do action and reaction forces not cancel each other?", "marks": 4}
-            ]
-        elif g_subject == "Chemistry":
-            questions = [
-                {"id": "q1", "text": "Define Evaporation. Explain four factors affecting evaporation with examples.", "marks": 5},
-                {"id": "q2", "text": "What is Latent Heat of Vaporization? Why does steam burn worse than boiling water?", "marks": 4},
-                {"id": "q3", "text": "Differentiate between Boiling and Evaporation on any three parameters.", "marks": 3},
-                {"id": "q4", "text": "Convert 25°C to Kelvin and 373 K to Celsius. State the formula used.", "marks": 3},
-                {"id": "q5", "text": "Why is ice at 273 K more effective in cooling than water at the same temperature?", "marks": 5}
-            ]
-        else:
-            questions = [
-                {"id": "q1", "text": "Show that 0.3333... can be expressed in the form p/q where p, q are integers and q ≠ 0.", "marks": 3},
-                {"id": "q2", "text": "Rationalize the denominator of 1 / (7 + 3√2). Show intermediate steps.", "marks": 3},
-                {"id": "q3", "text": "Find three rational numbers between 3/5 and 4/5.", "marks": 4},
-                {"id": "q4", "text": "Simplify using laws of exponents: (a) 2^(2/3)*2^(1/3), (b) (1/3^3)^7.", "marks": 5},
-                {"id": "q5", "text": "Classify as rational or irrational with justification: (i) 2 - √5, (ii) 2π.", "marks": 5}
-            ]
+        with col_d1:
+            if st.button("🌟 1-Click: Exemplary Answer", use_container_width=True, key=f"btn_demo_high_{display_set_num}"):
+                st.session_state["demo_mode_state"] = "high"
+                st.rerun()
+        with col_d2:
+            if st.button("⚖️ 1-Click: Average Answer", use_container_width=True, key=f"btn_demo_avg_{display_set_num}"):
+                st.session_state["demo_mode_state"] = "avg"
+                st.rerun()
+        with col_d3:
+            if st.button("⚠️ 1-Click: Test 0 Marks (Blank/NA)", use_container_width=True, key=f"btn_demo_zero_{display_set_num}"):
+                st.session_state["demo_mode_state"] = "zero"
+                st.rerun()
+
+        active_demo = st.session_state.get("demo_mode_state")
 
         user_answers = {}
         for idx, q in enumerate(questions):
             st.markdown(f"**Q{idx+1} ({q['marks']} Marks):** {q['text']}")
             default_val = ""
-            if load_demo == "high":
-                if g_subject == "Physics":
-                    defaults = [
-                        "Newton's Second Law states that rate of change of momentum is proportional to applied force in direction of force. p1=mu, p2=mv, Δp=m(v-u). Rate=m(v-u)/t=ma. F=ma. Units: Force in N, mass in kg, acc in m/s².",
-                        "Fielder pulls hands back to increase stopping time t. Since F = m(v-u)/t, increasing time decreases the rate of change of momentum, reducing impact force on palms.",
-                        "Inertia is property resisting change of rest or motion. Types: rest, motion, direction. Mass measures inertia.",
-                        "u = 25 m/s, v = 5 m/s. a = (5-25)/4 = -5 m/s² (retardation). Change in momentum = -24000 kg·m/s. Force = 1200*(-5) = -6000 N.",
-                        "Action and reaction are equal and opposite. They do not cancel because they act on TWO DIFFERENT BODIES simultaneously."
-                    ]
-                elif g_subject == "Chemistry":
-                    defaults = [
-                        "Evaporation is liquid turning to vapor below boiling point. Factors: surface area, temperature, humidity, wind speed.",
-                        "Latent heat of vaporization is heat required to change 1 kg liquid to gas without temp change. Steam contains extra latent heat released on skin.",
-                        "Evaporation is surface phenomenon below boiling point causing cooling; boiling is bulk phenomenon at boiling point.",
-                        "T(K) = T(°C) + 273. 25°C = 298 K. 373 K = 100°C.",
-                        "Ice at 273 K absorbs latent heat of fusion (3.34x10^5 J/kg) to melt, extracting more heat than water at 0°C."
-                    ]
-                else:
-                    defaults = [
-                        "Let x = 0.333... 10x = 3.333... Subtract: 9x = 3 => x = 1/3.",
-                        "Multiply conjugate (7 - 3√2) / (49 - 18) = (7 - 3√2) / 31.",
-                        "3/5 = 30/50, 4/5 = 40/50. Numbers: 31/50, 32/50, 33/50.",
-                        "2^(2/3+1/3) = 2^1 = 2. (3^-3)^7 = 1/3^21.",
-                        "2 - √5 is irrational (rational minus irrational). 2π is irrational."
-                    ]
-                default_val = defaults[idx]
-            elif load_demo == "avg":
-                default_val = "Force equals mass into acceleration. Momentum is mv. F = ma. Newton is unit." if g_subject == "Physics" else "Evaporation is liquid to gas. Heat and wind affect it."
-            elif load_demo == "zero":
-                # Demo for 0 marks (Blank, NA, or Irrelevant)
+            if active_demo == "high":
+                default_val = q.get("exemplar", "")
+            elif active_demo == "avg":
+                default_val = q.get("avg_ans", "")
+            elif active_demo == "zero":
                 zero_tests = ["NA", "", "I don't know the answer", "Photosynthesis is the process of plants making food", "n/a"]
-                default_val = zero_tests[idx]
+                default_val = zero_tests[idx % len(zero_tests)]
 
-            user_answers[q["id"]] = st.text_area(f"Your Subjective Answer for Q{idx+1}:", value=default_val, height=75, key=f"ans_{q['id']}")
+            user_answers[q["id"]] = st.text_area(
+                f"Your Subjective Answer for Q{idx+1}:",
+                value=default_val,
+                height=75,
+                key=f"ans_{q['id']}_{g_class}_{g_subject}_{display_set_num}"
+            )
 
         submit_button = st.button("🚀 Submit Paper for AI & Teacher Evaluation", type="primary")
 
@@ -1440,7 +1617,7 @@ if tab_grader is not None:
                 q_max = q["marks"]
 
                 # Strict evaluation: awards 0 marks for blank, NA, or irrelevant
-                eval_out = evaluate_student_answer(g_subject, idx, q["text"], raw_ans, q_max)
+                eval_out = evaluate_student_answer(g_subject, idx, q["text"], raw_ans, q_max, expected_keywords=q.get("keywords"))
                 score = eval_out["score"]
                 total_score += score
 
@@ -1463,6 +1640,7 @@ if tab_grader is not None:
             assigned_std_name = current_user.get("name", "Anup Sharma")
 
             sub_board = current_user.get("board", "CBSE (All India)") if (user_role == "student" or g_board == "All Board") else g_board
+            sub_topic = active_set_title if active_set_title else active_grade_topic
             new_sub = {
                 "id": f"sub_{int(time.time() * 1000)}",
                 "studentId": assigned_std_id,
@@ -1471,9 +1649,9 @@ if tab_grader is not None:
                 "className": f"Class {g_class}th",
                 "subject": g_subject,
                 "subjectName": g_subject,
-                "topic": active_grade_topic,
-                "chapterTitle": active_grade_topic,
-                "topicName": active_grade_topic,
+                "topic": sub_topic,
+                "chapterTitle": sub_topic,
+                "topicName": sub_topic,
                 "totalAwarded": total_score,
                 "totalAwardedMarks": total_score,
                 "totalMax": max_score,

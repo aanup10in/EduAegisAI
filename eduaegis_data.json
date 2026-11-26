@@ -97,7 +97,8 @@
               "maxMarks": 2.5,
               "whyAwardedOrDeducted": "Zero marks: Off-topic / irrelevant response; zero credit awarded."
             }
-          ]
+          ],
+          "isReleased": false
         },
         {
           "question": "Why does a fielder pull his hands backward while catching a fast cricket ball?",
@@ -124,7 +125,8 @@
               "maxMarks": 1.5,
               "whyAwardedOrDeducted": "Zero marks: No scientific derivation or formulation provided."
             }
-          ]
+          ],
+          "isReleased": false
         },
         {
           "question": "Define Inertia. Name its three types with daily-life examples and state its measure.",
@@ -151,7 +153,8 @@
               "maxMarks": 1.5,
               "whyAwardedOrDeducted": "Zero marks: No derivation, formula, or reasoning provided."
             }
-          ]
+          ],
+          "isReleased": false
         },
         {
           "question": "A 1200 kg car slows from 90 km/h to 18 km/h in 4 s. Calculate acceleration and force.",
@@ -178,7 +181,8 @@
               "maxMarks": 2.5,
               "whyAwardedOrDeducted": "Zero marks: No scientific derivation or formulation provided."
             }
-          ]
+          ],
+          "isReleased": false
         },
         {
           "question": "State Newton's Third Law. Why do action and reaction forces not cancel each other?",
@@ -205,7 +209,8 @@
               "maxMarks": 2.0,
               "whyAwardedOrDeducted": "Zero marks: Off-topic / irrelevant response; zero credit awarded."
             }
-          ]
+          ],
+          "isReleased": false
         }
       ]
     },
@@ -220,8 +225,8 @@
       "topicName": "Force and Laws of Motion",
       "submittedAt": "2026-11-04T17:50:25.510Z",
       "totalMaxMarks": 20.0,
-      "totalAwardedMarks": 5.5,
-      "status": "PENDING_TEACHER_RELEASE",
+      "totalAwardedMarks": 5.9,
+      "status": "RELEASED",
       "teacherInstructionsUsed": "Focus strictly on proper statement of Newton's 2nd Law (rate of change of momentum). Penalize 0.5 marks if SI units (N, kg, m/s²) are omitted. Allow partial marks for mathematical derivation steps.",
       "questions": [
         {
@@ -284,7 +289,8 @@
           "question": "State Newton's Second Law of Motion. Derive the mathematical expression F = ma from this law, defining all terms with their SI units.",
           "score": 2.3,
           "max": 5.0,
-          "student_ans": "newton's second law is F = ma i.e. Force is equal to mass and acceleration"
+          "student_ans": "newton's second law is F = ma i.e. Force is equal to mass and acceleration",
+          "isReleased": true
         },
         {
           "questionId": "q2",
@@ -349,7 +355,8 @@
           "question": "Why does a fielder pull his hands backward while catching a fast-moving cricket ball? Explain the physical mechanism using Newton's Second Law.",
           "score": 0.7,
           "max": 3.0,
-          "student_ans": ""
+          "student_ans": "",
+          "isReleased": true
         },
         {
           "questionId": "q3",
@@ -406,7 +413,8 @@
           "question": "Define Inertia. State its three types with one daily-life example for each. Name the physical quantity that measures inertia.",
           "score": 0.4,
           "max": 3.0,
-          "student_ans": ""
+          "student_ans": "",
+          "isReleased": true
         },
         {
           "questionId": "q4",
@@ -470,14 +478,15 @@
           "question": "A motorcar of mass 1200 kg is moving along a straight line with a uniform velocity of 90 km/h. Its velocity is slowed down to 18 km/h in 4 seconds by an unbalanced external force. Calculate the acceleration and the change in momentum. Also calculate the magnitude of the force required.",
           "score": 1.0,
           "max": 5.0,
-          "student_ans": ""
+          "student_ans": "",
+          "isReleased": true
         },
         {
           "questionId": "q5",
           "questionText": "State Newton's Third Law of Motion. Why do action and reaction forces not cancel each other even though they are equal in magnitude and opposite in direction?",
           "studentAnswer": "",
           "maxMarks": 4.0,
-          "awardedMarks": 1.1,
+          "awardedMarks": 1.5,
           "stepBreakdown": [
             {
               "stepNumber": 1,
@@ -525,17 +534,19 @@
             }
           ],
           "question": "State Newton's Third Law of Motion. Why do action and reaction forces not cancel each other even though they are equal in magnitude and opposite in direction?",
-          "score": 1.1,
+          "score": 1.5,
           "max": 4.0,
-          "student_ans": ""
+          "student_ans": "",
+          "isReleased": true
         }
       ],
       "topic": "Force and Laws of Motion",
       "subject": "Physics",
-      "totalAwarded": 5.5,
+      "totalAwarded": 5.9,
       "totalMax": 20.0,
-      "releasedAt": null,
-      "turnaroundMinutes": null
+      "releasedAt": "2026-11-26T18:40:41.712558Z",
+      "turnaroundMinutes": 31730.3,
+      "teacherRemarks": "Step-by-step marks verified and approved by faculty."
     },
     {
       "id": "sub_hist_p1",
@@ -853,7 +864,8 @@
           "questionText": "State Newton's Second Law of Motion. Derive F = ma with SI units.",
           "awardedMarks": 3.5,
           "maxMarks": 5.0,
-          "studentAnswer": "Newton's Second Law states that rate of change of momentum is proportional to applied force. F = ma."
+          "studentAnswer": "Newton's Second Law states that rate of change of momentum is proportional to applied force. F = ma.",
+          "isReleased": false
         }
       ],
       "chapterTitle": "Force and Laws of Motion (Newton's 2nd Law)",
@@ -901,7 +913,8 @@
           "questionText": "Why does a fielder pull his hands backward while catching a fast cricket ball?",
           "awardedMarks": 2.5,
           "maxMarks": 3.0,
-          "studentAnswer": "Pulling hands back increases the time taken to bring ball to rest, thus reducing the rate of change of momentum and impact force on palms."
+          "studentAnswer": "Pulling hands back increases the time taken to bring ball to rest, thus reducing the rate of change of momentum and impact force on palms.",
+          "isReleased": false
         }
       ],
       "chapterTitle": "Momentum & Cricket Ball Impulse Question",
@@ -949,7 +962,8 @@
           "questionText": "Define Evaporation. Explain four factors affecting evaporation with examples.",
           "awardedMarks": 4.0,
           "maxMarks": 5.0,
-          "studentAnswer": "Evaporation is the transition of liquid into vapor below boiling point. Factors: Surface area, temperature, humidity, and wind speed."
+          "studentAnswer": "Evaporation is the transition of liquid into vapor below boiling point. Factors: Surface area, temperature, humidity, and wind speed.",
+          "isReleased": false
         }
       ],
       "chapterTitle": "Evaporation & Factors Affecting Rate of Evaporation",
@@ -997,7 +1011,8 @@
           "questionText": "Rationalize the denominator of 1 / (7 + 3*sqrt(2)).",
           "awardedMarks": 3.0,
           "maxMarks": 3.0,
-          "studentAnswer": "Multiply numerator and denominator by conjugate (7 - 3*sqrt(2)). Result is (7 - 3*sqrt(2)) / 31."
+          "studentAnswer": "Multiply numerator and denominator by conjugate (7 - 3*sqrt(2)). Result is (7 - 3*sqrt(2)) / 31.",
+          "isReleased": false
         }
       ],
       "chapterTitle": "Rationalizing the Denominator and Real Numbers",
