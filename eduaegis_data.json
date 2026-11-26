@@ -21,6 +21,17 @@
       "phone": "+91 91234 56789",
       "cityState": "Kolkata, West Bengal",
       "createdAt": "2025-11-20T11:30:00Z"
+    },
+    {
+      "id": "STU-103",
+      "username": "Daksh",
+      "name": "Daksh Gupta",
+      "role": "student",
+      "studentClass": 10,
+      "board": "ICSE / CISCE",
+      "email": "daksh.gupta@eduaegis.com",
+      "cityState": "Pune",
+      "password": "eduaegis123"
     }
   ],
   "teacherInstructions": {
@@ -42,9 +53,166 @@
   },
   "submissions": [
     {
+      "id": "sub_1795694326310",
+      "studentId": "STU-103",
+      "studentName": "Daksh Gupta",
+      "board": "ICSE / CISCE",
+      "className": "Class 9th",
+      "subject": "Physics",
+      "subjectName": "Physics",
+      "topic": "Newton's Second Law of Motion",
+      "chapterTitle": "Newton's Second Law of Motion",
+      "topicName": "Newton's Second Law of Motion",
+      "totalAwarded": 0.0,
+      "totalAwardedMarks": 0.0,
+      "totalMax": 20.0,
+      "totalMaxMarks": 20.0,
+      "status": "PENDING_TEACHER_RELEASE",
+      "submittedAt": "2026-11-26T17:28:46.310042Z",
+      "releasedAt": null,
+      "turnaroundMinutes": null,
+      "questions": [
+        {
+          "question": "State Newton's Second Law of Motion. Derive the formula F = ma defining all SI units.",
+          "questionText": "State Newton's Second Law of Motion. Derive the formula F = ma defining all SI units.",
+          "max": 5.0,
+          "maxMarks": 5.0,
+          "score": 0.0,
+          "awardedMarks": 0.0,
+          "student_ans": "F-ma. is this correct",
+          "studentAnswer": "F-ma. is this correct",
+          "evalStatus": "IRRELEVANT",
+          "stepBreakdown": [
+            {
+              "stepNumber": 1,
+              "stepFocus": "Relevance to Question Concept",
+              "marksAwarded": 0.0,
+              "maxMarks": 2.5,
+              "whyAwardedOrDeducted": "Zero marks: Answer does not contain any relevant scientific principles or concepts for this question."
+            },
+            {
+              "stepNumber": 2,
+              "stepFocus": "Calculations & Formulation",
+              "marksAwarded": 0.0,
+              "maxMarks": 2.5,
+              "whyAwardedOrDeducted": "Zero marks: Off-topic / irrelevant response; zero credit awarded."
+            }
+          ]
+        },
+        {
+          "question": "Why does a fielder pull his hands backward while catching a fast cricket ball?",
+          "questionText": "Why does a fielder pull his hands backward while catching a fast cricket ball?",
+          "max": 3.0,
+          "maxMarks": 3.0,
+          "score": 0.0,
+          "awardedMarks": 0.0,
+          "student_ans": "NA",
+          "studentAnswer": "NA",
+          "evalStatus": "EVASIVE_OR_NA",
+          "stepBreakdown": [
+            {
+              "stepNumber": 1,
+              "stepFocus": "Subject Knowledge & Comprehension",
+              "marksAwarded": 0.0,
+              "maxMarks": 1.5,
+              "whyAwardedOrDeducted": "Zero marks: Student response indicated lack of knowledge ('NA' / 'Don't know' / unattempted)."
+            },
+            {
+              "stepNumber": 2,
+              "stepFocus": "Formulation & Scientific Reasoning",
+              "marksAwarded": 0.0,
+              "maxMarks": 1.5,
+              "whyAwardedOrDeducted": "Zero marks: No scientific derivation or formulation provided."
+            }
+          ]
+        },
+        {
+          "question": "Define Inertia. Name its three types with daily-life examples and state its measure.",
+          "questionText": "Define Inertia. Name its three types with daily-life examples and state its measure.",
+          "max": 3.0,
+          "maxMarks": 3.0,
+          "score": 0.0,
+          "awardedMarks": 0.0,
+          "student_ans": "",
+          "studentAnswer": "",
+          "evalStatus": "BLANK",
+          "stepBreakdown": [
+            {
+              "stepNumber": 1,
+              "stepFocus": "Attempt & Concept Relevance",
+              "marksAwarded": 0.0,
+              "maxMarks": 1.5,
+              "whyAwardedOrDeducted": "Zero marks: Question was left completely blank."
+            },
+            {
+              "stepNumber": 2,
+              "stepFocus": "Mathematical & Scientific Formulation",
+              "marksAwarded": 0.0,
+              "maxMarks": 1.5,
+              "whyAwardedOrDeducted": "Zero marks: No derivation, formula, or reasoning provided."
+            }
+          ]
+        },
+        {
+          "question": "A 1200 kg car slows from 90 km/h to 18 km/h in 4 s. Calculate acceleration and force.",
+          "questionText": "A 1200 kg car slows from 90 km/h to 18 km/h in 4 s. Calculate acceleration and force.",
+          "max": 5.0,
+          "maxMarks": 5.0,
+          "score": 0.0,
+          "awardedMarks": 0.0,
+          "student_ans": "dont know",
+          "studentAnswer": "dont know",
+          "evalStatus": "EVASIVE_OR_NA",
+          "stepBreakdown": [
+            {
+              "stepNumber": 1,
+              "stepFocus": "Subject Knowledge & Comprehension",
+              "marksAwarded": 0.0,
+              "maxMarks": 2.5,
+              "whyAwardedOrDeducted": "Zero marks: Student response indicated lack of knowledge ('NA' / 'Don't know' / unattempted)."
+            },
+            {
+              "stepNumber": 2,
+              "stepFocus": "Formulation & Scientific Reasoning",
+              "marksAwarded": 0.0,
+              "maxMarks": 2.5,
+              "whyAwardedOrDeducted": "Zero marks: No scientific derivation or formulation provided."
+            }
+          ]
+        },
+        {
+          "question": "State Newton's Third Law. Why do action and reaction forces not cancel each other?",
+          "questionText": "State Newton's Third Law. Why do action and reaction forces not cancel each other?",
+          "max": 4.0,
+          "maxMarks": 4.0,
+          "score": 0.0,
+          "awardedMarks": 0.0,
+          "student_ans": "0000",
+          "studentAnswer": "0000",
+          "evalStatus": "IRRELEVANT",
+          "stepBreakdown": [
+            {
+              "stepNumber": 1,
+              "stepFocus": "Relevance to Question Concept",
+              "marksAwarded": 0.0,
+              "maxMarks": 2.0,
+              "whyAwardedOrDeducted": "Zero marks: Answer does not contain any relevant scientific principles or concepts for this question."
+            },
+            {
+              "stepNumber": 2,
+              "stepFocus": "Calculations & Formulation",
+              "marksAwarded": 0.0,
+              "maxMarks": 2.0,
+              "whyAwardedOrDeducted": "Zero marks: Off-topic / irrelevant response; zero credit awarded."
+            }
+          ]
+        }
+      ]
+    },
+    {
       "id": "sub_1793814625510",
-      "studentId": "std_default_aarav",
-      "studentName": "Aarav Sharma",
+      "studentId": "STU-101",
+      "studentName": "Anup Sharma",
       "board": "CBSE (All India)",
       "className": "Class 9th",
       "subjectName": "Physics",
@@ -862,5 +1030,12 @@
       "email": "akanksha.singh@eduaegis.org",
       "department": "Department of Chemical & Mathematical Sciences"
     }
-  ]
+  ],
+  "passwords": {
+    "Anup": "eduaegis123",
+    "Nandita": "eduaegis123",
+    "Ankur": "eduaegis123",
+    "Akanksha": "eduaegis123",
+    "Admin": "eduaegis123"
+  }
 }

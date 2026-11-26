@@ -419,6 +419,26 @@ def generate_unique_student_id(existing_students):
                 pass
     return f"STU-{max_num + 1}"
 
+def matches_board(item_board: str, target_board: str) -> bool:
+    """Matches curriculum board flexibly, handling 'All Board' wildcard."""
+    if not target_board or target_board == "All Board":
+        return True
+    if not item_board:
+        return False
+    ib = str(item_board).strip().lower()
+    tb = str(target_board).strip().lower()
+    if ib == tb:
+        return True
+    if "cbse" in tb and "cbse" in ib:
+        return True
+    if "icse" in tb and "icse" in ib:
+        return True
+    if "state" in tb and "state" in ib:
+        return True
+    if "cambridge" in tb and "cambridge" in ib:
+        return True
+    return tb in ib or ib in tb
+
 def normalize_submission(sub, index=0):
     """Safely normalizes submission fields across schemas."""
     if not isinstance(sub, dict):
@@ -511,6 +531,7 @@ def normalize_submission(sub, index=0):
             q["student_ans"] = q_ans
             q["studentAnswer"] = q_ans
             q["stepBreakdown"] = step_breakdown
+            q["isReleased"] = bool(q.get("isReleased", status in ["RELEASED", "ACCEPTED"]))
             norm_questions.append(q)
     sub["questions"] = norm_questions
     return sub
@@ -590,6 +611,29 @@ if "db" not in st.session_state:
     st.session_state["db"] = load_db()
 
 db = st.session_state["db"]
+
+def update_teacher_q_mark(sub_id, q_i):
+    """Callback triggered whenever a teacher edits a question score and hits Enter.
+    Immediately recalculates the total score and syncs widget session state."""
+    q_key = f"t_q_override_{sub_id}_{q_i}"
+    if q_key in st.session_state:
+        try:
+            val = float(st.session_state[q_key])
+        except (ValueError, TypeError):
+            val = 0.0
+        current_db = st.session_state.get("db", db)
+        for s in current_db.get("submissions", []):
+            if s.get("id") == sub_id:
+                qs = s.get("questions", [])
+                if q_i < len(qs):
+                    qs[q_i]["score"] = val
+                    qs[q_i]["awardedMarks"] = val
+                tot = round(sum(float(q.get("score", q.get("awardedMarks", 0.0))) for q in qs), 1)
+                s["totalAwarded"] = tot
+                s["totalAwardedMarks"] = tot
+                st.session_state[f"t_override_{sub_id}"] = tot
+                save_db(current_db)
+                break
 
 # -----------------------------------------------------------------------------
 # PASSWORD MANAGEMENT FUNCTIONS
@@ -1028,9 +1072,9 @@ with st.sidebar:
         st.rerun()
 
 # -----------------------------------------------------------------------------
-# TOP HEADER WITH INTEGRATED CURRICULUM SELECTOR
+# TOP HEADER WITH INTEGRATED CURRICULUM SELECTOR (INCLUDES 'All Board' OPTION)
 # -----------------------------------------------------------------------------
-board_options = ["CBSE (All India)", "ICSE / CISCE", "State Board (Maharashtra/UP/Karnataka)", "Cambridge IGCSE"]
+board_options = ["All Board", "CBSE (All India)", "ICSE / CISCE", "State Board (Maharashtra/UP/Karnataka)", "Cambridge IGCSE"]
 col_head_left, col_head_right = st.columns([3.8, 1.2])
 
 with col_head_left:
@@ -1052,12 +1096,18 @@ with col_head_left:
     """, unsafe_allow_html=True)
 
 with col_head_right:
+    if "selected_curriculum_board" not in st.session_state:
+        st.session_state["selected_curriculum_board"] = "All Board"
+
+    curr_b_idx = board_options.index(st.session_state["selected_curriculum_board"]) if st.session_state["selected_curriculum_board"] in board_options else 0
     selected_board = st.selectbox(
         "🏛️ Active Curriculum Board",
         board_options,
-        index=0,
-        help="Curriculum board remains active across all evaluations."
+        index=curr_b_idx,
+        key="global_board_selector",
+        help="Select a curriculum board to filter institutional dashboards, queues, and student records. Select 'All Board' to view all students from all boards."
     )
+    st.session_state["selected_curriculum_board"] = selected_board
 
 # -----------------------------------------------------------------------------
 # SPREAD-ACROSS BLUE TABS (3 FOR STUDENT, 4 FOR TEACHER, 5 FOR ADMIN)
@@ -1412,11 +1462,12 @@ if tab_grader is not None:
             assigned_std_id = current_user.get("id", "STU-101")
             assigned_std_name = current_user.get("name", "Anup Sharma")
 
+            sub_board = current_user.get("board", "CBSE (All India)") if (user_role == "student" or g_board == "All Board") else g_board
             new_sub = {
                 "id": f"sub_{int(time.time() * 1000)}",
                 "studentId": assigned_std_id,
                 "studentName": assigned_std_name,
-                "board": g_board,
+                "board": sub_board,
                 "className": f"Class {g_class}th",
                 "subject": g_subject,
                 "subjectName": g_subject,
@@ -1471,8 +1522,12 @@ if tab_history is not None:
             if status_filter != "All Statuses":
                 display_subs = [s for s in display_subs if s.get("status") == status_filter]
 
+        # Apply Curriculum Board filter
+        if selected_board != "All Board":
+            display_subs = [s for s in display_subs if matches_board(s.get("board", ""), selected_board)]
+
         if not display_subs:
-            st.info("No assessment records found.")
+            st.info(f"No assessment records found for curriculum board: **{selected_board}**.")
         else:
             for s_idx, sub in enumerate(display_subs):
                 sub = normalize_submission(sub, s_idx)
@@ -1493,7 +1548,20 @@ if tab_history is not None:
                     st.markdown(f"**Score:** `{awarded} / {max_m}` Marks  |  **Status:** `{status}`")
 
                     if status == "PENDING_TEACHER_RELEASE":
-                        st.warning("⏳ **Under Teacher Audit:** Evaluation timer is active. Marks will become official once your teacher audits and releases your marks.")
+                        released_q_list = [q for q in sub.get("questions", []) if q.get("isReleased", False)]
+                        if released_q_list:
+                            st.warning(f"⏳ **Under Teacher Audit:** {len(released_q_list)} of {len(sub.get('questions', []))} questions evaluated & released by faculty so far.")
+                            st.markdown("##### Partial Question Release Status:")
+                            for q_idx, q_item in enumerate(sub.get("questions", [])):
+                                q_text = q_item.get("question") or q_item.get("questionText", f"Question {q_idx+1}")
+                                q_sc = q_item.get("score", q_item.get("awardedMarks", 0.0))
+                                q_mx = q_item.get("max", q_item.get("maxMarks", 5.0))
+                                if q_item.get("isReleased", False):
+                                    st.markdown(f"**Q{q_idx+1}: {q_text}** — <span style='color: #15803D; font-weight: 700;'>✅ Released by Faculty: {q_sc} / {q_mx} Marks</span>", unsafe_allow_html=True)
+                                else:
+                                    st.markdown(f"**Q{q_idx+1}: {q_text}** — <span style='color: #92400E; font-weight: 600;'>⏳ Under Faculty Evaluation (In Progress)</span>", unsafe_allow_html=True)
+                        else:
+                            st.warning("⏳ **Under Teacher Audit:** Evaluation timer is active. Your subject faculty is reviewing your answers question-by-question.")
                     elif status == "RELEASED":
                         st.success("✅ **Scores Officially Released by Teacher!**")
                         st.markdown("##### Detailed Step-by-Step Question Breakdown:")
@@ -1573,6 +1641,10 @@ if tab_teacher is not None:
             teacher_name = "All Faculty (Admin View)"
             teacher_id = "ADM-ALL"
 
+        # Curriculum Board Filtering for Teacher Panel
+        if selected_board != "All Board":
+            t_subs = [s for s in t_subs if matches_board(s.get("board", ""), selected_board)]
+
         pending_subs = [s for s in t_subs if s.get("status") == "PENDING_TEACHER_RELEASE"]
         completed_subs = [s for s in t_subs if s.get("status") in ["RELEASED", "ACCEPTED"]]
         challenged_subs = [s for s in t_subs if s.get("status") == "CHALLENGED"]
@@ -1580,7 +1652,8 @@ if tab_teacher is not None:
         # 1. Professional Faculty Dashboard
         st.markdown(f"### 📊 Faculty Evaluation Dashboard • {teacher_name} ({teacher_id})")
         subj_pills = " • ".join(teacher_subjects)
-        st.markdown(f'<div class="board-pill">📚 Teaching Domain: {subj_pills}</div>', unsafe_allow_html=True)
+        b_info = f"🏛️ Curriculum Board Filter: <strong>{selected_board}</strong>" if selected_board != "All Board" else "🏛️ Curriculum Board: <strong>All Board (All Students Across Boards)</strong>"
+        st.markdown(f'<div class="board-pill">{b_info} &nbsp;|&nbsp; 📚 Teaching Domain: {subj_pills}</div>', unsafe_allow_html=True)
 
         kpi_c1, kpi_c2, kpi_c3, kpi_c4 = st.columns(4)
 
@@ -1764,35 +1837,86 @@ if tab_teacher is not None:
 
                     if status == "PENDING_TEACHER_RELEASE":
                         st.markdown(f'<div class="timer-pill">⏱️ Timer Running: {elapsed_txt} since arrival in queue</div>', unsafe_allow_html=True)
-                        st.info("💡 **Teacher Mark Adjustment Enabled:** You can inspect and change the marks given by the app for each question below, or adjust the total marks directly.")
+                        st.info("💡 **Teacher Question-Level Evaluation & Release:** Modify marks for any question below. The total score recalculates immediately upon pressing Enter or clicking the small release icon beside each question. Marks can be released question-by-question to avoid bulk release.")
 
-                        # Question-by-Question Marks Editing Feature
-                        teacher_modified_questions = []
-                        with st.expander(f"🔍 Question-by-Question Marks Breakdown & Override for Candidate {student_id}", expanded=True):
-                            for q_i, q_item in enumerate(sub.get("questions", [])):
+                        # Question-by-Question Marks Editing & Individual Release Feature
+                        questions_list = sub.get("questions", [])
+                        with st.expander(f"🔍 Question-by-Question Marks Breakdown & Release for Candidate {student_id}", expanded=True):
+                            for q_i, q_item in enumerate(questions_list):
                                 q_txt = q_item.get("question") or q_item.get("questionText", f"Question {q_i+1}")
                                 app_q_score = float(q_item.get("score", q_item.get("awardedMarks", 0.0)))
                                 q_mx = float(q_item.get("max", q_item.get("maxMarks", 5.0)))
                                 stu_ans = q_item.get("student_ans") or q_item.get("studentAnswer", "Blank / No response")
+                                q_is_rel = q_item.get("isReleased", False)
 
-                                col_qa, col_qb = st.columns([3, 1])
+                                col_qa, col_qb, col_qc = st.columns([3.0, 1.1, 1.3])
                                 with col_qa:
                                     st.markdown(f"**Q{q_i+1} ({q_mx} Marks):** {q_txt}")
                                     st.markdown(f"**Student Answer:** *\"{stu_ans}\"*")
+                                    if q_is_rel:
+                                        st.markdown(f'<span style="background: #DCFCE7; color: #15803D; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; border: 1px solid #86EFAC;">🟢 Q{q_i+1} Released: <strong>{app_q_score} / {q_mx}</strong></span>', unsafe_allow_html=True)
+                                    else:
+                                        st.markdown(f'<span style="background: #FEF3C7; color: #92400E; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px; border: 1px solid #FCD34D;">⏳ Pending Question Release</span>', unsafe_allow_html=True)
+
                                 with col_qb:
-                                    # Teacher editable mark input per question
+                                    # Teacher editable mark input per question with instant Enter callback
+                                    cur_q_val = float(st.session_state.get(f"t_q_override_{sub_id}_{q_i}", app_q_score))
                                     new_q_val = st.number_input(
-                                        f"Q{q_i+1} Teacher Mark:",
+                                        f"Q{q_i+1} Marks:",
                                         min_value=0.0,
                                         max_value=q_mx,
-                                        value=min(q_mx, max(0.0, app_q_score)),
+                                        value=min(q_mx, max(0.0, cur_q_val)),
                                         step=0.5,
-                                        key=f"t_q_override_{sub_id}_{q_i}"
+                                        key=f"t_q_override_{sub_id}_{q_i}",
+                                        on_change=update_teacher_q_mark,
+                                        args=(sub_id, q_i),
+                                        help=f"Type marks for Q{q_i+1} and press Enter to instantly recalculate total score."
                                     )
-                                    teacher_modified_questions.append((q_item, new_q_val))
 
-                        # Live sum of adjusted question marks
-                        live_calc_sum = sum(item[1] for item in teacher_modified_questions) if teacher_modified_questions else awarded
+                                with col_qc:
+                                    st.markdown("<div style='height: 24px;'></div>", unsafe_allow_html=True)
+                                    # Small icon / button to submit and release marks for this individual question
+                                    rel_btn_label = f"✅ Q{q_i+1} Released" if q_is_rel else f"💾 Release Q{q_i+1}"
+                                    if st.button(rel_btn_label, key=f"btn_rel_q_{sub_id}_{q_i}", help=f"Click to submit and release marks for Q{q_i+1}", use_container_width=True):
+                                        actual_val = float(st.session_state.get(f"t_q_override_{sub_id}_{q_i}", new_q_val))
+                                        q_item["score"] = actual_val
+                                        q_item["awardedMarks"] = actual_val
+                                        q_item["isReleased"] = True
+
+                                        tot = round(sum(float(q.get("score", q.get("awardedMarks", 0.0))) for q in sub.get("questions", [])), 1)
+                                        sub["totalAwarded"] = tot
+                                        sub["totalAwardedMarks"] = tot
+                                        st.session_state[f"t_override_{sub_id}"] = tot
+                                        save_db(db)
+                                        st.toast(f"✅ Q{q_i+1} marks ({actual_val}/{q_mx}) released! Total updated to {tot}/{max_m}")
+                                        st.rerun()
+
+                        # Recompute live sum across all questions
+                        live_calc_sum = round(sum(float(q.get("score", q.get("awardedMarks", 0.0))) for q in sub.get("questions", [])), 1)
+                        released_q_count = sum(1 for q in sub.get("questions", []) if q.get("isReleased", False))
+                        total_q_count = len(sub.get("questions", []))
+                        live_pct = round((live_calc_sum / max_m) * 100.0, 1) if max_m > 0 else 0.0
+
+                        # Synchronize total score session state key if not set
+                        if f"t_override_{sub_id}" not in st.session_state:
+                            st.session_state[f"t_override_{sub_id}"] = live_calc_sum
+
+                        # Prominent Live Total Score Display Box (Updates IMMEDIATELY!)
+                        st.markdown(f"""
+                        <div style="background: linear-gradient(135deg, #EFF6FF, #DBEAFE); border: 1.5px solid #3B82F6; border-radius: 8px; padding: 12px 18px; margin: 12px 0;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <span style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: #1E40AF; letter-spacing: 0.5px;">Live Calculated Total Score (Instant Update)</span>
+                                    <div style="font-size: 24px; font-weight: 800; color: #1D4ED8;">{live_calc_sum} <span style="font-size: 14px; font-weight: 600; color: #475569;">/ {max_m} Marks</span> <span style="font-size: 15px; color: #059669; font-weight: 700;">({live_pct}%)</span></div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <span style="background: {'#DCFCE7' if released_q_count == total_q_count and total_q_count > 0 else '#FEF3C7'}; color: {'#15803D' if released_q_count == total_q_count and total_q_count > 0 else '#92400E'}; font-size: 12px; font-weight: 700; padding: 4px 12px; border-radius: 999px; border: 1px solid {'#86EFAC' if released_q_count == total_q_count and total_q_count > 0 else '#FCD34D'};">
+                                        {released_q_count} of {total_q_count} Questions Released
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        """, unsafe_allow_html=True)
 
                         col_ov1, col_ov2 = st.columns([2, 1])
                         with col_ov1:
@@ -1806,17 +1930,16 @@ if tab_teacher is not None:
                                 f"Final Total Score:",
                                 min_value=0.0,
                                 max_value=max_m,
-                                value=min(max_m, max(0.0, live_calc_sum)),
+                                value=st.session_state.get(f"t_override_{sub_id}", live_calc_sum),
                                 step=0.5,
                                 key=f"t_override_{sub_id}"
                             )
 
-                        if st.button(f"✅ Release Marks to Candidate {student_id}", key=f"rel_btn_{sub_id}"):
+                        if st.button(f"✅ Finalize & Release Complete Paper to Candidate {student_id}", key=f"rel_btn_{sub_id}", type="primary", use_container_width=True):
                             now_rel = datetime.now()
-                            # Apply question-level overrides
-                            for q_it, q_val in teacher_modified_questions:
-                                q_it["score"] = q_val
-                                q_it["awardedMarks"] = q_val
+                            # Mark all questions as officially released
+                            for q_it in sub.get("questions", []):
+                                q_it["isReleased"] = True
 
                             sub["totalAwarded"] = new_marks
                             sub["totalAwardedMarks"] = new_marks
@@ -1831,7 +1954,7 @@ if tab_teacher is not None:
                                 sub["turnaroundMinutes"] = 20.0
 
                             save_db(db)
-                            st.success(f"Marks ({new_marks}/{max_m}) officially released to Candidate {student_id}! Timer stopped (Turnaround: {format_minutes(sub['turnaroundMinutes'])}).")
+                            st.success(f"Assessment ({new_marks}/{max_m}) finalized & released to Candidate {student_id}! Timer stopped (Turnaround: {format_minutes(sub['turnaroundMinutes'])}).")
                             st.rerun()
 
                     elif status == "CHALLENGED":
@@ -1868,13 +1991,23 @@ if tab_admin is not None:
         all_students = db.get("students", [])
         teachers = [DEFAULT_USERS["Ankur"], DEFAULT_USERS["Akanksha"]]
 
-        # 1. Executive Global KPIs
-        total_subs = len(all_subs)
-        global_pending = len([s for s in all_subs if s.get("status") == "PENDING_TEACHER_RELEASE"])
-        global_completed = len([s for s in all_subs if s.get("status") in ["RELEASED", "ACCEPTED"]])
-        global_appeals = len([s for s in all_subs if s.get("status") == "CHALLENGED"])
+        # Curriculum Board Filtering for Admin Governance Dashboard
+        if selected_board != "All Board":
+            filtered_subs = [s for s in all_subs if matches_board(s.get("board", ""), selected_board)]
+            filtered_students = [std for std in all_students if matches_board(std.get("board", ""), selected_board)]
+            st.info(f"🏛️ **Active Board Filter: {selected_board}** — Executive KPIs, faculty workload distributions, and student marks are strictly filtered for **{selected_board}**. (Select 'All Board' on the top right to view all students across all boards).")
+        else:
+            filtered_subs = all_subs
+            filtered_students = all_students
+            st.info("🏛️ **Active Board Filter: All Board** — Aggregated institutional view displaying data for all students and evaluations across all curriculum boards (CBSE, ICSE, and State Boards).")
 
-        all_turnarounds = [s.get("turnaroundMinutes") for s in all_subs if s.get("turnaroundMinutes") is not None]
+        # 1. Executive Global KPIs
+        total_subs = len(filtered_subs)
+        global_pending = len([s for s in filtered_subs if s.get("status") == "PENDING_TEACHER_RELEASE"])
+        global_completed = len([s for s in filtered_subs if s.get("status") in ["RELEASED", "ACCEPTED"]])
+        global_appeals = len([s for s in filtered_subs if s.get("status") == "CHALLENGED"])
+
+        all_turnarounds = [s.get("turnaroundMinutes") for s in filtered_subs if s.get("turnaroundMinutes") is not None]
         global_avg_turnaround = round(sum(all_turnarounds) / len(all_turnarounds), 1) if all_turnarounds else 26.5
 
         st.markdown("### 🏛️ System-Wide Academic Governance KPIs")
@@ -1910,7 +2043,7 @@ if tab_admin is not None:
         with kpi_a5:
             st.markdown(f"""
             <div class="kpi-box" style="border-top: 3px solid #EC4899;">
-                <div class="kpi-num" style="color: #BE185D;">{len(all_students)}</div>
+                <div class="kpi-num" style="color: #BE185D;">{len(filtered_students)}</div>
                 <div class="kpi-label">Enrolled Candidates</div>
             </div>
             """, unsafe_allow_html=True)
@@ -1926,7 +2059,7 @@ if tab_admin is not None:
             t_name = t["name"]
             t_id = t["id"]
             t_subjs = t["subjects"]
-            t_assigned_subs = [s for s in all_subs if s.get("subject") in t_subjs or s.get("subjectName") in t_subjs]
+            t_assigned_subs = [s for s in filtered_subs if s.get("subject") in t_subjs or s.get("subjectName") in t_subjs]
 
             t_pend = len([s for s in t_assigned_subs if s.get("status") == "PENDING_TEACHER_RELEASE"])
             t_comp = len([s for s in t_assigned_subs if s.get("status") in ["RELEASED", "ACCEPTED"]])
@@ -1972,13 +2105,13 @@ if tab_admin is not None:
         st.caption("Institutional grade distribution, board benchmarks, and student-level academic progress.")
 
         student_analytics = []
-        for std in all_students:
+        for std in filtered_students:
             s_id = std.get("id")
             s_name = std.get("name")
             s_class = std.get("studentClass", 9)
             s_board = std.get("board", "CBSE")
 
-            s_subs = [s for s in all_subs if s.get("studentId") == s_id]
+            s_subs = [s for s in filtered_subs if s.get("studentId") == s_id]
             completed_s_subs = [s for s in s_subs if s.get("status") in ["RELEASED", "ACCEPTED"]]
 
             if completed_s_subs:
@@ -2018,27 +2151,36 @@ if tab_admin is not None:
         with col_v1:
             st.markdown("**Subject-wise Average Marks Distribution (out of 20):**")
             subject_marks = {}
-            for s in all_subs:
+            for s in filtered_subs:
                 subj = s.get("subject", "Physics")
                 aw = float(s.get("totalAwarded", 0.0))
                 subject_marks.setdefault(subj, []).append(aw)
 
             subj_avg_rows = [{"Subject": k, "Average Marks (out of 20)": round(sum(v)/len(v), 1)} for k, v in subject_marks.items()]
-            df_subj = pd.DataFrame(subj_avg_rows).set_index("Subject")
-            st.bar_chart(df_subj, color="#3B82F6")
+            if subj_avg_rows:
+                df_subj = pd.DataFrame(subj_avg_rows).set_index("Subject")
+                st.bar_chart(df_subj, color="#3B82F6")
+            else:
+                st.info(f"No graded assessments recorded under {selected_board}.")
 
         with col_v2:
             st.markdown("**Student Average Performance Comparison (%):**")
-            chart_std_pct = df_std[["Student Label", "Avg Pct Num"]].set_index("Student Label")
-            chart_std_pct.columns = ["Average Score (%)"]
-            st.bar_chart(chart_std_pct, color="#10B981")
+            if not df_std.empty and "Student Label" in df_std.columns:
+                chart_std_pct = df_std[["Student Label", "Avg Pct Num"]].set_index("Student Label")
+                chart_std_pct.columns = ["Average Score (%)"]
+                st.bar_chart(chart_std_pct, color="#10B981")
+            else:
+                st.info(f"No student performance records found for {selected_board}.")
 
         st.markdown("#### 📋 Comprehensive Student Academic Gradebook")
-        st.dataframe(
-            df_std[["Student ID", "Student Name", "Class", "Board", "Assessments Taken", "Completed", "Average Marks (out of 20)", "Average Percentage", "Highest Mark", "Performance Tier"]],
-            use_container_width=True,
-            hide_index=True
-        )
+        if not df_std.empty:
+            st.dataframe(
+                df_std[["Student ID", "Student Name", "Class", "Board", "Assessments Taken", "Completed", "Average Marks (out of 20)", "Average Percentage", "Highest Mark", "Performance Tier"]],
+                use_container_width=True,
+                hide_index=True
+            )
+        else:
+            st.info(f"No student gradebook data available for {selected_board}.")
 
         st.markdown("<hr>", unsafe_allow_html=True)
 
@@ -2047,7 +2189,10 @@ if tab_admin is not None:
             col_reg1, col_reg2 = st.columns(2)
             with col_reg1:
                 st.markdown("**Registered Students Registry:**")
-                st.dataframe(pd.DataFrame(all_students)[["id", "name", "studentClass", "board", "cityState", "email"]], hide_index=True)
+                if filtered_students:
+                    st.dataframe(pd.DataFrame(filtered_students)[["id", "name", "studentClass", "board", "cityState", "email"]], hide_index=True)
+                else:
+                    st.info(f"No students registered under {selected_board}.")
             with col_reg2:
                 st.markdown("**Faculty Registry:**")
                 st.dataframe(pd.DataFrame(teachers)[["id", "name", "subjects", "email", "department"]], hide_index=True)
