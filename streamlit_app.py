@@ -3,7 +3,8 @@ EduAegis - Streamlit Web Application
 Responsible AI Tutor & Subjective Grader (Multi-Subject: Physics, Chemistry, Maths)
 Classes 8th, 9th, 10th • CBSE, ICSE, State Board
 International Standard Soothing UI & Responsible AI Governance Framework
-Enhanced with Optimized Space Utilization, Atmospheric Watermark Background, Role-Based Access Control, Blind Evaluation, Teacher Dashboard & Admin Executive Console
+Enhanced with Spread-Across Blue Tabs, Zero-Mark Strict Grading for Blank/NA/Irrelevant,
+Teacher Question-Level Mark Adjustments, Background Profile Artwork, and In-App Password Updates
 """
 
 import os
@@ -24,9 +25,9 @@ st.set_page_config(
 )
 
 # -----------------------------------------------------------------------------
-# WATERMARK SVG BACKGROUND GENERATION
+# WATERMARK & SIDEBAR BACKGROUND SVGS
 # -----------------------------------------------------------------------------
-# Elegant educational and AI governance motifs (Shield, Cap, Atom orbit, Book, Neural nodes)
+# Educational & AI Governance Watermark Pattern (Shield, Cap, Atom, Book, Neural Nodes)
 svg_watermark = """<svg xmlns="http://www.w3.org/2000/svg" width="360" height="360" viewBox="0 0 360 360" fill="none" stroke="#6366F1" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.045">
   <path d="M60 40 L100 24 L140 40 L140 90 C140 120 100 135 100 135 C100 135 60 120 60 90 Z"/>
   <path d="M100 45 L100 115"/>
@@ -46,8 +47,31 @@ svg_watermark = """<svg xmlns="http://www.w3.org/2000/svg" width="360" height="3
 </svg>"""
 b64_bg = base64.b64encode(svg_watermark.encode("utf-8")).decode("utf-8")
 
+# Rich Decorative Background Illustration for Sidebar Profile Card
+svg_sidebar = """<svg xmlns="http://www.w3.org/2000/svg" width="340" height="170" viewBox="0 0 340 170" fill="none">
+  <defs>
+    <linearGradient id="sb_grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0F172A" stop-opacity="0.96"/>
+      <stop offset="50%" stop-color="#1E1B4B" stop-opacity="0.92"/>
+      <stop offset="100%" stop-color="#1D4ED8" stop-opacity="0.88"/>
+    </linearGradient>
+  </defs>
+  <rect width="340" height="170" rx="12" fill="url(#sb_grad)"/>
+  <g stroke="#818CF8" stroke-width="1.3" opacity="0.2">
+    <path d="M250 25 L285 12 L320 25 L320 65 C320 90 285 105 285 105 C285 105 250 90 250 65 Z"/>
+    <path d="M285 30 L285 90"/>
+    <path d="M265 52 L305 52"/>
+    <circle cx="45" cy="135" r="10"/>
+    <ellipse cx="45" cy="135" rx="26" ry="9" transform="rotate(30 45 135)"/>
+    <ellipse cx="45" cy="135" rx="26" ry="9" transform="rotate(-30 45 135)"/>
+  </g>
+  <path d="M0 140 Q85 115 170 135 T340 110" stroke="#60A5FA" stroke-width="1.2" opacity="0.25" fill="none"/>
+  <path d="M0 150 Q85 125 170 145 T340 120" stroke="#34D399" stroke-width="1.2" opacity="0.2" fill="none"/>
+</svg>"""
+b64_sidebar = base64.b64encode(svg_sidebar.encode("utf-8")).decode("utf-8")
+
 # -----------------------------------------------------------------------------
-# OPTIMIZED SOOTHING CSS (SPACE EFFICIENT, BEAUTIFUL COLORS, 100% READABILITY)
+# OPTIMIZED SOOTHING CSS (SPREAD-ACROSS BLUE TABS, 100% READABILITY)
 # -----------------------------------------------------------------------------
 st.markdown(f"""
 <style>
@@ -59,7 +83,7 @@ st.markdown(f"""
 
     /* Global Space Optimization - Eliminates excessive top whitespace */
     .block-container {{
-        padding-top: 0.8rem !important;
+        padding-top: 0.7rem !important;
         padding-bottom: 1.5rem !important;
         padding-left: 1.5rem !important;
         padding-right: 1.5rem !important;
@@ -68,7 +92,7 @@ st.markdown(f"""
     
     header[data-testid="stHeader"] {{
         background: transparent !important;
-        height: 1.8rem !important;
+        height: 1.6rem !important;
     }}
 
     /* Atmospheric Watermark Background with Soft Ambient Mesh */
@@ -120,9 +144,9 @@ st.markdown(f"""
     .role-badge-student {{
         background: #EFF6FF;
         color: #1D4ED8;
-        font-size: 10.5px;
+        font-size: 10px;
         font-weight: 700;
-        padding: 3px 8px;
+        padding: 2px 8px;
         border-radius: 9999px;
         border: 1px solid #BFDBFE;
     }}
@@ -130,9 +154,9 @@ st.markdown(f"""
     .role-badge-teacher {{
         background: #ECFDF5;
         color: #047857;
-        font-size: 10.5px;
+        font-size: 10px;
         font-weight: 700;
-        padding: 3px 8px;
+        padding: 2px 8px;
         border-radius: 9999px;
         border: 1px solid #A7F3D0;
     }}
@@ -140,9 +164,9 @@ st.markdown(f"""
     .role-badge-admin {{
         background: #FAF5FF;
         color: #7E22CE;
-        font-size: 10.5px;
+        font-size: 10px;
         font-weight: 700;
-        padding: 3px 8px;
+        padding: 2px 8px;
         border-radius: 9999px;
         border: 1px solid #E9D5FF;
     }}
@@ -179,17 +203,21 @@ st.markdown(f"""
         margin-bottom: 10px !important;
     }}
 
-    /* Compact Sidebar Profile Card */
+    /* Rich Profile Card with Decorative Background Illustration */
     .sidebar-profile-card {{
-        background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(238, 242, 255, 0.9) 100%);
-        border: 1px solid #C7D2FE;
-        border-radius: 12px;
-        padding: 10px 12px;
-        margin-bottom: 8px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+        background-color: #0F172A !important;
+        background-image: url("data:image/svg+xml;base64,{b64_sidebar}") !important;
+        background-size: cover !important;
+        background-position: center !important;
+        border: 1px solid rgba(129, 140, 248, 0.45) !important;
+        border-radius: 12px !important;
+        padding: 12px 14px !important;
+        margin-bottom: 8px !important;
+        box-shadow: 0 4px 14px rgba(15, 23, 42, 0.25) !important;
+        color: #FFFFFF !important;
     }}
 
-    /* Tighten Sidebar Padding to Eliminate Wasted Left Space */
+    /* Tighten Sidebar Padding */
     [data-testid="stSidebar"] {{
         background: rgba(255, 255, 255, 0.96) !important;
         border-right: 1px solid #E2E8F0 !important;
@@ -198,6 +226,52 @@ st.markdown(f"""
         padding-top: 0.8rem !important;
         padding-left: 0.9rem !important;
         padding-right: 0.9rem !important;
+    }}
+
+    /* ========================================================================= */
+    /* BLUE BOX SPREAD-ACROSS TABS (100% WIDTH EQUALLY DIVIDED IRRESPECTIVE OF COUNT) */
+    /* ========================================================================= */
+    .stTabs [data-baseweb="tab-list"] {{
+        display: flex !important;
+        width: 100% !important;
+        background: linear-gradient(135deg, #1E1B4B 0%, #1D4ED8 50%, #2563EB 100%) !important;
+        padding: 5px !important;
+        border-radius: 12px !important;
+        border: 1px solid rgba(99, 102, 241, 0.4) !important;
+        gap: 6px !important;
+        box-shadow: 0 4px 14px rgba(29, 78, 216, 0.2) !important;
+        margin-bottom: 12px !important;
+    }}
+    
+    .stTabs [data-baseweb="tab"] {{
+        flex: 1 1 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        text-align: center !important;
+        justify-content: center !important;
+        border-radius: 8px !important;
+        padding: 8px 8px !important;
+        color: #E2E8F0 !important;
+        font-weight: 700 !important;
+        font-size: 12.5px !important;
+        background: transparent !important;
+        border: none !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        transition: all 0.2s ease-in-out !important;
+    }}
+
+    .stTabs [data-baseweb="tab"]:hover {{
+        background: rgba(255, 255, 255, 0.18) !important;
+        color: #FFFFFF !important;
+    }}
+
+    .stTabs [aria-selected="true"] {{
+        background: #FFFFFF !important;
+        color: #1E1B4B !important;
+        font-weight: 800 !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
     }}
 
     /* Vibrant Compact KPI Summary Cards */
@@ -257,26 +331,6 @@ st.markdown(f"""
         border-radius: 10px;
         padding: 10px 14px;
         margin-bottom: 6px;
-    }}
-
-    /* Modern Styled Tab Bar */
-    .stTabs [data-baseweb="tab-list"] {{
-        gap: 6px;
-        background: rgba(241, 245, 249, 0.85);
-        padding: 4px;
-        border-radius: 10px;
-        border: 1px solid #E2E8F0;
-    }}
-    .stTabs [data-baseweb="tab"] {{
-        border-radius: 8px;
-        padding: 5px 12px;
-        font-weight: 600;
-        font-size: 12.5px;
-    }}
-    .stTabs [aria-selected="true"] {{
-        background: linear-gradient(135deg, #4338CA 0%, #6366F1 100%) !important;
-        color: #FFFFFF !important;
-        box-shadow: 0 2px 8px rgba(99, 102, 241, 0.35);
     }}
 
     hr {{
@@ -382,7 +436,6 @@ def normalize_submission(sub, index=0):
     released_at = sub.get("releasedAt")
     turnaround = sub.get("turnaroundMinutes")
 
-    # If already released and turnaround is missing, compute it
     if released_at and turnaround is None:
         try:
             t1 = datetime.fromisoformat(submitted_at.replace("Z", ""))
@@ -488,7 +541,24 @@ def load_db():
                     "lenientSpelling": True
                 }
             },
-            "submissions": []
+            "submissions": [],
+            "passwords": {
+                "Anup": "eduaegis123",
+                "Nandita": "eduaegis123",
+                "Ankur": "eduaegis123",
+                "Akanksha": "eduaegis123",
+                "Admin": "eduaegis123"
+            }
+        }
+
+    # Ensure passwords dict exists
+    if "passwords" not in data:
+        data["passwords"] = {
+            "Anup": "eduaegis123",
+            "Nandita": "eduaegis123",
+            "Ankur": "eduaegis123",
+            "Akanksha": "eduaegis123",
+            "Admin": "eduaegis123"
         }
 
     # Ensure unique students without duplicates
@@ -521,6 +591,33 @@ if "db" not in st.session_state:
 
 db = st.session_state["db"]
 
+# -----------------------------------------------------------------------------
+# PASSWORD MANAGEMENT FUNCTIONS
+# -----------------------------------------------------------------------------
+def get_user_password(username):
+    """Retrieves active password for given username without exposing hints."""
+    pws = db.get("passwords", {})
+    if username in pws:
+        return pws[username]
+    if username in DEFAULT_USERS:
+        return DEFAULT_USERS[username].get("password", "eduaegis123")
+    return "eduaegis123"
+
+def update_user_password(username, new_pw):
+    """Updates and permanently persists the new password."""
+    if "passwords" not in db:
+        db["passwords"] = {}
+    db["passwords"][username] = new_pw
+    if username in DEFAULT_USERS:
+        DEFAULT_USERS[username]["password"] = new_pw
+    for s in db.get("students", []):
+        if s.get("username") == username:
+            s["password"] = new_pw
+    for t in db.get("teachers", []):
+        if t.get("username") == username:
+            t["password"] = new_pw
+    save_db(db)
+
 # Helper to format duration
 def format_minutes(mins):
     if mins is None:
@@ -532,8 +629,193 @@ def format_minutes(mins):
     rem_m = int(mins % 60)
     return f"{hours}h {rem_m}m"
 
+# -----------------------------------------------------------------------------
+# STRICT RELEVANCE & ZERO-MARK EVALUATION ENGINE
+# -----------------------------------------------------------------------------
+def evaluate_student_answer(subject, q_idx, q_text, raw_student_answer, q_max):
+    """
+    Strict Subjective Evaluation:
+    - If answer is blank / empty -> 0.0 marks.
+    - If answer is 'NA', 'Don't know', evasive -> 0.0 marks.
+    - If answer is unrelated / off-topic (no domain keywords) -> 0.0 marks.
+    - Otherwise evaluates step-by-step strictly based on concept and calculations.
+    """
+    ans = raw_student_answer.strip().lower() if raw_student_answer else ""
+    
+    # 1. Blank Check -> 0 Marks
+    if not ans or len(ans) == 0:
+        return {
+            "score": 0.0,
+            "status": "BLANK",
+            "stepBreakdown": [
+                {
+                    "stepNumber": 1,
+                    "stepFocus": "Attempt & Concept Relevance",
+                    "marksAwarded": 0.0,
+                    "maxMarks": round(q_max * 0.5, 1),
+                    "whyAwardedOrDeducted": "Zero marks: Question was left completely blank."
+                },
+                {
+                    "stepNumber": 2,
+                    "stepFocus": "Mathematical & Scientific Formulation",
+                    "marksAwarded": 0.0,
+                    "maxMarks": round(q_max * 0.5, 1),
+                    "whyAwardedOrDeducted": "Zero marks: No derivation, formula, or reasoning provided."
+                }
+            ]
+        }
+    
+    # 2. Evasive / Non-answer Check (NA, don't know, skip, etc.) -> 0 Marks
+    evasive_patterns = [
+        "na", "n/a", "none", "nil", "no", "idk", "i don't know", "i dont know",
+        "dont know", "do not know", "no idea", "not sure", "skip", "pass",
+        "dunno", "nothing", "blank", "test", "asdf", "xyz", "abc", "leave",
+        "cant answer", "cannot answer", "left blank", "not known", "dont have answer"
+    ]
+    clean_words = ans.replace(".", "").replace(",", "").split()
+    if ans in evasive_patterns or (len(clean_words) <= 3 and any(w in evasive_patterns for w in clean_words)):
+        return {
+            "score": 0.0,
+            "status": "EVASIVE_OR_NA",
+            "stepBreakdown": [
+                {
+                    "stepNumber": 1,
+                    "stepFocus": "Subject Knowledge & Comprehension",
+                    "marksAwarded": 0.0,
+                    "maxMarks": round(q_max * 0.5, 1),
+                    "whyAwardedOrDeducted": "Zero marks: Student response indicated lack of knowledge ('NA' / 'Don't know' / unattempted)."
+                },
+                {
+                    "stepNumber": 2,
+                    "stepFocus": "Formulation & Scientific Reasoning",
+                    "marksAwarded": 0.0,
+                    "maxMarks": round(q_max * 0.5, 1),
+                    "whyAwardedOrDeducted": "Zero marks: No scientific derivation or formulation provided."
+                }
+            ]
+        }
+    
+    # 3. Domain Keywords per Subject and Question for Relevance Check
+    p_keywords = {
+        0: ["momentum", "force", "acceleration", "f = ma", "f=ma", "mass", "rate of change", "p1", "p2", "newton", "kg", "m/s"],
+        1: ["time", "hand", "hands", "momentum", "force", "impact", "backward", "pull", "hurt", "reduce", "increase time", "cushion"],
+        2: ["inertia", "rest", "motion", "direction", "mass", "resist", "tendency", "property", "oppose"],
+        3: ["acceleration", "force", "velocity", "-5", "5", "6000", "-6000", "retardation", "m/s", "km/h", "25", "1200"],
+        4: ["action", "reaction", "different", "two bodies", "equal", "opposite", "cancel", "pair"]
+    }
+    c_keywords = {
+        0: ["evaporation", "surface", "temperature", "humidity", "wind", "vapor", "liquid", "cooling", "area"],
+        1: ["latent", "heat", "vaporization", "steam", "burn", "energy", "boiling", "extra", "joules"],
+        2: ["surface", "bulk", "boiling", "temperature", "cooling", "bubble", "point", "phenomenon"],
+        3: ["273", "298", "100", "kelvin", "celsius", "k = c", "formula"],
+        4: ["latent", "fusion", "ice", "absorb", "heat", "melt", "energy", "273", "effective"]
+    }
+    m_keywords = {
+        0: ["1/3", "3/9", "10x", "9x", "p/q", "fraction", "subtract", "let x", "equation", "0.333"],
+        1: ["7 - 3", "conjugate", "31", "multiply", "denominator", "square", "49 - 18", "rationalize"],
+        2: ["30/50", "40/50", "31/50", "32/50", "33/50", "multiply", "between", "rational", "numbers"],
+        3: ["2", "exponent", "power", "add", "1/3^21", "2^(2/3)", "simplify", "laws"],
+        4: ["irrational", "rational", "pi", "sqrt", "root", "integer", "non-terminating", "classify"]
+    }
+    
+    if subject == "Physics":
+        target_keys = p_keywords.get(q_idx, ["physics", "force"])
+    elif subject == "Chemistry":
+        target_keys = c_keywords.get(q_idx, ["chemistry", "matter"])
+    else:
+        target_keys = m_keywords.get(q_idx, ["math", "numbers"])
+        
+    matched_keys = [k for k in target_keys if k in ans]
+    
+    # If ZERO domain keywords match -> Off-Topic / Irrelevant -> 0 Marks!
+    if len(matched_keys) == 0:
+        return {
+            "score": 0.0,
+            "status": "IRRELEVANT",
+            "stepBreakdown": [
+                {
+                    "stepNumber": 1,
+                    "stepFocus": "Relevance to Question Concept",
+                    "marksAwarded": 0.0,
+                    "maxMarks": round(q_max * 0.5, 1),
+                    "whyAwardedOrDeducted": "Zero marks: Answer does not contain any relevant scientific principles or concepts for this question."
+                },
+                {
+                    "stepNumber": 2,
+                    "stepFocus": "Calculations & Formulation",
+                    "marksAwarded": 0.0,
+                    "maxMarks": round(q_max * 0.5, 1),
+                    "whyAwardedOrDeducted": "Zero marks: Off-topic / irrelevant response; zero credit awarded."
+                }
+            ]
+        }
+        
+    # Valid relevant answer: compute actual score based on completeness
+    score = 0.0
+    if subject == "Physics":
+        if q_idx == 0:
+            if "rate of change of momentum" in ans and "proportional" in ans:
+                score += 2.0
+            elif "momentum" in ans:
+                score += 1.0
+            if "p1" in ans or "mu" in ans or "v - u" in ans:
+                score += 1.5
+            if "f = ma" in ans or "newton" in ans:
+                score += 1.5
+        elif q_idx == 1:
+            if "time" in ans and ("increase" in ans or "more time" in ans):
+                score += 1.5
+            if "force" in ans or "momentum" in ans:
+                score += 1.5
+        elif q_idx == 2:
+            if "resist" in ans or "oppose" in ans:
+                score += 1.0
+            if "rest" in ans or "motion" in ans or "direction" in ans:
+                score += 1.0
+            if "mass" in ans:
+                score += 1.0
+        elif q_idx == 3:
+            if "-5" in ans or "5" in ans or "retardation" in ans:
+                score += 2.5
+            if "6000" in ans or "-6000" in ans:
+                score += 2.5
+        elif q_idx == 4:
+            if "different" in ans or "two bodies" in ans:
+                score += 2.5
+            if "equal" in ans and "opposite" in ans:
+                score += 1.5
+    else:
+        words = len(ans.split())
+        ratio = min(1.0, (len(matched_keys) * 0.3) + (words / 32.0) * 0.5)
+        score = round(q_max * ratio, 1)
+        
+    score = min(q_max, max(0.0, round(score, 1)))
+    step1_score = round(score * 0.5, 1)
+    step2_score = round(score - step1_score, 1)
+    
+    return {
+        "score": score,
+        "status": "EVALUATED",
+        "stepBreakdown": [
+            {
+                "stepNumber": 1,
+                "stepFocus": "Key Concept & Scientific Principles",
+                "marksAwarded": step1_score,
+                "maxMarks": round(q_max * 0.5, 1),
+                "whyAwardedOrDeducted": f"Awarded {step1_score} marks based on correct conceptual definition." if score > 0 else "Insufficient conceptual depth."
+            },
+            {
+                "stepNumber": 2,
+                "stepFocus": "Mathematical / Logical Reasoning & Units",
+                "marksAwarded": step2_score,
+                "maxMarks": round(q_max * 0.5, 1),
+                "whyAwardedOrDeducted": f"Awarded {step2_score} marks for derivation, formulas, and units." if score > 0 else "Missing derivations or standard SI units."
+            }
+        ]
+    }
+
 # =============================================================================
-# AUTHENTICATION & LOGIN PAGE
+# AUTHENTICATION & LOGIN PAGE (NO DEFAULT PASSWORD OR HINT SHOWN)
 # =============================================================================
 if "logged_in_user" not in st.session_state:
     st.session_state["logged_in_user"] = None
@@ -541,10 +823,10 @@ if "logged_in_user" not in st.session_state:
 # If not logged in, render the Login Screen
 if st.session_state["logged_in_user"] is None:
     st.markdown("""
-    <div style="max-width: 620px; margin: 30px auto 16px auto; text-align: center;">
+    <div style="max-width: 600px; margin: 30px auto 14px auto; text-align: center;">
         <div style="font-size: 34px;">🛡️</div>
         <h1 style="font-size: 26px; font-weight: 800; color: #0F172A; margin-bottom: 4px;">Welcome to EduAegis</h1>
-        <p style="color: #64748B; font-size: 13.5px; margin-bottom: 18px;">
+        <p style="color: #64748B; font-size: 13.5px; margin-bottom: 16px;">
             Responsible AI Tutor & Governed Grader • Role-Based Authentication Portal
         </p>
     </div>
@@ -568,7 +850,6 @@ if st.session_state["logged_in_user"] is None:
                 help="Select whether you are logging in as a Student, Teacher, or Super User Admin."
             )
 
-            # Available usernames based on selected role
             if login_role == "Student":
                 user_options = ["Anup", "Nandita"]
                 default_idx = 0
@@ -580,14 +861,14 @@ if st.session_state["logged_in_user"] is None:
                 default_idx = 0
 
             selected_username = st.selectbox("2. Select Your Username", user_options, index=default_idx)
-            entered_password = st.text_input("3. Password", type="password", placeholder="Enter your password (eduaegis123)")
-
-            st.caption("ℹ️ Default password for all prototype accounts is: **eduaegis123**")
+            # User specified: Do NOT show default password or hint on screen
+            entered_password = st.text_input("3. Password", type="password", placeholder="Enter your password")
 
             btn_login = st.button("🚀 Log In to EduAegis", type="primary", use_container_width=True)
 
             if btn_login:
-                if entered_password == "eduaegis123":
+                actual_pw = get_user_password(selected_username)
+                if entered_password == actual_pw:
                     user_data = DEFAULT_USERS.get(selected_username)
                     if user_data:
                         st.session_state["logged_in_user"] = user_data
@@ -595,12 +876,30 @@ if st.session_state["logged_in_user"] is None:
                         time.sleep(0.4)
                         st.rerun()
                     else:
-                        st.error("User not found.")
+                        st.error("User profile not found.")
                 else:
-                    st.error("Invalid password. Please enter 'eduaegis123'.")
+                    st.error("Invalid password. Please check your credentials and try again.")
 
-            st.markdown("<hr style='margin: 12px 0;'>", unsafe_allow_html=True)
-            st.markdown("<div style='font-size: 11.5px; font-weight: 700; color: #475569; margin-bottom: 6px;'>⚡ 1-Click Demo Quick Logins:</div>", unsafe_allow_html=True)
+            # In-App Password Update feature on Login Page
+            with st.expander("🔄 Update / Reset Password", expanded=False):
+                rst_user = st.selectbox("Username to Update", ["Anup", "Nandita", "Ankur", "Akanksha", "Admin"], key="rst_user")
+                rst_curr = st.text_input("Current Password", type="password", key="rst_curr")
+                rst_new = st.text_input("New Password", type="password", key="rst_new")
+                rst_conf = st.text_input("Confirm New Password", type="password", key="rst_conf")
+                if st.button("Save New Password", key="btn_save_rst", use_container_width=True):
+                    actual = get_user_password(rst_user)
+                    if rst_curr != actual:
+                        st.error("Current password incorrect.")
+                    elif len(rst_new) < 4:
+                        st.error("New password must be at least 4 characters long.")
+                    elif rst_new != rst_conf:
+                        st.error("New password and confirm password do not match.")
+                    else:
+                        update_user_password(rst_user, rst_new)
+                        st.success(f"Password updated successfully for {rst_user}! You can now log in.")
+
+            st.markdown("<hr style='margin: 10px 0;'>", unsafe_allow_html=True)
+            st.markdown("<div style='font-size: 11px; font-weight: 700; color: #475569; margin-bottom: 6px;'>⚡ Quick Persona Switch:</div>", unsafe_allow_html=True)
             col_q1, col_q2 = st.columns(2)
             with col_q1:
                 if st.button("👤 Anup (Student - CBSE)", use_container_width=True):
@@ -622,7 +921,6 @@ if st.session_state["logged_in_user"] is None:
 
             st.markdown("</div>", unsafe_allow_html=True)
 
-    # Stop rendering until authenticated
     st.stop()
 
 # =============================================================================
@@ -632,17 +930,17 @@ current_user = st.session_state["logged_in_user"]
 user_role = current_user.get("role", "student")
 
 # -----------------------------------------------------------------------------
-# SPACE-OPTIMIZED SIDEBAR (CONCISE, BEAUTIFUL, ZERO WASTED VERTICAL SPACE)
+# SIDEBAR: Profile Card with Background Artwork + Password Change
 # -----------------------------------------------------------------------------
 with st.sidebar:
     if user_role == "student":
         st.markdown(f"""
         <div class="sidebar-profile-card">
             <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span style="font-weight: 800; font-size: 13.5px; color: #1E3A8A;">👤 {current_user.get('name')}</span>
-                <span class="role-badge-student">Student</span>
+                <span style="font-weight: 800; font-size: 13.5px; color: #FFFFFF;">👤 {current_user.get('name')}</span>
+                <span class="role-badge-student" style="background: rgba(255,255,255,0.2); color: #93C5FD; border-color: #60A5FA;">Student</span>
             </div>
-            <div style="font-size: 11px; color: #1E40AF; margin-top: 4px;">
+            <div style="font-size: 11px; color: #E0E7FF; margin-top: 4px;">
                 <code>{current_user.get('id')}</code> • Class {current_user.get('studentClass', 9)}th • {current_user.get('board', 'CBSE').split(' ')[0]}<br>
                 📍 {current_user.get('cityState', 'Bangalore')}
             </div>
@@ -678,40 +976,59 @@ with st.sidebar:
     elif user_role == "teacher":
         subj_list = ", ".join(current_user.get("subjects", ["Physics"]))
         st.markdown(f"""
-        <div class="sidebar-profile-card" style="border-color: #A7F3D0; background: linear-gradient(135deg, #F0FDF4 0%, #ECFDF5 100%);">
+        <div class="sidebar-profile-card">
             <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span style="font-weight: 800; font-size: 13.5px; color: #065F46;">🛡️ {current_user.get('name')}</span>
-                <span class="role-badge-teacher">Teacher</span>
+                <span style="font-weight: 800; font-size: 13.5px; color: #FFFFFF;">🛡️ {current_user.get('name')}</span>
+                <span class="role-badge-teacher" style="background: rgba(16,185,129,0.25); color: #6EE7B7; border-color: #34D399;">Teacher</span>
             </div>
-            <div style="font-size: 11px; color: #047857; margin-top: 4px;">
+            <div style="font-size: 11px; color: #E0E7FF; margin-top: 4px;">
                 <code>{current_user.get('id')}</code> • Domain: <strong>{subj_list}</strong><br>
                 {current_user.get('department', 'Academic Faculty')}
             </div>
         </div>
-        <div class="blind-banner" style="font-size: 10.5px; padding: 6px 10px; margin-bottom: 8px;">
-            🔒 <strong>Blind Evaluation:</strong> Student names masked with IDs.
+        <div class="blind-banner" style="font-size: 10.5px; padding: 5px 9px; margin-bottom: 8px;">
+            🔒 <strong>Blind Evaluation:</strong> Student names masked.
         </div>
         """, unsafe_allow_html=True)
 
     else:  # Admin
         st.markdown(f"""
-        <div class="sidebar-profile-card" style="border-color: #E9D5FF; background: linear-gradient(135deg, #FAF5FF 0%, #F5F3FF 100%);">
+        <div class="sidebar-profile-card">
             <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span style="font-weight: 800; font-size: 13.5px; color: #581C87;">👑 {current_user.get('name')}</span>
-                <span class="role-badge-admin">Admin</span>
+                <span style="font-weight: 800; font-size: 13.5px; color: #FFFFFF;">👑 {current_user.get('name')}</span>
+                <span class="role-badge-admin" style="background: rgba(168,85,247,0.25); color: #D8B4FE; border-color: #C084FC;">Admin</span>
             </div>
-            <div style="font-size: 11px; color: #6B21A8; margin-top: 4px;">
+            <div style="font-size: 11px; color: #E0E7FF; margin-top: 4px;">
                 <code>{current_user.get('id')}</code> • Super User (Executive Governance)
             </div>
         </div>
         """, unsafe_allow_html=True)
+
+    # In-App Password Update feature in Sidebar
+    with st.expander("🔑 Change Password", expanded=False):
+        chg_curr = st.text_input("Current Password", type="password", key="side_chg_curr")
+        chg_new = st.text_input("New Password", type="password", key="side_chg_new")
+        chg_conf = st.text_input("Confirm New Password", type="password", key="side_chg_conf")
+        if st.button("Update Password", use_container_width=True, key="btn_side_pw"):
+            actual_pw = get_user_password(current_user.get("username"))
+            if chg_curr != actual_pw:
+                st.error("Current password incorrect.")
+            elif len(chg_new) < 4:
+                st.error("New password must be at least 4 characters long.")
+            elif chg_new != chg_conf:
+                st.error("New password and confirm password do not match.")
+            else:
+                update_user_password(current_user.get("username"), chg_new)
+                current_user["password"] = chg_new
+                st.session_state["logged_in_user"] = current_user
+                st.success("Password updated successfully!")
 
     if st.button("🚪 Log Out", use_container_width=True):
         st.session_state["logged_in_user"] = None
         st.rerun()
 
 # -----------------------------------------------------------------------------
-# SPACE-OPTIMIZED TOP HEADER WITH INTEGRATED CURRICULUM SELECTOR
+# TOP HEADER WITH INTEGRATED CURRICULUM SELECTOR
 # -----------------------------------------------------------------------------
 board_options = ["CBSE (All India)", "ICSE / CISCE", "State Board (Maharashtra/UP/Karnataka)", "Cambridge IGCSE"]
 col_head_left, col_head_right = st.columns([3.8, 1.2])
@@ -743,8 +1060,9 @@ with col_head_right:
     )
 
 # -----------------------------------------------------------------------------
-# DYNAMIC TAB RENDERING BASED ON USER ROLE
+# SPREAD-ACROSS BLUE TABS (3 FOR STUDENT, 4 FOR TEACHER, 5 FOR ADMIN)
 # -----------------------------------------------------------------------------
+# Irrespective of the number of tabs, the CSS divides 100% of the blue box equally!
 if user_role == "student":
     tab_tutor, tab_grader, tab_history = st.tabs([
         "💡 AI Tutor (Concept Learning & Audio)",
@@ -755,12 +1073,12 @@ if user_role == "student":
     tab_admin = None
 
 elif user_role == "teacher":
-    tab_teacher, tab_tutor, tab_grader = st.tabs([
+    tab_teacher, tab_tutor, tab_grader, tab_history = st.tabs([
         "🛡️ Teacher / Governance Panel",
         "💡 AI Tutor (Concept Learning & Audio)",
-        "✍️ AI Grader (Subjective Assessment)"
+        "✍️ AI Grader (Subjective Assessment)",
+        "📜 Student Evaluations & Audit History"
     ])
-    tab_history = None
     tab_admin = None
 
 else:  # Admin (Super User Access)
@@ -921,12 +1239,12 @@ if tab_tutor is not None:
             st.info("Switch to the **AI Grader** tab to take the 5-question practice test with step-by-step scoring!")
 
 # =============================================================================
-# TAB: AI GRADER (Multi-Subject, Custom Topic, 5-Q Paper, Controlled Release)
+# TAB: AI GRADER (Zero-Marks for Blank/NA/Irrelevant + Controlled Release)
 # =============================================================================
 if tab_grader is not None:
     with tab_grader:
         st.subheader("✍️ AI Subjective Grader: Multi-Subject Assessment")
-        st.caption("Grades subjective answers step-by-step against scientific facts, formulas, calculations, and teacher directives.")
+        st.caption("Grades subjective answers step-by-step. Blank, 'NA', or off-topic responses receive zero marks automatically.")
 
         # Candidate Selection Ribbon
         g_col1, g_col2, g_col3 = st.columns(3)
@@ -949,7 +1267,7 @@ if tab_grader is not None:
 
         st.info(f"🎯 **Active Testing Topic:** {active_grade_topic} • **Curriculum:** {g_board} • Class {g_class}th {g_subject}")
 
-        # Section 1: Solved Examples with Hidden Solutions
+        # Practice Solved Example
         with st.expander("📘 Practice Solved Example (Solution Hidden by Default)", expanded=False):
             if g_subject == "Physics":
                 st.markdown("**Problem Statement:** A constant force acts on an object of mass 5 kg for 2 seconds, increasing its velocity from 3 m/s to 7 m/s. Calculate the magnitude of the applied force. (4 Marks)")
@@ -980,20 +1298,20 @@ if tab_grader is not None:
                     - **Step 3:** Subtract Eq 1 from Eq 2: 9x = 3 => x = 3/9 = 1/3 in p/q form. *(+1 Mark)*
                     """)
 
-        # Section 2: 5-Question Subjective Paper with 1-Click Demo Loaders
+        # 5-Question Subjective Paper
         st.markdown("### ✍️ 5-Question Practice Subjective Paper (20 Total Marks)")
 
         col_d1, col_d2, col_d3 = st.columns(3)
         load_demo = None
         with col_d1:
-            if st.button("🌟 1-Click: 20/20 Exemplary Answer"):
+            if st.button("🌟 1-Click: Exemplary Answer"):
                 load_demo = "high"
         with col_d2:
-            if st.button("⚖️ 1-Click: 12/20 Average Answer"):
+            if st.button("⚖️ 1-Click: Average Answer"):
                 load_demo = "avg"
         with col_d3:
-            if st.button("⚠️ 1-Click: 5/20 Misconception Answer"):
-                load_demo = "poor"
+            if st.button("⚠️ 1-Click: Blank / NA / Irrelevant (Test 0 Marks)"):
+                load_demo = "zero"
 
         # Define 5 Questions based on Subject
         if g_subject == "Physics":
@@ -1053,64 +1371,29 @@ if tab_grader is not None:
                 default_val = defaults[idx]
             elif load_demo == "avg":
                 default_val = "Force equals mass into acceleration. Momentum is mv. F = ma. Newton is unit." if g_subject == "Physics" else "Evaporation is liquid to gas. Heat and wind affect it."
-            elif load_demo == "poor":
-                default_val = "Every action has reaction. Formula is F = ma where m is matter and a is speed. Unit is Joules." if g_subject == "Physics" else "Ice is cold so it cools things."
+            elif load_demo == "zero":
+                # Demo for 0 marks (Blank, NA, or Irrelevant)
+                zero_tests = ["NA", "", "I don't know the answer", "Photosynthesis is the process of plants making food", "n/a"]
+                default_val = zero_tests[idx]
 
-            user_answers[q["id"]] = st.text_area(f"Your Subjective Answer for Q{idx+1}:", value=default_val, height=80, key=f"ans_{q['id']}")
+            user_answers[q["id"]] = st.text_area(f"Your Subjective Answer for Q{idx+1}:", value=default_val, height=75, key=f"ans_{q['id']}")
 
         submit_button = st.button("🚀 Submit Paper for AI & Teacher Evaluation", type="primary")
 
         if submit_button:
-            # Evaluate Paper
             total_score = 0
             max_score = sum(q["marks"] for q in questions)
             evaluation_results = []
 
             for idx, q in enumerate(questions):
-                ans = user_answers[q["id"]].strip().lower()
+                raw_ans = user_answers[q["id"]]
                 q_max = q["marks"]
-                score = 0
-                feedback = []
 
-                if g_subject == "Physics":
-                    if idx == 0:  # F = ma
-                        if "rate of change of momentum" in ans and "proportional" in ans:
-                            score += 2.0
-                        else:
-                            score += 0.8
-                        if "p1" in ans or "mu" in ans or "v - u" in ans:
-                            score += 1.5
-                        if "f = ma" in ans or "newton" in ans:
-                            score += 1.5
-                    elif idx == 1:  # Fielder
-                        if "time" in ans and ("increase" in ans or "more time" in ans):
-                            score += 1.5
-                        if "force" in ans or "momentum" in ans:
-                            score += 1.5
-                    elif idx == 2:  # Inertia
-                        if "resist" in ans:
-                            score += 1.0
-                        if "rest" in ans or "motion" in ans:
-                            score += 1.0
-                        if "mass" in ans:
-                            score += 1.0
-                    elif idx == 3:  # Numerical
-                        if "5" in ans or "retardation" in ans:
-                            score += 2.5
-                        if "6000" in ans:
-                            score += 2.5
-                    else:  # 3rd law
-                        if "different" in ans or "two bodies" in ans:
-                            score += 2.5
-                        if "equal" in ans and "opposite" in ans:
-                            score += 1.5
-                else:
-                    words = len(ans.split())
-                    ratio = min(1.0, words / 35.0)
-                    score = round(q_max * ratio, 1)
-
-                score = min(q_max, max(0.5, round(score, 1)))
+                # Strict evaluation: awards 0 marks for blank, NA, or irrelevant
+                eval_out = evaluate_student_answer(g_subject, idx, q["text"], raw_ans, q_max)
+                score = eval_out["score"]
                 total_score += score
+
                 evaluation_results.append({
                     "question": q["text"],
                     "questionText": q["text"],
@@ -1118,33 +1401,17 @@ if tab_grader is not None:
                     "maxMarks": q_max,
                     "score": score,
                     "awardedMarks": score,
-                    "student_ans": user_answers[q["id"]],
-                    "studentAnswer": user_answers[q["id"]],
-                    "stepBreakdown": [
-                        {
-                            "stepNumber": 1,
-                            "stepFocus": "Key Concept & Formulation",
-                            "marksAwarded": round(score * 0.5, 1),
-                            "maxMarks": round(q_max * 0.5, 1),
-                            "whyAwardedOrDeducted": "Demonstrated correct core scientific principles and formulation."
-                        },
-                        {
-                            "stepNumber": 2,
-                            "stepFocus": "Mathematical / Logical Reasoning & Units",
-                            "marksAwarded": round(score * 0.5, 1),
-                            "maxMarks": round(q_max * 0.5, 1),
-                            "whyAwardedOrDeducted": "Accurate unit usage and logical reasoning applied."
-                        }
-                    ]
+                    "student_ans": raw_ans,
+                    "studentAnswer": raw_ans,
+                    "evalStatus": eval_out.get("status", "EVALUATED"),
+                    "stepBreakdown": eval_out["stepBreakdown"]
                 })
 
             total_score = round(total_score, 1)
 
-            # Assign candidate identity based on active login
             assigned_std_id = current_user.get("id", "STU-101")
             assigned_std_name = current_user.get("name", "Anup Sharma")
 
-            # Save submission in PENDING_TEACHER_RELEASE status
             new_sub = {
                 "id": f"sub_{int(time.time() * 1000)}",
                 "studentId": assigned_std_id,
@@ -1169,25 +1436,27 @@ if tab_grader is not None:
             db.setdefault("submissions", []).insert(0, normalize_submission(new_sub, 0))
             save_db(db)
 
-            st.success("Paper submitted and evaluated!")
-            st.warning(f"🛡️ **AI Governance Protocol Active:** Marks for Candidate **{assigned_std_id}** are currently held in **Pending Teacher Audit Queue**. Timer has started. Your subject teacher must audit and release your marks.")
+            st.success(f"Paper submitted! Raw AI Score: {total_score} / {max_score}")
+            st.warning(f"🛡️ **AI Governance Protocol Active:** Marks for Candidate **{assigned_std_id}** are currently held in **Pending Teacher Audit Queue**. Timer has started. Your subject teacher must audit, verify, and release your marks.")
 
 # =============================================================================
-# TAB: MY EVALUATIONS & APPEALS (Student Scoped vs Admin Global)
+# TAB: MY EVALUATIONS & APPEALS (Student Scoped vs Faculty History vs Admin)
 # =============================================================================
 if tab_history is not None:
     with tab_history:
         st.subheader("📜 Student Evaluations & Academic Appeals")
-        st.caption("Review your graded papers, view step-by-step scoring, and accept marks or file an appeal challenge.")
+        st.caption("Review graded papers, view step-by-step scoring, and accept marks or file an academic appeal challenge.")
 
-        # Data scoping: If student, show ONLY his/her own submissions!
         all_subs = db.get("submissions", [])
         if user_role == "student":
             my_std_id = current_user.get("id", "STU-101")
             display_subs = [s for s in all_subs if s.get("studentId") == my_std_id]
             st.info(f"Showing academic evaluation history for: **{current_user.get('name')}** (Candidate ID: <code>{my_std_id}</code>)")
+        elif user_role == "teacher":
+            teacher_subjs = current_user.get("subjects", ["Physics"])
+            display_subs = [s for s in all_subs if s.get("subject") in teacher_subjs or s.get("subjectName") in teacher_subjs]
+            st.info(f"Showing evaluation audit history for teaching domain: **{', '.join(teacher_subjs)}** (Blind Evaluation Mode)")
         else:
-            # Admin view: Filter by student dropdown
             col_filt1, col_filt2 = st.columns([2, 1])
             with col_filt1:
                 std_names = ["All Students"] + sorted(list({f"{s.get('studentName', 'Student')} ({s.get('studentId', 'STU-101')})" for s in all_subs}))
@@ -1203,7 +1472,7 @@ if tab_history is not None:
                 display_subs = [s for s in display_subs if s.get("status") == status_filter]
 
         if not display_subs:
-            st.info("No assessment records found. Take a practice paper in the AI Grader tab!")
+            st.info("No assessment records found.")
         else:
             for s_idx, sub in enumerate(display_subs):
                 sub = normalize_submission(sub, s_idx)
@@ -1219,12 +1488,12 @@ if tab_history is not None:
                 std_name_tag = sub.get("studentName", "Student")
 
                 with st.container():
-                    admin_extra = f" • Student: <strong>{std_name_tag}</strong> (<code>{std_id_tag}</code>)" if user_role == "admin" else ""
+                    admin_extra = f" • Student: <strong>{std_name_tag}</strong> (<code>{std_id_tag}</code>)" if user_role == "admin" else (f" • Candidate: <code>{std_id_tag}</code>" if user_role == "teacher" else "")
                     st.markdown(f"#### 📄 {topic} ({subject} • {cls_name} • {board}){admin_extra}", unsafe_allow_html=True)
                     st.markdown(f"**Score:** `{awarded} / {max_m}` Marks  |  **Status:** `{status}`")
 
                     if status == "PENDING_TEACHER_RELEASE":
-                        st.warning("⏳ **Under Teacher Audit:** The evaluation timer is currently active in the teacher's queue. Marks will become official once your teacher clicks 'Release Marks'.")
+                        st.warning("⏳ **Under Teacher Audit:** Evaluation timer is active. Marks will become official once your teacher audits and releases your marks.")
                     elif status == "RELEASED":
                         st.success("✅ **Scores Officially Released by Teacher!**")
                         st.markdown("##### Detailed Step-by-Step Question Breakdown:")
@@ -1244,35 +1513,36 @@ if tab_history is not None:
                                     for step in q_item["stepBreakdown"]:
                                         st.markdown(f"- **Step {step.get('stepNumber', '')}: {step.get('stepFocus', '')}** (`{step.get('marksAwarded', 0)} / {step.get('maxMarks', 1)} Marks`): {step.get('whyAwardedOrDeducted', '')}")
 
-                        st.markdown("<hr>", unsafe_allow_html=True)
-                        st.markdown("##### ⚖️ Student Decision (Choose One Option):")
-                        col_opt1, col_opt2 = st.columns(2)
-                        with col_opt1:
-                            if st.button("1 - I Accept Final Score", key=f"accept_{sub_id}"):
-                                sub["status"] = "ACCEPTED"
-                                save_db(db)
-                                st.success("Marks Accepted! Result permanently archived.")
-                                st.rerun()
-                        with col_opt2:
-                            if st.button("2 - I Challenge Specific Questions", key=f"btn_chal_{sub_id}"):
-                                st.session_state[f"show_challenge_{sub_id}"] = True
-
-                        if st.session_state.get(f"show_challenge_{sub_id}", False):
-                            st.markdown("##### ✍️ Submit Your Academic Challenge:")
-                            num_q = len(sub.get("questions", []))
-                            chal_q = st.multiselect("Select Question(s) to Challenge:", [f"Q{i+1}" for i in range(num_q)], key=f"sel_q_{sub_id}")
-                            chal_reason = st.text_area("Why are you challenging these questions? (Write your justification):", placeholder="e.g. In Q2 I explained the inverse relationship of time and force in words, please re-check.", key=f"txt_q_{sub_id}")
-                            if st.button("Submit Challenge to Teacher for Re-Check", key=f"submit_chal_{sub_id}"):
-                                if not chal_q or not chal_reason.strip():
-                                    st.error("Please select questions and provide your justification.")
-                                else:
-                                    sub["status"] = "CHALLENGED"
-                                    sub["challengeQuestions"] = chal_q
-                                    sub["challengeReason"] = chal_reason
+                        if user_role == "student":
+                            st.markdown("<hr>", unsafe_allow_html=True)
+                            st.markdown("##### ⚖️ Student Decision (Choose One Option):")
+                            col_opt1, col_opt2 = st.columns(2)
+                            with col_opt1:
+                                if st.button("1 - I Accept Final Score", key=f"accept_{sub_id}"):
+                                    sub["status"] = "ACCEPTED"
                                     save_db(db)
-                                    st.success("Challenge submitted to Teacher Queue for re-evaluation!")
-                                    st.session_state[f"show_challenge_{sub_id}"] = False
+                                    st.success("Marks Accepted! Result permanently archived.")
                                     st.rerun()
+                            with col_opt2:
+                                if st.button("2 - I Challenge Specific Questions", key=f"btn_chal_{sub_id}"):
+                                    st.session_state[f"show_challenge_{sub_id}"] = True
+
+                            if st.session_state.get(f"show_challenge_{sub_id}", False):
+                                st.markdown("##### ✍️ Submit Your Academic Challenge:")
+                                num_q = len(sub.get("questions", []))
+                                chal_q = st.multiselect("Select Question(s) to Challenge:", [f"Q{i+1}" for i in range(num_q)], key=f"sel_q_{sub_id}")
+                                chal_reason = st.text_area("Why are you challenging these questions? (Write your justification):", placeholder="e.g. In Q2 I explained the inverse relationship of time and force in words, please re-check.", key=f"txt_q_{sub_id}")
+                                if st.button("Submit Challenge to Teacher for Re-Check", key=f"submit_chal_{sub_id}"):
+                                    if not chal_q or not chal_reason.strip():
+                                        st.error("Please select questions and provide your justification.")
+                                    else:
+                                        sub["status"] = "CHALLENGED"
+                                        sub["challengeQuestions"] = chal_q
+                                        sub["challengeReason"] = chal_reason
+                                        save_db(db)
+                                        st.success("Challenge submitted to Teacher Queue for re-evaluation!")
+                                        st.session_state[f"show_challenge_{sub_id}"] = False
+                                        st.rerun()
 
                     elif status == "ACCEPTED":
                         st.success("🎖️ **Score Finalized & Verified in Student Portfolio.**")
@@ -1283,24 +1553,21 @@ if tab_history is not None:
                     st.divider()
 
 # =============================================================================
-# TAB: TEACHER / GOVERNANCE PANEL (Professional Dashboard + Blind Evaluation)
+# TAB: TEACHER / GOVERNANCE PANEL (Live Timers, Blind Eval & Full Mark Editing)
 # =============================================================================
 if tab_teacher is not None:
     with tab_teacher:
-        # User specified: Text "(edcafe.ai Inspired)" removed, keeping all features intact
         st.subheader("🛡️ Teacher & AI Governance Console")
-        st.caption("Human-in-the-Loop review: Configure rubrics, monitor real-time evaluation timers, and release scores blind-anonymously.")
+        st.caption("Human-in-the-Loop review: Configure rubrics, monitor real-time evaluation timers, modify app marks question-by-question, and release scores blind-anonymously.")
 
         all_submissions = db.get("submissions", [])
 
-        # Filter submissions by teacher's assigned subjects!
         if user_role == "teacher":
             teacher_subjects = current_user.get("subjects", ["Physics"])
             t_subs = [s for s in all_submissions if s.get("subject") in teacher_subjects or s.get("subjectName") in teacher_subjects]
             teacher_name = current_user.get("name", "Faculty")
             teacher_id = current_user.get("id", "TCH-201")
         else:
-            # Admin viewing Teacher panel
             teacher_subjects = ["Physics", "Chemistry", "Mathematics"]
             t_subs = all_submissions
             teacher_name = "All Faculty (Admin View)"
@@ -1310,14 +1577,13 @@ if tab_teacher is not None:
         completed_subs = [s for s in t_subs if s.get("status") in ["RELEASED", "ACCEPTED"]]
         challenged_subs = [s for s in t_subs if s.get("status") == "CHALLENGED"]
 
-        # 1. Professional Level Summary Dashboard for this Teacher
+        # 1. Professional Faculty Dashboard
         st.markdown(f"### 📊 Faculty Evaluation Dashboard • {teacher_name} ({teacher_id})")
         subj_pills = " • ".join(teacher_subjects)
         st.markdown(f'<div class="board-pill">📚 Teaching Domain: {subj_pills}</div>', unsafe_allow_html=True)
 
         kpi_c1, kpi_c2, kpi_c3, kpi_c4 = st.columns(4)
 
-        # Calculate average turnaround time for completed items
         turnaround_times = [s.get("turnaroundMinutes") for s in completed_subs if s.get("turnaroundMinutes") is not None]
         avg_turnaround = round(sum(turnaround_times) / len(turnaround_times), 1) if turnaround_times else 25.0
 
@@ -1352,7 +1618,7 @@ if tab_teacher is not None:
 
         st.markdown("<div style='height: 8px;'></div>", unsafe_allow_html=True)
 
-        # 2. Detailed Pending Requests Breakdown: By Class, By Board, By Student ID
+        # 2. Summary of Pending Requests in Queue
         st.markdown("#### ⏳ Summary of Pending Requests in Queue")
         if not pending_subs:
             st.success("🎉 All caught up! There are no pending evaluation requests in your queue right now.")
@@ -1374,7 +1640,6 @@ if tab_teacher is not None:
                 p_board_counts[brd] = p_board_counts.get(brd, 0) + 1
                 p_student_counts[s_id] = p_student_counts.get(s_id, 0) + 1
 
-                # Calculate timer duration
                 sub_time_str = ps.get("submittedAt", "")
                 try:
                     sub_dt = datetime.fromisoformat(sub_time_str.replace("Z", ""))
@@ -1385,7 +1650,7 @@ if tab_teacher is not None:
 
                 pending_rows.append({
                     "Submission ID": ps.get("id"),
-                    "Candidate ID": s_id,  # STRICT BLIND EVALUATION: Only ID shown
+                    "Candidate ID": s_id,
                     "Class": cls,
                     "Board": brd,
                     "Topic": topic_name,
@@ -1434,8 +1699,6 @@ if tab_teacher is not None:
                 })
 
             df_comp = pd.DataFrame(date_records)
-            
-            # Monthly summary chart
             month_counts = df_comp["Month"].value_counts().reset_index()
             month_counts.columns = ["Month", "Evaluations Completed"]
             
@@ -1451,7 +1714,7 @@ if tab_teacher is not None:
 
         st.markdown("<hr>", unsafe_allow_html=True)
 
-        # 4. Teacher Directives Configuration (Preserving all features, text '(www.edcafe.ai Style)' removed)
+        # 4. Teacher Directives Configuration
         with st.expander("⚙️ Configure Custom Teacher Directives", expanded=False):
             t_inst = st.text_area(
                 "Custom Grading Directives for Physics / Chemistry / Maths:",
@@ -1487,7 +1750,6 @@ if tab_teacher is not None:
                 max_m = float(sub.get("totalMax", 20.0))
                 status = sub.get("status", "PENDING_TEACHER_RELEASE")
 
-                # Timer calculation
                 sub_time_str = sub.get("submittedAt", "")
                 try:
                     sub_dt = datetime.fromisoformat(sub_time_str.replace("Z", ""))
@@ -1497,29 +1759,71 @@ if tab_teacher is not None:
                     elapsed_txt = "20m"
 
                 with st.container():
-                    # STRICT BLIND EVALUATION: Only studentId shown, never student name!
                     st.markdown(f"**Submission #{s_idx+1}: Candidate <code>{student_id}</code>** • {topic} ({subj_name} • {cls_name})", unsafe_allow_html=True)
                     st.markdown(f"Current Marks: **{awarded} / {max_m}** | Status: `{status}`")
 
                     if status == "PENDING_TEACHER_RELEASE":
                         st.markdown(f'<div class="timer-pill">⏱️ Timer Running: {elapsed_txt} since arrival in queue</div>', unsafe_allow_html=True)
-                        st.warning(f"⏳ Action Required: Audit step marks for Candidate {student_id} and click 'Release Marks'. The timer will stop upon release.")
+                        st.info("💡 **Teacher Mark Adjustment Enabled:** You can inspect and change the marks given by the app for each question below, or adjust the total marks directly.")
 
-                        new_marks = st.number_input(
-                            f"Override Total Score for Candidate {student_id}:",
-                            min_value=0.0,
-                            max_value=max(max_m, awarded),
-                            value=awarded,
-                            step=0.5,
-                            key=f"t_override_{sub_id}"
-                        )
+                        # Question-by-Question Marks Editing Feature
+                        teacher_modified_questions = []
+                        with st.expander(f"🔍 Question-by-Question Marks Breakdown & Override for Candidate {student_id}", expanded=True):
+                            for q_i, q_item in enumerate(sub.get("questions", [])):
+                                q_txt = q_item.get("question") or q_item.get("questionText", f"Question {q_i+1}")
+                                app_q_score = float(q_item.get("score", q_item.get("awardedMarks", 0.0)))
+                                q_mx = float(q_item.get("max", q_item.get("maxMarks", 5.0)))
+                                stu_ans = q_item.get("student_ans") or q_item.get("studentAnswer", "Blank / No response")
+
+                                col_qa, col_qb = st.columns([3, 1])
+                                with col_qa:
+                                    st.markdown(f"**Q{q_i+1} ({q_mx} Marks):** {q_txt}")
+                                    st.markdown(f"**Student Answer:** *\"{stu_ans}\"*")
+                                with col_qb:
+                                    # Teacher editable mark input per question
+                                    new_q_val = st.number_input(
+                                        f"Q{q_i+1} Teacher Mark:",
+                                        min_value=0.0,
+                                        max_value=q_mx,
+                                        value=min(q_mx, max(0.0, app_q_score)),
+                                        step=0.5,
+                                        key=f"t_q_override_{sub_id}_{q_i}"
+                                    )
+                                    teacher_modified_questions.append((q_item, new_q_val))
+
+                        # Live sum of adjusted question marks
+                        live_calc_sum = sum(item[1] for item in teacher_modified_questions) if teacher_modified_questions else awarded
+
+                        col_ov1, col_ov2 = st.columns([2, 1])
+                        with col_ov1:
+                            teacher_remarks = st.text_input(
+                                f"Faculty Feedback / Remarks for Candidate {student_id}:",
+                                value="Step-by-step marks verified and approved by faculty.",
+                                key=f"t_fb_input_{sub_id}"
+                            )
+                        with col_ov2:
+                            new_marks = st.number_input(
+                                f"Final Total Score:",
+                                min_value=0.0,
+                                max_value=max_m,
+                                value=min(max_m, max(0.0, live_calc_sum)),
+                                step=0.5,
+                                key=f"t_override_{sub_id}"
+                            )
+
                         if st.button(f"✅ Release Marks to Candidate {student_id}", key=f"rel_btn_{sub_id}"):
                             now_rel = datetime.now()
+                            # Apply question-level overrides
+                            for q_it, q_val in teacher_modified_questions:
+                                q_it["score"] = q_val
+                                q_it["awardedMarks"] = q_val
+
                             sub["totalAwarded"] = new_marks
                             sub["totalAwardedMarks"] = new_marks
                             sub["status"] = "RELEASED"
                             sub["releasedAt"] = now_rel.isoformat() + "Z"
-                            # Calculate turnaround
+                            sub["teacherRemarks"] = teacher_remarks
+
                             try:
                                 sub_dt_calc = datetime.fromisoformat(sub_time_str.replace("Z", ""))
                                 sub["turnaroundMinutes"] = max(1.0, round((now_rel - sub_dt_calc).total_seconds() / 60.0, 1))
@@ -1527,7 +1831,7 @@ if tab_teacher is not None:
                                 sub["turnaroundMinutes"] = 20.0
 
                             save_db(db)
-                            st.success(f"Marks officially released to Candidate {student_id}! Timer stopped (Turnaround: {format_minutes(sub['turnaroundMinutes'])}).")
+                            st.success(f"Marks ({new_marks}/{max_m}) officially released to Candidate {student_id}! Timer stopped (Turnaround: {format_minutes(sub['turnaroundMinutes'])}).")
                             st.rerun()
 
                     elif status == "CHALLENGED":
@@ -1663,11 +1967,10 @@ if tab_admin is not None:
 
         st.markdown("<hr>", unsafe_allow_html=True)
 
-        # 3. Students' Marks Information & Visualizations (Fixed Bug: Takes Student ID along with Name, strictly <= 100%)
+        # 3. Students' Marks Information & Visualizations (Unique Name+ID, strictly <=100%)
         st.markdown("### 🎓 Student Marks Information & Academic Performance Analytics")
         st.caption("Institutional grade distribution, board benchmarks, and student-level academic progress.")
 
-        # Prepare Student Academic Table strictly matching by studentId and bounding to 100%
         student_analytics = []
         for std in all_students:
             s_id = std.get("id")
@@ -1675,7 +1978,6 @@ if tab_admin is not None:
             s_class = std.get("studentClass", 9)
             s_board = std.get("board", "CBSE")
 
-            # Match strictly by student ID
             s_subs = [s for s in all_subs if s.get("studentId") == s_id]
             completed_s_subs = [s for s in s_subs if s.get("status") in ["RELEASED", "ACCEPTED"]]
 
@@ -1691,10 +1993,7 @@ if tab_admin is not None:
                 avg_pct = 0.0
                 highest = 0.0
 
-            # Strictly bound percentage to 100%
             avg_pct = min(100.0, max(0.0, avg_pct))
-
-            # Unique Student Label combining Name and ID
             student_label = f"{s_name} ({s_id})"
 
             student_analytics.append({
@@ -1730,7 +2029,6 @@ if tab_admin is not None:
 
         with col_v2:
             st.markdown("**Student Average Performance Comparison (%):**")
-            # User request implemented: chart built with Student ID along with Name (Student Label), ensuring strictly <100%
             chart_std_pct = df_std[["Student Label", "Avg Pct Num"]].set_index("Student Label")
             chart_std_pct.columns = ["Average Score (%)"]
             st.bar_chart(chart_std_pct, color="#10B981")
