@@ -16,6 +16,7 @@ import streamlit as st
 import streamlit.components.v1 as components
 import pandas as pd
 from curriculum_question_bank import get_question_set
+from objective_question_bank import get_objective_question_set
 
 # Page Configuration with Soothing Theme
 st.set_page_config(
@@ -435,6 +436,20 @@ def generate_unique_student_id(existing_students):
                 pass
     return f"STU-{max_num + 1}"
 
+def generate_unique_teacher_id(existing_teachers):
+    """Generates an incremental unique teacher ID like TCH-201, TCH-202, TCH-203."""
+    max_num = 200
+    for t in existing_teachers:
+        t_id = str(t.get("id", ""))
+        if t_id.startswith("TCH-"):
+            try:
+                num = int(t_id.split("-")[1])
+                if num > max_num:
+                    max_num = num
+            except Exception:
+                pass
+    return f"TCH-{max_num + 1}"
+
 def matches_board(item_board: str, target_board: str) -> bool:
     """Matches curriculum board flexibly, handling 'All Board' wildcard."""
     if not target_board or target_board == "All Board":
@@ -609,8 +624,30 @@ def load_db():
         std_map["STU-102"] = DEFAULT_USERS["Nandita"]
     data["students"] = list(std_map.values())
 
+    # Ensure unique teachers without duplicates
+    tch_map = {}
+    for t in data.get("teachers", []):
+        if t.get("id"):
+            tch_map[t["id"]] = t
+    if "TCH-201" not in tch_map:
+        tch_map["TCH-201"] = DEFAULT_USERS["Ankur"]
+    if "TCH-202" not in tch_map:
+        tch_map["TCH-202"] = DEFAULT_USERS["Akanksha"]
+    data["teachers"] = list(tch_map.values())
+
+    # Sync all students & teachers into DEFAULT_USERS for rapid authentication & lookup
+    for s in data["students"]:
+        if s.get("username"):
+            DEFAULT_USERS[s["username"]] = s
+    for t in data["teachers"]:
+        if t.get("username"):
+            DEFAULT_USERS[t["username"]] = t
+
     if "submissions" not in data or not isinstance(data["submissions"], list):
         data["submissions"] = []
+
+    if "objective_submissions" not in data or not isinstance(data["objective_submissions"], list):
+        data["objective_submissions"] = []
 
     # Auto-normalize all submissions loaded from disk
     data["submissions"] = [normalize_submission(s, i) for i, s in enumerate(data["submissions"])]
@@ -661,7 +698,25 @@ def get_user_password(username):
         return pws[username]
     if username in DEFAULT_USERS:
         return DEFAULT_USERS[username].get("password", "eduaegis123")
+    for s in db.get("students", []):
+        if s.get("username") == username:
+            return s.get("password", "eduaegis123")
+    for t in db.get("teachers", []):
+        if t.get("username") == username:
+            return t.get("password", "eduaegis123")
     return "eduaegis123"
+
+def get_user_profile(username):
+    """Retrieves full profile dict for a given username."""
+    if username in DEFAULT_USERS:
+        return DEFAULT_USERS[username]
+    for s in db.get("students", []):
+        if s.get("username") == username:
+            return s
+    for t in db.get("teachers", []):
+        if t.get("username") == username:
+            return t
+    return None
 
 def update_user_password(username, new_pw):
     """Updates and permanently persists the new password."""
@@ -897,11 +952,13 @@ if st.session_state["logged_in_user"] is None:
     col_space1, col_login, col_space2 = st.columns([1, 2, 1])
 
     with col_login:
-        with st.container():
+        tab_auth_signin, tab_auth_signup = st.tabs(["🔐 Sign In to Portal", "📝 Sign Up / Create New Profile"])
+
+        with tab_auth_signin:
             st.markdown("""
             <div class="soothing-card" style="border: 2px solid #E0E7FF; box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.12);">
                 <div style="font-size: 15px; font-weight: 700; color: #1E1B4B; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
-                    <span>🔐 Sign In to Your Portal</span>
+                    <span>🔐 Access Your Portal</span>
                 </div>
             """, unsafe_allow_html=True)
 
@@ -913,17 +970,28 @@ if st.session_state["logged_in_user"] is None:
             )
 
             if login_role == "Student":
-                user_options = ["Anup", "Nandita"]
+                students_list = db.get("students", [])
+                user_options = [s.get("username", s.get("name", "Student")) for s in students_list if s.get("username")]
+                if not user_options:
+                    user_options = ["Anup", "Nandita"]
                 default_idx = 0
             elif login_role == "Teacher":
-                user_options = ["Ankur", "Akanksha"]
+                teachers_list = db.get("teachers", [])
+                user_options = [t.get("username", t.get("name", "Teacher")) for t in teachers_list if t.get("username")]
+                if not user_options:
+                    user_options = ["Ankur", "Akanksha"]
                 default_idx = 0
             else:
                 user_options = ["Admin"]
                 default_idx = 0
 
-            selected_username = st.selectbox("2. Select Your Username", user_options, index=default_idx)
-            # User specified: Do NOT show default password or hint on screen
+            def format_auth_user_label(u_name):
+                u_prof = get_user_profile(u_name)
+                if u_prof:
+                    return f"{u_prof.get('name', u_name)} ({u_prof.get('id', '')})"
+                return u_name
+
+            selected_username = st.selectbox("2. Select Your Username / Profile", user_options, index=default_idx, format_func=format_auth_user_label)
             entered_password = st.text_input("3. Password", type="password", placeholder="Enter your password")
 
             btn_login = st.button("🚀 Log In to EduAegis", type="primary", use_container_width=True)
@@ -931,10 +999,10 @@ if st.session_state["logged_in_user"] is None:
             if btn_login:
                 actual_pw = get_user_password(selected_username)
                 if entered_password == actual_pw:
-                    user_data = DEFAULT_USERS.get(selected_username)
+                    user_data = get_user_profile(selected_username)
                     if user_data:
                         st.session_state["logged_in_user"] = user_data
-                        st.success(f"Welcome back, {user_data['name']} ({user_data['id']})!")
+                        st.success(f"Welcome back, {user_data.get('name', selected_username)} ({user_data.get('id', '')})!")
                         time.sleep(0.4)
                         st.rerun()
                     else:
@@ -944,7 +1012,8 @@ if st.session_state["logged_in_user"] is None:
 
             # In-App Password Update feature on Login Page
             with st.expander("🔄 Update / Reset Password", expanded=False):
-                rst_user = st.selectbox("Username to Update", ["Anup", "Nandita", "Ankur", "Akanksha", "Admin"], key="rst_user")
+                rst_options = list(set(["Anup", "Nandita", "Ankur", "Akanksha", "Admin"] + [s.get("username") for s in db.get("students", []) if s.get("username")] + [t.get("username") for t in db.get("teachers", []) if t.get("username")]))
+                rst_user = st.selectbox("Username to Update", sorted(rst_options), key="rst_user")
                 rst_curr = st.text_input("Current Password", type="password", key="rst_curr")
                 rst_new = st.text_input("New Password", type="password", key="rst_new")
                 rst_conf = st.text_input("Confirm New Password", type="password", key="rst_conf")
@@ -983,12 +1052,144 @@ if st.session_state["logged_in_user"] is None:
 
             st.markdown("</div>", unsafe_allow_html=True)
 
+        with tab_auth_signup:
+            st.markdown("""
+            <div class="soothing-card" style="border: 2px solid #A7F3D0; box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.12);">
+                <div style="font-size: 15px; font-weight: 700; color: #064E3B; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+                    <span>📝 Sign Up / Register New Profile</span>
+                </div>
+                <div style="font-size: 12px; color: #64748B; margin-bottom: 12px;">
+                    Create an institutional profile to access AI tutoring, dynamic rubrics, and automated evaluations.
+                </div>
+            """, unsafe_allow_html=True)
+
+            sign_role = st.selectbox(
+                "1. Select Your Role *",
+                ["Student", "Teacher"],
+                index=0,
+                key="sign_role",
+                help="Choose Student for personalized learning & assessments, or Teacher for grading audits & curriculum governance."
+            )
+
+            sign_name = st.text_input("2. Full Name *", placeholder="e.g. Rohan Sharma or Dr. Priya Nair", key="sign_name")
+            sign_email = st.text_input("3. Email ID (Mail ID) *", placeholder="e.g. rohan.sharma@school.edu", key="sign_email")
+            sign_city = st.text_input("4. City / State *", placeholder="e.g. Bangalore, Karnataka or New Delhi", key="sign_city")
+
+            if sign_role == "Student":
+                col_st1, col_st2 = st.columns(2)
+                with col_st1:
+                    sign_class = st.selectbox("5. Class *", [8, 9, 10], index=1, key="sign_class")
+                with col_st2:
+                    sign_board = st.selectbox(
+                        "6. Curriculum Board *",
+                        ["CBSE (All India)", "ICSE / CISCE", "State Board (Maharashtra/UP/Karnataka)", "Cambridge IGCSE"],
+                        index=0,
+                        key="sign_board"
+                    )
+            else:  # Teacher
+                col_tc1, col_tc2 = st.columns(2)
+                with col_tc1:
+                    sign_subjs = st.multiselect(
+                        "5. Teaching Subject(s) *",
+                        ["Physics", "Chemistry", "Mathematics"],
+                        default=["Physics"],
+                        key="sign_subjs"
+                    )
+                with col_tc2:
+                    sign_dept = st.text_input(
+                        "6. Academic Department",
+                        value="Department of Physical Sciences",
+                        key="sign_dept"
+                    )
+
+            col_pw1, col_pw2 = st.columns(2)
+            with col_pw1:
+                sign_pw = st.text_input("7. Set Password *", type="password", placeholder="Min 4 characters", key="sign_pw")
+            with col_pw2:
+                sign_conf = st.text_input("8. Confirm Password *", type="password", placeholder="Re-enter password", key="sign_conf")
+
+            btn_register = st.button("✨ Create Profile & Log In Immediately", type="primary", use_container_width=True, key="btn_register")
+
+            if btn_register:
+                if not sign_name.strip():
+                    st.error("Please enter your full name.")
+                elif not sign_email.strip() or "@" not in sign_email:
+                    st.error("Please enter a valid email address.")
+                elif not sign_city.strip():
+                    st.error("Please enter your city.")
+                elif len(sign_pw) < 4:
+                    st.error("Password must be at least 4 characters long.")
+                elif sign_pw != sign_conf:
+                    st.error("Passwords do not match. Please verify.")
+                else:
+                    name_parts = sign_name.strip().split()
+                    base_user = name_parts[0].replace("Dr.", "").replace("Prof.", "").replace("Mr.", "").replace("Ms.", "").strip()
+                    if not base_user:
+                        base_user = "User"
+
+                    existing_usernames = set(db.get("passwords", {}).keys())
+                    for s in db.get("students", []):
+                        if s.get("username"):
+                            existing_usernames.add(s["username"])
+                    for t in db.get("teachers", []):
+                        if t.get("username"):
+                            existing_usernames.add(t["username"])
+
+                    cand_user = base_user
+                    counter = 1
+                    while cand_user in existing_usernames:
+                        cand_user = f"{base_user}_{counter}"
+                        counter += 1
+
+                    if sign_role == "Student":
+                        new_id = generate_unique_student_id(db.get("students", []))
+                        new_profile = {
+                            "id": new_id,
+                            "username": cand_user,
+                            "name": sign_name.strip(),
+                            "role": "student",
+                            "password": sign_pw,
+                            "studentClass": sign_class,
+                            "board": sign_board,
+                            "cityState": sign_city.strip(),
+                            "email": sign_email.strip(),
+                            "phone": "+91 98000 00000"
+                        }
+                        db.setdefault("students", []).append(new_profile)
+                    else:
+                        new_id = generate_unique_teacher_id(db.get("teachers", []))
+                        new_profile = {
+                            "id": new_id,
+                            "username": cand_user,
+                            "name": sign_name.strip(),
+                            "role": "teacher",
+                            "password": sign_pw,
+                            "subjects": sign_subjs if sign_subjs else ["Physics"],
+                            "cityState": sign_city.strip(),
+                            "email": sign_email.strip(),
+                            "department": sign_dept.strip() if sign_dept.strip() else "Department of Academic Instruction"
+                        }
+                        db.setdefault("teachers", []).append(new_profile)
+
+                    db.setdefault("passwords", {})[cand_user] = sign_pw
+                    DEFAULT_USERS[cand_user] = new_profile
+                    save_db(db)
+
+                    st.session_state["logged_in_user"] = new_profile
+                    st.success(f"🎉 Welcome aboard, {sign_name.strip()}! Assigned Unique ID: {new_id}. Logging you in...")
+                    time.sleep(0.4)
+                    st.rerun()
+
+            st.markdown("</div>", unsafe_allow_html=True)
+
     st.stop()
 
 # =============================================================================
 # ACTIVE LOGGED-IN USER SESSION
 # =============================================================================
-current_user = st.session_state["logged_in_user"]
+current_user = st.session_state.get("logged_in_user")
+if not current_user:
+    st.stop()
 user_role = current_user.get("role", "student")
 
 # -----------------------------------------------------------------------------
@@ -1008,32 +1209,6 @@ with st.sidebar:
             </div>
         </div>
         """, unsafe_allow_html=True)
-
-        with st.expander("✏️ New Student Profile", expanded=False):
-            std_name = st.text_input("Full Name", value="New Student")
-            std_class = st.selectbox("Class", [8, 9, 10], index=1)
-            std_board = st.selectbox("Board", ["CBSE (All India)", "ICSE / CISCE", "State Board (Maharashtra/UP/Karnataka)", "Cambridge IGCSE"], index=0)
-            std_email = st.text_input("Email", value="new.student@school.edu")
-            std_city = st.text_input("City / State", value="Bangalore, Karnataka")
-
-            if st.button("Save Profile"):
-                new_id = generate_unique_student_id(db.get("students", []))
-                new_profile = {
-                    "id": new_id,
-                    "username": std_name.split(" ")[0],
-                    "name": std_name,
-                    "role": "student",
-                    "studentClass": std_class,
-                    "board": std_board,
-                    "email": std_email,
-                    "cityState": std_city,
-                    "password": "eduaegis123"
-                }
-                db.setdefault("students", []).append(new_profile)
-                save_db(db)
-                st.session_state["logged_in_user"] = new_profile
-                st.success(f"Registered with unique ID: {new_id}")
-                st.rerun()
 
     elif user_role == "teacher":
         subj_list = ", ".join(current_user.get("subjects", ["Physics"]))
@@ -1304,7 +1479,7 @@ with col_head_right:
 if user_role == "student":
     tab_tutor, tab_grader, tab_history = st.tabs([
         "💡 AI Tutor (Concept Learning & Audio)",
-        "✍️ AI Grader (Subjective Assessment)",
+        "✍️ AI Grader",
         "📜 My Evaluations & Appeals"
     ])
     tab_teacher = None
@@ -1314,7 +1489,7 @@ elif user_role == "teacher":
     tab_teacher, tab_tutor, tab_grader, tab_history = st.tabs([
         "🛡️ Teacher / Governance Panel",
         "💡 AI Tutor (Concept Learning & Audio)",
-        "✍️ AI Grader (Subjective Assessment)",
+        "✍️ AI Grader",
         "📜 Student Evaluations & Audit History"
     ])
     tab_admin = None
@@ -1322,7 +1497,7 @@ elif user_role == "teacher":
 else:  # Admin (Super User Access)
     tab_tutor, tab_grader, tab_history, tab_teacher, tab_admin = st.tabs([
         "💡 AI Tutor (Concept Learning & Audio)",
-        "✍️ AI Grader (Subjective Assessment)",
+        "✍️ AI Grader",
         "📜 All Evaluations & Appeals",
         "🛡️ Teacher / Governance Panel",
         "👑 Admin Governance Dashboard"
@@ -1481,8 +1656,8 @@ if tab_tutor is not None:
 # =============================================================================
 if tab_grader is not None:
     with tab_grader:
-        st.subheader("✍️ AI Subjective Grader: Multi-Subject Assessment")
-        st.caption("Grades subjective answers step-by-step. Blank, 'NA', or off-topic responses receive zero marks automatically.")
+        st.subheader("✍️ AI Grader: Comprehensive Curriculum Assessment")
+        st.caption("Dual Assessment Engine: Instant Objective MCQs + Step-by-Step Subjective Grader with AI Governance.")
 
         # Candidate Selection Ribbon
         g_col1, g_col2, g_col3 = st.columns(3)
@@ -1505,41 +1680,205 @@ if tab_grader is not None:
 
         st.info(f"🎯 **Active Testing Topic:** {active_grade_topic} • **Curriculum:** {g_board} • Class {g_class}th {g_subject}")
 
-        # Practice Solved Example
-        with st.expander("📘 Practice Solved Example (Solution Hidden by Default)", expanded=False):
-            if g_subject == "Physics":
-                st.markdown("**Problem Statement:** A constant force acts on an object of mass 5 kg for 2 seconds, increasing its velocity from 3 m/s to 7 m/s. Calculate the magnitude of the applied force. (4 Marks)")
-                if st.button("Show Step-by-Step Solved Solution", key="btn_show_sol_p"):
-                    st.markdown("""
-                    **Step-by-Step Solved Solution:**
-                    - **Step 1:** Given: mass m = 5 kg, initial velocity u = 3 m/s, final velocity v = 7 m/s, time t = 2 s. *(+1 Mark)*
-                    - **Step 2:** Acceleration: a = (v - u) / t = (7 - 3) / 2 = 4 / 2 = 2 m/s². *(+1 Mark)*
-                    - **Step 3:** Force using F = m * a: F = 5 kg * 2 m/s² = 10 Newtons (N). *(+1 Mark)*
-                    - **Step 4:** Final Result: Applied Force = 10 N. *(+1 Mark)*
-                    """)
-            elif g_subject == "Chemistry":
-                st.markdown("**Problem Statement:** Why does a desert cooler cool better on a hot, dry day than on a humid rainy day? (3 Marks)")
-                if st.button("Show Step-by-Step Solved Solution", key="btn_show_sol_c"):
-                    st.markdown("""
-                    **Step-by-Step Solved Solution:**
-                    - **Step 1:** On a hot dry day, temperature is high and humidity (moisture in air) is very low. *(+1 Mark)*
-                    - **Step 2:** Rate of water evaporation from cooler pads increases dramatically when humidity is low. *(+1 Mark)*
-                    - **Step 3:** Greater evaporation absorbs more latent heat from incoming air, cooling the room effectively. *(+1 Mark)*
-                    """)
-            else:
-                st.markdown("**Problem Statement:** Express 0.3333... in the form p/q, where p and q are integers and q ≠ 0. (3 Marks)")
-                if st.button("Show Step-by-Step Solved Solution", key="btn_show_sol_m"):
-                    st.markdown("""
-                    **Step-by-Step Solved Solution:**
-                    - **Step 1:** Let x = 0.3333... (Equation 1). *(+1 Mark)*
-                    - **Step 2:** Multiply by 10: 10x = 3.3333... (Equation 2). *(+1 Mark)*
-                    - **Step 3:** Subtract Eq 1 from Eq 2: 9x = 3 => x = 3/9 = 1/3 in p/q form. *(+1 Mark)*
-                    """)
+        # Assessment Section Selector (Objective MCQs vs Subjective vs Both)
+        st.markdown("<hr style='margin: 10px 0;'>", unsafe_allow_html=True)
+        grader_section = st.radio(
+            "📋 Select Assessment Component:",
+            [
+                "🎯 Section A: Objective Questions (5 MCQs • 5 Marks • Instant Scoring)",
+                "✍️ Section B: Subjective Questions (5 Questions • 20 Marks • Teacher Audited)",
+                "📑 View Both Sections (Full Examination Paper)"
+            ],
+            index=0,
+            horizontal=True,
+            key="grader_section_toggle"
+        )
+        st.markdown("<hr style='margin: 10px 0;'>", unsafe_allow_html=True)
 
-        # 5-Question Subjective Paper with Refresh Icon / Button
-        col_hdr_q, col_ref_q = st.columns([3.0, 1.2])
-        with col_hdr_q:
-            st.markdown("### ✍️ 5-Question Practice Subjective Paper (20 Total Marks)")
+        # ---------------------------------------------------------------------
+        # SECTION A: OBJECTIVE TYPE QUESTIONS (5 MCQs, RADIO BUTTONS, INSTANT SCORE)
+        # ---------------------------------------------------------------------
+        if "Section A" in grader_section or "View Both" in grader_section:
+            col_obj_hdr, col_obj_ref = st.columns([3.0, 1.4])
+            with col_obj_hdr:
+                st.markdown("### 🎯 Section A: 5 Objective Type Questions (MCQs)")
+            with col_obj_ref:
+                if st.button("🔄 Refresh Objective Questions", key="btn_refresh_mcq_questions", help="Click to load a fresh set of 5 curriculum MCQs", use_container_width=True):
+                    st.session_state["active_obj_set_idx"] = st.session_state.get("active_obj_set_idx", 0) + 1
+                    st.session_state["obj_submitted_flag"] = False
+                    st.session_state["obj_demo_auto"] = False
+                    st.toast("🔄 Loaded fresh new set of 5 objective questions!")
+                    st.rerun()
+
+            active_obj_idx = st.session_state.get("active_obj_set_idx", 0)
+            obj_data = get_objective_question_set(g_subject, g_class, custom_topic=custom_grader_topic.strip(), set_index=active_obj_idx)
+            obj_questions = obj_data["questions"]
+            active_obj_title = obj_data["topic_title"]
+            total_obj_sets = obj_data["total_sets"]
+            display_obj_set_num = (active_obj_idx % total_obj_sets) + 1
+
+            st.markdown(f"""
+            <div style="display: flex; justify-content: space-between; align-items: center; background: #F8FAFC; border-left: 4px solid #10B981; border-radius: 6px; padding: 7px 14px; margin-bottom: 12px;">
+                <div>
+                    <span style="font-weight: 800; font-size: 12.5px; color: #1E293B;">📄 Objective Set {display_obj_set_num} of {total_obj_sets}:</span>
+                    <span style="font-size: 12px; color: #059669; font-weight: 700;"> {active_obj_title}</span>
+                    <span style="font-size: 11px; color: #64748B;"> (Class {g_class}th • {g_subject})</span>
+                </div>
+                <div>
+                    <span style="font-size: 11px; background: #D1FAE5; color: #065F46; font-weight: 700; padding: 3px 8px; border-radius: 999px;">Total 5 Marks (1 Mark / Question)</span>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+            col_mcq_demo1, col_mcq_demo2 = st.columns([1.3, 2.7])
+            with col_mcq_demo1:
+                if st.button("✨ 1-Click: Auto-select Correct Answers", key=f"btn_auto_mcq_{display_obj_set_num}", use_container_width=True):
+                    st.session_state["obj_demo_auto"] = True
+                    st.rerun()
+
+            is_obj_demo = st.session_state.get("obj_demo_auto", False)
+
+            user_mcq_answers = {}
+            for q_i, q in enumerate(obj_questions):
+                st.markdown(f"<div style='font-size: 13.5px; font-weight: 700; color: #0F172A; margin-top: 10px; margin-bottom: 4px;'>Q{q_i+1} (1.0 Mark): {q['question']}</div>", unsafe_allow_html=True)
+                def_idx = q["correct_index"] if is_obj_demo else None
+                user_mcq_choice = st.radio(
+                    f"Select answer for Q{q_i+1}:",
+                    options=q["options"],
+                    index=def_idx,
+                    key=f"mcq_radio_{q['id']}_{g_class}_{g_subject}_{display_obj_set_num}",
+                    label_visibility="collapsed"
+                )
+                user_mcq_answers[q["id"]] = user_mcq_choice
+
+            col_sub_obj, col_sub_sp = st.columns([1.5, 2.5])
+            with col_sub_obj:
+                btn_submit_objective = st.button("🚀 Submit Objective Section (Instant AI Score)", type="primary", key=f"btn_sub_obj_{display_obj_set_num}", use_container_width=True)
+
+            if btn_submit_objective:
+                st.session_state["obj_submitted_flag"] = True
+                st.session_state["obj_last_set_num"] = display_obj_set_num
+
+            # Immediate Reflection of Objective Marks
+            if st.session_state.get("obj_submitted_flag", False) and st.session_state.get("obj_last_set_num") == display_obj_set_num:
+                obj_score = 0.0
+                for q in obj_questions:
+                    if user_mcq_answers.get(q["id"]) == q["correct_option"]:
+                        obj_score += 1.0
+
+                obj_pct = int(round((obj_score / 5.0) * 100))
+                
+                st.markdown(f"""
+                <div style="background: linear-gradient(135deg, #0F172A 0%, #1E1B4B 50%, #2563EB 100%); color: #FFFFFF; border-radius: 12px; padding: 16px 20px; margin: 16px 0; box-shadow: 0 4px 14px rgba(37,99,235,0.2);">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: #93C5FD; font-weight: 700;">Instant Objective Evaluation Completed</div>
+                            <div style="font-size: 24px; font-weight: 800; color: #FFFFFF; margin-top: 2px;">
+                                🎯 Score: {obj_score} / 5.0 Marks ({obj_pct}%)
+                            </div>
+                            <div style="font-size: 12px; color: #E0E7FF; margin-top: 3px;">
+                                Candidate: <strong>{current_user.get('name')}</strong> (<code>{current_user.get('id')}</code>) • Evaluated immediately by EduAegis Objective Assessment Engine
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <span style="font-size: 32px;">{'🌟' if obj_score == 5.0 else ('👍' if obj_score >= 3.0 else '📚')}</span>
+                        </div>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+
+                st.markdown("#### 🔍 Detailed Question-by-Question Evaluation Breakdown:")
+                for q_i, q in enumerate(obj_questions):
+                    chosen = user_mcq_answers.get(q["id"])
+                    is_correct = (chosen == q["correct_option"])
+                    if is_correct:
+                        st.markdown(f"""
+                        <div style="background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 8px; padding: 10px 14px; margin-bottom: 8px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <strong style="color: #166534; font-size: 13px;">✅ Q{q_i+1}: Correct (+1.0 Mark)</strong>
+                                <span style="font-size: 11px; font-weight: 700; background: #DCFCE7; color: #15803D; padding: 2px 7px; border-radius: 999px;">Awarded: 1.0 / 1.0</span>
+                            </div>
+                            <div style="font-size: 12px; color: #1E293B; margin-top: 4px;"><strong>Your Answer:</strong> {chosen}</div>
+                            <div style="font-size: 11.5px; color: #166534; margin-top: 4px; background: rgba(255,255,255,0.7); padding: 5px 8px; border-radius: 6px;">💡 <strong>Explanation:</strong> {q['explanation']}</div>
+                        </div>
+                        """, unsafe_allow_html=True)
+                    else:
+                        st.markdown(f"""
+                        <div style="background: #FEF2F2; border: 1px solid #FECACA; border-radius: 8px; padding: 10px 14px; margin-bottom: 8px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <strong style="color: #991B1B; font-size: 13px;">❌ Q{q_i+1}: Incorrect (0.0 Marks)</strong>
+                                <span style="font-size: 11px; font-weight: 700; background: #FEE2E2; color: #B91C1C; padding: 2px 7px; border-radius: 999px;">Awarded: 0.0 / 1.0</span>
+                            </div>
+                            <div style="font-size: 12px; color: #1E293B; margin-top: 4px;">
+                                <strong>Your Answer:</strong> {chosen if chosen else '<em>Unattempted</em>'}<br>
+                                <strong style="color: #166534;">Correct Answer:</strong> <strong>{q['correct_option']}</strong>
+                            </div>
+                            <div style="font-size: 11.5px; color: #475569; margin-top: 4px; background: rgba(255,255,255,0.7); padding: 5px 8px; border-radius: 6px;">💡 <strong>Explanation:</strong> {q['explanation']}</div>
+                        </div>
+                        """, unsafe_allow_html=True)
+
+                # Persist objective result attempt to database
+                assigned_std_id = current_user.get("id", "STU-101")
+                assigned_std_name = current_user.get("name", "Anup Sharma")
+                sub_board = current_user.get("board", "CBSE (All India)") if (user_role == "student" or g_board == "All Board") else g_board
+                new_obj_sub = {
+                    "id": f"obj_sub_{int(time.time() * 1000)}",
+                    "studentId": assigned_std_id,
+                    "studentName": assigned_std_name,
+                    "board": sub_board,
+                    "className": f"Class {g_class}th",
+                    "subject": g_subject,
+                    "topic": active_obj_title,
+                    "score": obj_score,
+                    "maxMarks": 5.0,
+                    "submittedAt": datetime.now().isoformat() + "Z"
+                }
+                db.setdefault("objective_submissions", []).insert(0, new_obj_sub)
+                save_db(db)
+
+            st.markdown("<hr style='margin: 16px 0;'>", unsafe_allow_html=True)
+
+        # ---------------------------------------------------------------------
+        # SECTION B: SUBJECTIVE TYPE QUESTIONS (5 QUESTIONS • 20 MARKS • TEACHER AUDITED)
+        # ---------------------------------------------------------------------
+        if "Section B" in grader_section or "View Both" in grader_section:
+            st.markdown("### ✍️ Section B: 5-Question Subjective Paper (20 Total Marks)")
+
+            # Practice Solved Example
+            with st.expander("📘 Practice Solved Example (Solution Hidden by Default)", expanded=False):
+                if g_subject == "Physics":
+                    st.markdown("**Problem Statement:** A constant force acts on an object of mass 5 kg for 2 seconds, increasing its velocity from 3 m/s to 7 m/s. Calculate the magnitude of the applied force. (4 Marks)")
+                    if st.button("Show Step-by-Step Solved Solution", key="btn_show_sol_p"):
+                        st.markdown("""
+                        **Step-by-Step Solved Solution:**
+                        - **Step 1:** Given: mass m = 5 kg, initial velocity u = 3 m/s, final velocity v = 7 m/s, time t = 2 s. *(+1 Mark)*
+                        - **Step 2:** Acceleration: a = (v - u) / t = (7 - 3) / 2 = 4 / 2 = 2 m/s². *(+1 Mark)*
+                        - **Step 3:** Force using F = m * a: F = 5 kg * 2 m/s² = 10 Newtons (N). *(+1 Mark)*
+                        - **Step 4:** Final Result: Applied Force = 10 N. *(+1 Mark)*
+                        """)
+                elif g_subject == "Chemistry":
+                    st.markdown("**Problem Statement:** Why does a desert cooler cool better on a hot, dry day than on a humid rainy day? (3 Marks)")
+                    if st.button("Show Step-by-Step Solved Solution", key="btn_show_sol_c"):
+                        st.markdown("""
+                        **Step-by-Step Solved Solution:**
+                        - **Step 1:** On a hot dry day, temperature is high and humidity (moisture in air) is very low. *(+1 Mark)*
+                        - **Step 2:** Rate of water evaporation from cooler pads increases dramatically when humidity is low. *(+1 Mark)*
+                        - **Step 3:** Greater evaporation absorbs more latent heat from incoming air, cooling the room effectively. *(+1 Mark)*
+                        """)
+                else:
+                    st.markdown("**Problem Statement:** Express 0.3333... in the form p/q, where p and q are integers and q ≠ 0. (3 Marks)")
+                    if st.button("Show Step-by-Step Solved Solution", key="btn_show_sol_m"):
+                        st.markdown("""
+                        **Step-by-Step Solved Solution:**
+                        - **Step 1:** Let x = 0.3333... (Equation 1). *(+1 Mark)*
+                        - **Step 2:** Multiply by 10: 10x = 3.3333... (Equation 2). *(+1 Mark)*
+                        - **Step 3:** Subtract Eq 1 from Eq 2: 9x = 3 => x = 3/9 = 1/3 in p/q form. *(+1 Mark)*
+                        """)
+
+            # 5-Question Subjective Paper with Refresh Icon / Button
+            col_hdr_q, col_ref_q = st.columns([3.0, 1.2])
+            with col_hdr_q:
+                st.markdown("#### 📝 Subjective Curriculum Paper (Step-by-Step Scoring)")
         with col_ref_q:
             if st.button("🔄 Refresh 5 Questions", key="btn_refresh_sample_questions", help="Click to load a brand new set of 5 questions for this class and subject", use_container_width=True):
                 st.session_state["active_q_set_idx"] = st.session_state.get("active_q_set_idx", 0) + 1
