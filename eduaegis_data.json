@@ -365,7 +365,9 @@
       "topic": "Force and Laws of Motion",
       "subject": "Physics",
       "totalAwarded": 5.5,
-      "totalMax": 20.0
+      "totalMax": 20.0,
+      "releasedAt": null,
+      "turnaroundMinutes": null
     },
     {
       "id": "sub_hist_p1",
@@ -384,7 +386,11 @@
       "submittedAt": "2025-12-20T14:00:00Z",
       "releasedAt": "2025-12-20T14:24:00Z",
       "turnaroundMinutes": 24.0,
-      "questions": []
+      "questions": [],
+      "chapterTitle": "Newton's Second Law & Momentum",
+      "topicName": "Newton's Second Law & Momentum",
+      "totalAwardedMarks": 18.5,
+      "totalMaxMarks": 20.0
     },
     {
       "id": "sub_hist_p2",
@@ -403,7 +409,11 @@
       "submittedAt": "2026-01-29T14:00:00Z",
       "releasedAt": "2026-01-29T14:45:00Z",
       "turnaroundMinutes": 45.0,
-      "questions": []
+      "questions": [],
+      "chapterTitle": "Inertia and Laws of Motion",
+      "topicName": "Inertia and Laws of Motion",
+      "totalAwardedMarks": 16.0,
+      "totalMaxMarks": 20.0
     },
     {
       "id": "sub_hist_p3",
@@ -422,7 +432,11 @@
       "submittedAt": "2026-03-25T14:00:00Z",
       "releasedAt": "2026-03-25T14:18:00Z",
       "turnaroundMinutes": 18.0,
-      "questions": []
+      "questions": [],
+      "chapterTitle": "Universal Gravitation & Floatation",
+      "topicName": "Universal Gravitation & Floatation",
+      "totalAwardedMarks": 19.0,
+      "totalMaxMarks": 20.0
     },
     {
       "id": "sub_hist_p4",
@@ -441,7 +455,11 @@
       "submittedAt": "2026-05-29T14:00:00Z",
       "releasedAt": "2026-05-29T14:32:00Z",
       "turnaroundMinutes": 32.0,
-      "questions": []
+      "questions": [],
+      "chapterTitle": "Work, Energy & Power Principles",
+      "topicName": "Work, Energy & Power Principles",
+      "totalAwardedMarks": 17.5,
+      "totalMaxMarks": 20.0
     },
     {
       "id": "sub_hist_p5",
@@ -460,7 +478,11 @@
       "submittedAt": "2026-07-28T14:00:00Z",
       "releasedAt": "2026-07-28T14:28:00Z",
       "turnaroundMinutes": 28.0,
-      "questions": []
+      "questions": [],
+      "chapterTitle": "Sound Waves & Frequency Calculations",
+      "topicName": "Sound Waves & Frequency Calculations",
+      "totalAwardedMarks": 15.0,
+      "totalMaxMarks": 20.0
     },
     {
       "id": "sub_hist_p6",
@@ -479,7 +501,11 @@
       "submittedAt": "2026-10-11T14:00:00Z",
       "releasedAt": "2026-10-11T14:15:00Z",
       "turnaroundMinutes": 15.0,
-      "questions": []
+      "questions": [],
+      "chapterTitle": "Momentum & Collisions Lab",
+      "topicName": "Momentum & Collisions Lab",
+      "totalAwardedMarks": 18.0,
+      "totalMaxMarks": 20.0
     },
     {
       "id": "sub_hist_c1",
@@ -498,7 +524,11 @@
       "submittedAt": "2026-01-09T14:00:00Z",
       "releasedAt": "2026-01-09T14:22:00Z",
       "turnaroundMinutes": 22.0,
-      "questions": []
+      "questions": [],
+      "chapterTitle": "Evaporation & Latent Heat of Vaporization",
+      "topicName": "Evaporation & Latent Heat of Vaporization",
+      "totalAwardedMarks": 17.0,
+      "totalMaxMarks": 20.0
     },
     {
       "id": "sub_hist_c2",
@@ -517,7 +547,11 @@
       "submittedAt": "2026-02-28T14:00:00Z",
       "releasedAt": "2026-02-28T14:16:00Z",
       "turnaroundMinutes": 16.0,
-      "questions": []
+      "questions": [],
+      "chapterTitle": "States of Matter & Phase Transitions",
+      "topicName": "States of Matter & Phase Transitions",
+      "totalAwardedMarks": 19.5,
+      "totalMaxMarks": 20.0
     },
     {
       "id": "sub_hist_m1",
@@ -536,7 +570,11 @@
       "submittedAt": "2026-04-29T14:00:00Z",
       "releasedAt": "2026-04-29T14:35:00Z",
       "turnaroundMinutes": 35.0,
-      "questions": []
+      "questions": [],
+      "chapterTitle": "Rational vs Irrational Numbers",
+      "topicName": "Rational vs Irrational Numbers",
+      "totalAwardedMarks": 18.0,
+      "totalMaxMarks": 20.0
     },
     {
       "id": "sub_hist_c3",
@@ -555,7 +593,11 @@
       "submittedAt": "2026-06-28T14:00:00Z",
       "releasedAt": "2026-06-28T14:25:00Z",
       "turnaroundMinutes": 25.0,
-      "questions": []
+      "questions": [],
+      "chapterTitle": "Atoms, Molecules & Chemical Formulas",
+      "topicName": "Atoms, Molecules & Chemical Formulas",
+      "totalAwardedMarks": 16.5,
+      "totalMaxMarks": 20.0
     },
     {
       "id": "sub_hist_m2",
@@ -574,7 +616,11 @@
       "submittedAt": "2026-08-27T14:00:00Z",
       "releasedAt": "2026-08-27T14:19:00Z",
       "turnaroundMinutes": 19.0,
-      "questions": []
+      "questions": [],
+      "chapterTitle": "Laws of Exponents & Polynomials",
+      "topicName": "Laws of Exponents & Polynomials",
+      "totalAwardedMarks": 19.0,
+      "totalMaxMarks": 20.0
     },
     {
       "id": "sub_hist_c4",
@@ -593,7 +639,11 @@
       "submittedAt": "2026-10-26T14:00:00Z",
       "releasedAt": "2026-10-26T14:27:00Z",
       "turnaroundMinutes": 27.0,
-      "questions": []
+      "questions": [],
+      "chapterTitle": "Structure of the Atom & Valence",
+      "topicName": "Structure of the Atom & Valence",
+      "totalAwardedMarks": 18.0,
+      "totalMaxMarks": 20.0
     },
     {
       "id": "sub_pend_p1",
@@ -631,9 +681,17 @@
               "maxMarks": 2.5,
               "whyAwardedOrDeducted": "Derived F = ma; SI unit of Newton specified."
             }
-          ]
+          ],
+          "questionText": "State Newton's Second Law of Motion. Derive F = ma with SI units.",
+          "awardedMarks": 3.5,
+          "maxMarks": 5.0,
+          "studentAnswer": "Newton's Second Law states that rate of change of momentum is proportional to applied force. F = ma."
         }
-      ]
+      ],
+      "chapterTitle": "Force and Laws of Motion (Newton's 2nd Law)",
+      "topicName": "Force and Laws of Motion (Newton's 2nd Law)",
+      "totalAwardedMarks": 14.0,
+      "totalMaxMarks": 20.0
     },
     {
       "id": "sub_pend_p2",
@@ -671,9 +729,17 @@
               "maxMarks": 1.5,
               "whyAwardedOrDeducted": "Linked directly to F = dp/dt."
             }
-          ]
+          ],
+          "questionText": "Why does a fielder pull his hands backward while catching a fast cricket ball?",
+          "awardedMarks": 2.5,
+          "maxMarks": 3.0,
+          "studentAnswer": "Pulling hands back increases the time taken to bring ball to rest, thus reducing the rate of change of momentum and impact force on palms."
         }
-      ]
+      ],
+      "chapterTitle": "Momentum & Cricket Ball Impulse Question",
+      "topicName": "Momentum & Cricket Ball Impulse Question",
+      "totalAwardedMarks": 15.5,
+      "totalMaxMarks": 20.0
     },
     {
       "id": "sub_pend_c1",
@@ -711,9 +777,17 @@
               "maxMarks": 4.0,
               "whyAwardedOrDeducted": "Listed all four; examples provided for three."
             }
-          ]
+          ],
+          "questionText": "Define Evaporation. Explain four factors affecting evaporation with examples.",
+          "awardedMarks": 4.0,
+          "maxMarks": 5.0,
+          "studentAnswer": "Evaporation is the transition of liquid into vapor below boiling point. Factors: Surface area, temperature, humidity, and wind speed."
         }
-      ]
+      ],
+      "chapterTitle": "Evaporation & Factors Affecting Rate of Evaporation",
+      "topicName": "Evaporation & Factors Affecting Rate of Evaporation",
+      "totalAwardedMarks": 16.0,
+      "totalMaxMarks": 20.0
     },
     {
       "id": "sub_pend_m1",
@@ -751,9 +825,17 @@
               "maxMarks": 1.5,
               "whyAwardedOrDeducted": "Correct simplification using a^2 - b^2."
             }
-          ]
+          ],
+          "questionText": "Rationalize the denominator of 1 / (7 + 3*sqrt(2)).",
+          "awardedMarks": 3.0,
+          "maxMarks": 3.0,
+          "studentAnswer": "Multiply numerator and denominator by conjugate (7 - 3*sqrt(2)). Result is (7 - 3*sqrt(2)) / 31."
         }
-      ]
+      ],
+      "chapterTitle": "Rationalizing the Denominator and Real Numbers",
+      "topicName": "Rationalizing the Denominator and Real Numbers",
+      "totalAwardedMarks": 17.0,
+      "totalMaxMarks": 20.0
     }
   ],
   "teachers": [

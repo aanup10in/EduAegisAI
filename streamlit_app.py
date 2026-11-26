@@ -3,12 +3,13 @@ EduAegis - Streamlit Web Application
 Responsible AI Tutor & Subjective Grader (Multi-Subject: Physics, Chemistry, Maths)
 Classes 8th, 9th, 10th • CBSE, ICSE, State Board
 International Standard Soothing UI & Responsible AI Governance Framework
-Enhanced with Role-Based Access Control, Blind Evaluation, Teacher Dashboard & Admin Executive Console
+Enhanced with Optimized Space Utilization, Atmospheric Watermark Background, Role-Based Access Control, Blind Evaluation, Teacher Dashboard & Admin Executive Console
 """
 
 import os
 import json
 import time
+import base64
 from datetime import datetime, timedelta
 import streamlit as st
 import streamlit.components.v1 as components
@@ -22,169 +23,265 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# International Standard Soothing Colors & Design CSS
-st.markdown("""
+# -----------------------------------------------------------------------------
+# WATERMARK SVG BACKGROUND GENERATION
+# -----------------------------------------------------------------------------
+# Elegant educational and AI governance motifs (Shield, Cap, Atom orbit, Book, Neural nodes)
+svg_watermark = """<svg xmlns="http://www.w3.org/2000/svg" width="360" height="360" viewBox="0 0 360 360" fill="none" stroke="#6366F1" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.045">
+  <path d="M60 40 L100 24 L140 40 L140 90 C140 120 100 135 100 135 C100 135 60 120 60 90 Z"/>
+  <path d="M100 45 L100 115"/>
+  <path d="M75 70 L125 70"/>
+  <path d="M220 50 L260 32 L300 50 L260 68 Z"/>
+  <path d="M240 60 L240 85 C240 95 280 95 280 85 L280 60"/>
+  <circle cx="220" cy="240" r="10"/>
+  <ellipse cx="220" cy="240" rx="32" ry="12" transform="rotate(30 220 240)"/>
+  <ellipse cx="220" cy="240" rx="32" ry="12" transform="rotate(-30 220 240)"/>
+  <path d="M50 230 Q80 215 110 230 L110 280 Q80 265 50 280 Z"/>
+  <path d="M110 230 Q140 215 170 230 L170 280 Q140 265 110 280 Z"/>
+  <circle cx="280" cy="200" r="3.5" fill="#6366F1"/>
+  <circle cx="320" cy="225" r="3.5" fill="#6366F1"/>
+  <circle cx="295" cy="265" r="3.5" fill="#6366F1"/>
+  <line x1="280" y1="200" x2="320" y2="225"/>
+  <line x1="320" y1="225" x2="295" y2="265"/>
+</svg>"""
+b64_bg = base64.b64encode(svg_watermark.encode("utf-8")).decode("utf-8")
+
+# -----------------------------------------------------------------------------
+# OPTIMIZED SOOTHING CSS (SPACE EFFICIENT, BEAUTIFUL COLORS, 100% READABILITY)
+# -----------------------------------------------------------------------------
+st.markdown(f"""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
     
-    html, body, [class*="css"] {
+    html, body, [class*="css"] {{
         font-family: 'Plus Jakarta Sans', sans-serif;
-    }
+    }}
+
+    /* Global Space Optimization - Eliminates excessive top whitespace */
+    .block-container {{
+        padding-top: 0.8rem !important;
+        padding-bottom: 1.5rem !important;
+        padding-left: 1.5rem !important;
+        padding-right: 1.5rem !important;
+        max-width: 98% !important;
+    }}
     
-    /* Header Container */
-    .aegis-header {
-        background: linear-gradient(135deg, #0F172A 0%, #1E1B4B 50%, #0F172A 100%);
-        padding: 24px 30px;
-        border-radius: 20px;
+    header[data-testid="stHeader"] {{
+        background: transparent !important;
+        height: 1.8rem !important;
+    }}
+
+    /* Atmospheric Watermark Background with Soft Ambient Mesh */
+    .stApp {{
+        background-color: #F8FAFC;
+        background-image: 
+            radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.08) 0px, transparent 45%),
+            radial-gradient(at 100% 0%, rgba(16, 185, 129, 0.07) 0px, transparent 45%),
+            radial-gradient(at 100% 100%, rgba(14, 165, 233, 0.06) 0px, transparent 45%),
+            radial-gradient(at 0% 100%, rgba(139, 92, 246, 0.06) 0px, transparent 45%),
+            url("data:image/svg+xml;base64,{b64_bg}");
+        background-attachment: fixed;
+        background-size: cover, cover, cover, cover, 360px 360px;
+    }}
+    
+    /* Sleek, Space-Optimized Header */
+    .aegis-header {{
+        background: linear-gradient(135deg, #0F172A 0%, #1E1B4B 45%, #312E81 85%, #0F172A 100%);
+        padding: 10px 18px;
+        border-radius: 14px;
         color: white;
-        margin-bottom: 20px;
-        border: 1px solid rgba(99, 102, 241, 0.3);
-        box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.25);
-    }
+        margin-bottom: 10px;
+        border: 1px solid rgba(99, 102, 241, 0.35);
+        box-shadow: 0 4px 15px -3px rgba(15, 23, 42, 0.2);
+    }}
     
-    .aegis-title {
-        font-size: 26px;
+    .aegis-title {{
+        font-size: 19px;
         font-weight: 800;
-        letter-spacing: -0.5px;
+        letter-spacing: -0.3px;
         color: #FFFFFF;
         display: flex;
         align-items: center;
-        gap: 10px;
-    }
+        gap: 8px;
+    }}
     
-    .aegis-badge {
-        background: rgba(16, 185, 129, 0.15);
-        color: #10B981;
-        font-size: 11px;
+    .aegis-badge {{
+        background: rgba(16, 185, 129, 0.2);
+        color: #34D399;
+        font-size: 10.5px;
         font-weight: 700;
-        padding: 4px 10px;
+        padding: 3px 9px;
         border-radius: 9999px;
-        border: 1px solid rgba(16, 185, 129, 0.3);
+        border: 1px solid rgba(16, 185, 129, 0.4);
         text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
+        letter-spacing: 0.4px;
+    }}
 
-    .role-badge-student {
+    .role-badge-student {{
         background: #EFF6FF;
         color: #1D4ED8;
-        font-size: 11px;
+        font-size: 10.5px;
         font-weight: 700;
-        padding: 4px 10px;
+        padding: 3px 8px;
         border-radius: 9999px;
         border: 1px solid #BFDBFE;
-    }
+    }}
 
-    .role-badge-teacher {
+    .role-badge-teacher {{
         background: #ECFDF5;
         color: #047857;
-        font-size: 11px;
+        font-size: 10.5px;
         font-weight: 700;
-        padding: 4px 10px;
+        padding: 3px 8px;
         border-radius: 9999px;
         border: 1px solid #A7F3D0;
-    }
+    }}
 
-    .role-badge-admin {
+    .role-badge-admin {{
         background: #FAF5FF;
         color: #7E22CE;
-        font-size: 11px;
+        font-size: 10.5px;
         font-weight: 700;
-        padding: 4px 10px;
+        padding: 3px 8px;
         border-radius: 9999px;
         border: 1px solid #E9D5FF;
-    }
+    }}
     
-    .aegis-subtext {
-        font-size: 13px;
+    .aegis-subtext {{
+        font-size: 11.5px;
         color: #CBD5E1;
-        margin-top: 6px;
-        max-width: 850px;
-        line-height: 1.5;
-    }
+        margin-top: 2px;
+        line-height: 1.35;
+    }}
     
-    /* Persistent Board Pill */
-    .board-pill {
+    /* Compact Persistent Board Pill */
+    .board-pill {{
         display: inline-flex;
         align-items: center;
-        gap: 6px;
+        gap: 5px;
         background: #EEF2FF;
         color: #4338CA;
         font-weight: 700;
-        font-size: 12px;
-        padding: 6px 14px;
-        border-radius: 9999px;
-        border: 1px solid #C7D2FE;
-        margin-bottom: 8px;
-    }
-    
-    /* Card Container */
-    .soothing-card {
-        background: #FFFFFF;
-        border: 1px solid #E2E8F0;
-        border-radius: 16px;
-        padding: 20px;
-        box-shadow: 0 2px 6px -1px rgba(0, 0, 0, 0.05);
-        margin-bottom: 16px;
-    }
-
-    /* KPI Summary Cards */
-    .kpi-box {
-        background: #FFFFFF;
-        border: 1px solid #E2E8F0;
-        border-radius: 14px;
-        padding: 16px;
-        text-align: center;
-        box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-    }
-    .kpi-num {
-        font-size: 26px;
-        font-weight: 800;
-        color: #0F172A;
-    }
-    .kpi-label {
-        font-size: 12px;
-        font-weight: 600;
-        color: #64748B;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        margin-top: 4px;
-    }
-
-    /* Timer Pill */
-    .timer-pill {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        background: #FFFBEB;
-        color: #B45309;
-        font-weight: 700;
         font-size: 11px;
         padding: 4px 10px;
         border-radius: 9999px;
-        border: 1px solid #FDE68A;
-    }
+        border: 1px solid #C7D2FE;
+    }}
     
-    .blind-banner {
-        background: #F0FDF4;
-        border: 1px solid #BBF7D0;
-        border-radius: 12px;
-        padding: 12px 16px;
-        color: #166534;
-        font-size: 13px;
-        font-weight: 600;
-        margin-bottom: 16px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
+    /* Solid Glassmorphism Card for 100% Crisp Readability */
+    .soothing-card {{
+        background: rgba(255, 255, 255, 0.95) !important;
+        backdrop-filter: blur(12px) !important;
+        border: 1px solid rgba(226, 232, 240, 0.9) !important;
+        border-radius: 14px !important;
+        padding: 14px 16px !important;
+        box-shadow: 0 4px 14px -2px rgba(15, 23, 42, 0.04) !important;
+        margin-bottom: 10px !important;
+    }}
 
-    .step-item {
-        background: #F8FAFC;
+    /* Compact Sidebar Profile Card */
+    .sidebar-profile-card {{
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(238, 242, 255, 0.9) 100%);
+        border: 1px solid #C7D2FE;
+        border-radius: 12px;
+        padding: 10px 12px;
+        margin-bottom: 8px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    }}
+
+    /* Tighten Sidebar Padding to Eliminate Wasted Left Space */
+    [data-testid="stSidebar"] {{
+        background: rgba(255, 255, 255, 0.96) !important;
+        border-right: 1px solid #E2E8F0 !important;
+    }}
+    [data-testid="stSidebar"] > div:first-child {{
+        padding-top: 0.8rem !important;
+        padding-left: 0.9rem !important;
+        padding-right: 0.9rem !important;
+    }}
+
+    /* Vibrant Compact KPI Summary Cards */
+    .kpi-box {{
+        background: rgba(255, 255, 255, 0.95);
         border: 1px solid #E2E8F0;
         border-radius: 12px;
-        padding: 12px 16px;
-        margin-bottom: 8px;
-    }
+        padding: 10px 14px;
+        text-align: center;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    }}
+    .kpi-num {{
+        font-size: 22px;
+        font-weight: 800;
+        color: #0F172A;
+    }}
+    .kpi-label {{
+        font-size: 11px;
+        font-weight: 600;
+        color: #64748B;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        margin-top: 2px;
+    }}
+
+    /* Compact Timer Pill */
+    .timer-pill {{
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        background: #FFFBEB;
+        color: #B45309;
+        font-weight: 700;
+        font-size: 10.5px;
+        padding: 3px 8px;
+        border-radius: 9999px;
+        border: 1px solid #FDE68A;
+    }}
+    
+    .blind-banner {{
+        background: #F0FDF4;
+        border: 1px solid #BBF7D0;
+        border-radius: 10px;
+        padding: 9px 12px;
+        color: #166534;
+        font-size: 12px;
+        font-weight: 600;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }}
+
+    .step-item {{
+        background: #F8FAFC;
+        border: 1px solid #E2E8F0;
+        border-radius: 10px;
+        padding: 10px 14px;
+        margin-bottom: 6px;
+    }}
+
+    /* Modern Styled Tab Bar */
+    .stTabs [data-baseweb="tab-list"] {{
+        gap: 6px;
+        background: rgba(241, 245, 249, 0.85);
+        padding: 4px;
+        border-radius: 10px;
+        border: 1px solid #E2E8F0;
+    }}
+    .stTabs [data-baseweb="tab"] {{
+        border-radius: 8px;
+        padding: 5px 12px;
+        font-weight: 600;
+        font-size: 12.5px;
+    }}
+    .stTabs [aria-selected="true"] {{
+        background: linear-gradient(135deg, #4338CA 0%, #6366F1 100%) !important;
+        color: #FFFFFF !important;
+        box-shadow: 0 2px 8px rgba(99, 102, 241, 0.35);
+    }}
+
+    hr {{
+        margin: 10px 0 !important;
+    }}
 </style>
 """, unsafe_allow_html=True)
 
@@ -394,16 +491,16 @@ def load_db():
             "submissions": []
         }
 
-    # Ensure students array contains our core users
-    if "students" not in data or not isinstance(data["students"], list):
-        data["students"] = [DEFAULT_USERS["Anup"], DEFAULT_USERS["Nandita"]]
-
-    # Ensure Anup and Nandita are present with STU-101 and STU-102
-    std_ids = {s.get("id") for s in data["students"]}
-    if "STU-101" not in std_ids:
-        data["students"].insert(0, DEFAULT_USERS["Anup"])
-    if "STU-102" not in std_ids:
-        data["students"].insert(1, DEFAULT_USERS["Nandita"])
+    # Ensure unique students without duplicates
+    std_map = {}
+    for s in data.get("students", []):
+        if s.get("id"):
+            std_map[s["id"]] = s
+    if "STU-101" not in std_map:
+        std_map["STU-101"] = DEFAULT_USERS["Anup"]
+    if "STU-102" not in std_map:
+        std_map["STU-102"] = DEFAULT_USERS["Nandita"]
+    data["students"] = list(std_map.values())
 
     if "submissions" not in data or not isinstance(data["submissions"], list):
         data["submissions"] = []
@@ -444,11 +541,11 @@ if "logged_in_user" not in st.session_state:
 # If not logged in, render the Login Screen
 if st.session_state["logged_in_user"] is None:
     st.markdown("""
-    <div style="max-width: 680px; margin: 40px auto 20px auto; text-align: center;">
-        <div style="font-size: 38px;">🛡️</div>
-        <h1 style="font-size: 28px; font-weight: 800; color: #0F172A; margin-bottom: 6px;">Welcome to EduAegis</h1>
-        <p style="color: #64748B; font-size: 14px; margin-bottom: 24px;">
-            Responsible AI Tutor & Subjective Grader Platform • Role-Based Authentication Portal
+    <div style="max-width: 620px; margin: 30px auto 16px auto; text-align: center;">
+        <div style="font-size: 34px;">🛡️</div>
+        <h1 style="font-size: 26px; font-weight: 800; color: #0F172A; margin-bottom: 4px;">Welcome to EduAegis</h1>
+        <p style="color: #64748B; font-size: 13.5px; margin-bottom: 18px;">
+            Responsible AI Tutor & Governed Grader • Role-Based Authentication Portal
         </p>
     </div>
     """, unsafe_allow_html=True)
@@ -458,8 +555,8 @@ if st.session_state["logged_in_user"] is None:
     with col_login:
         with st.container():
             st.markdown("""
-            <div class="soothing-card" style="border: 2px solid #E0E7FF; box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.1);">
-                <div style="font-size: 16px; font-weight: 700; color: #1E1B4B; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+            <div class="soothing-card" style="border: 2px solid #E0E7FF; box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.12);">
+                <div style="font-size: 15px; font-weight: 700; color: #1E1B4B; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
                     <span>🔐 Sign In to Your Portal</span>
                 </div>
             """, unsafe_allow_html=True)
@@ -474,15 +571,12 @@ if st.session_state["logged_in_user"] is None:
             # Available usernames based on selected role
             if login_role == "Student":
                 user_options = ["Anup", "Nandita"]
-                role_key = "student"
                 default_idx = 0
             elif login_role == "Teacher":
                 user_options = ["Ankur", "Akanksha"]
-                role_key = "teacher"
                 default_idx = 0
             else:
                 user_options = ["Admin"]
-                role_key = "admin"
                 default_idx = 0
 
             selected_username = st.selectbox("2. Select Your Username", user_options, index=default_idx)
@@ -498,15 +592,15 @@ if st.session_state["logged_in_user"] is None:
                     if user_data:
                         st.session_state["logged_in_user"] = user_data
                         st.success(f"Welcome back, {user_data['name']} ({user_data['id']})!")
-                        time.sleep(0.5)
+                        time.sleep(0.4)
                         st.rerun()
                     else:
                         st.error("User not found.")
                 else:
                     st.error("Invalid password. Please enter 'eduaegis123'.")
 
-            st.markdown("---")
-            st.markdown("<div style='font-size: 12px; font-weight: 700; color: #475569; margin-bottom: 8px;'>⚡ 1-Click Demo Quick Logins:</div>", unsafe_allow_html=True)
+            st.markdown("<hr style='margin: 12px 0;'>", unsafe_allow_html=True)
+            st.markdown("<div style='font-size: 11.5px; font-weight: 700; color: #475569; margin-bottom: 6px;'>⚡ 1-Click Demo Quick Logins:</div>", unsafe_allow_html=True)
             col_q1, col_q2 = st.columns(2)
             with col_q1:
                 if st.button("👤 Anup (Student - CBSE)", use_container_width=True):
@@ -519,7 +613,7 @@ if st.session_state["logged_in_user"] is None:
                 if st.button("👤 Nandita (Student - ICSE)", use_container_width=True):
                     st.session_state["logged_in_user"] = DEFAULT_USERS["Nandita"]
                     st.rerun()
-                if st.button("🛡️ Akanksha (Chem/Math Teacher)", use_container_width=True):
+                if st.button("🛡️ Akanksha (Chem/Math)", use_container_width=True):
                     st.session_state["logged_in_user"] = DEFAULT_USERS["Akanksha"]
                     st.rerun()
             if st.button("👑 Admin (Super User Access)", use_container_width=True):
@@ -528,7 +622,7 @@ if st.session_state["logged_in_user"] is None:
 
             st.markdown("</div>", unsafe_allow_html=True)
 
-    # Stop rendering the rest of the application until authenticated
+    # Stop rendering until authenticated
     st.stop()
 
 # =============================================================================
@@ -538,36 +632,31 @@ current_user = st.session_state["logged_in_user"]
 user_role = current_user.get("role", "student")
 
 # -----------------------------------------------------------------------------
-# SIDEBAR: Profile, Academic Context & Authentication Info
+# SPACE-OPTIMIZED SIDEBAR (CONCISE, BEAUTIFUL, ZERO WASTED VERTICAL SPACE)
 # -----------------------------------------------------------------------------
 with st.sidebar:
-    st.markdown("### 🛡️ Active Profile")
-
     if user_role == "student":
         st.markdown(f"""
-        <div style="background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 12px; padding: 12px; margin-bottom: 12px;">
+        <div class="sidebar-profile-card">
             <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span style="font-weight: 800; font-size: 15px; color: #1E3A8A;">👤 {current_user.get('name')}</span>
+                <span style="font-weight: 800; font-size: 13.5px; color: #1E3A8A;">👤 {current_user.get('name')}</span>
                 <span class="role-badge-student">Student</span>
             </div>
-            <div style="font-size: 12px; color: #1E40AF; margin-top: 6px;">
-                <strong>Candidate ID:</strong> <code>{current_user.get('id')}</code><br>
-                <strong>Class:</strong> {current_user.get('studentClass', 9)}th Grade<br>
-                <strong>Board:</strong> {current_user.get('board', 'CBSE')}<br>
-                <strong>Location:</strong> {current_user.get('cityState', 'India')}
+            <div style="font-size: 11px; color: #1E40AF; margin-top: 4px;">
+                <code>{current_user.get('id')}</code> • Class {current_user.get('studentClass', 9)}th • {current_user.get('board', 'CBSE').split(' ')[0]}<br>
+                📍 {current_user.get('cityState', 'Bangalore')}
             </div>
         </div>
         """, unsafe_allow_html=True)
 
-        with st.expander("✏️ Update Profile / New Candidate"):
-            std_name = st.text_input("Full Name", value=current_user.get("name", "Student"))
+        with st.expander("✏️ New Student Profile", expanded=False):
+            std_name = st.text_input("Full Name", value="New Student")
             std_class = st.selectbox("Class", [8, 9, 10], index=1)
             std_board = st.selectbox("Board", ["CBSE (All India)", "ICSE / CISCE", "State Board (Maharashtra/UP/Karnataka)", "Cambridge IGCSE"], index=0)
-            std_email = st.text_input("Email", value=current_user.get("email", "student@school.edu"))
-            std_phone = st.text_input("Phone", value=current_user.get("phone", "+91 98765 43210"))
-            std_city = st.text_input("City / State", value=current_user.get("cityState", "Bangalore, Karnataka"))
+            std_email = st.text_input("Email", value="new.student@school.edu")
+            std_city = st.text_input("City / State", value="Bangalore, Karnataka")
 
-            if st.button("Save Profile as New Student"):
+            if st.button("Save Profile"):
                 new_id = generate_unique_student_id(db.get("students", []))
                 new_profile = {
                     "id": new_id,
@@ -577,97 +666,85 @@ with st.sidebar:
                     "studentClass": std_class,
                     "board": std_board,
                     "email": std_email,
-                    "phone": std_phone,
                     "cityState": std_city,
                     "password": "eduaegis123"
                 }
                 db.setdefault("students", []).append(new_profile)
                 save_db(db)
                 st.session_state["logged_in_user"] = new_profile
-                st.success(f"New student profile registered with unique ID: {new_id}")
+                st.success(f"Registered with unique ID: {new_id}")
                 st.rerun()
 
     elif user_role == "teacher":
         subj_list = ", ".join(current_user.get("subjects", ["Physics"]))
         st.markdown(f"""
-        <div style="background: #ECFDF5; border: 1px solid #A7F3D0; border-radius: 12px; padding: 12px; margin-bottom: 12px;">
+        <div class="sidebar-profile-card" style="border-color: #A7F3D0; background: linear-gradient(135deg, #F0FDF4 0%, #ECFDF5 100%);">
             <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span style="font-weight: 800; font-size: 15px; color: #065F46;">🛡️ {current_user.get('name')}</span>
+                <span style="font-weight: 800; font-size: 13.5px; color: #065F46;">🛡️ {current_user.get('name')}</span>
                 <span class="role-badge-teacher">Teacher</span>
             </div>
-            <div style="font-size: 12px; color: #047857; margin-top: 6px;">
-                <strong>Faculty ID:</strong> <code>{current_user.get('id')}</code><br>
-                <strong>Assigned Subject(s):</strong> {subj_list}<br>
-                <strong>Department:</strong> {current_user.get('department', 'Academic')}<br>
+            <div style="font-size: 11px; color: #047857; margin-top: 4px;">
+                <code>{current_user.get('id')}</code> • Domain: <strong>{subj_list}</strong><br>
+                {current_user.get('department', 'Academic Faculty')}
             </div>
         </div>
-        """, unsafe_allow_html=True)
-
-        st.markdown("""
-        <div class="blind-banner" style="font-size: 11px;">
-            🔒 <strong>Blind Evaluation Enforced:</strong><br>
-            Student names are masked with Unique Student IDs during grading to prevent cognitive bias.
+        <div class="blind-banner" style="font-size: 10.5px; padding: 6px 10px; margin-bottom: 8px;">
+            🔒 <strong>Blind Evaluation:</strong> Student names masked with IDs.
         </div>
         """, unsafe_allow_html=True)
 
     else:  # Admin
         st.markdown(f"""
-        <div style="background: #FAF5FF; border: 1px solid #E9D5FF; border-radius: 12px; padding: 12px; margin-bottom: 12px;">
+        <div class="sidebar-profile-card" style="border-color: #E9D5FF; background: linear-gradient(135deg, #FAF5FF 0%, #F5F3FF 100%);">
             <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span style="font-weight: 800; font-size: 15px; color: #581C87;">👑 {current_user.get('name')}</span>
+                <span style="font-weight: 800; font-size: 13.5px; color: #581C87;">👑 {current_user.get('name')}</span>
                 <span class="role-badge-admin">Admin</span>
             </div>
-            <div style="font-size: 12px; color: #6B21A8; margin-top: 6px;">
-                <strong>Admin ID:</strong> <code>{current_user.get('id')}</code><br>
-                <strong>Privilege:</strong> Super User (All Access)<br>
-                <strong>Oversight:</strong> System-wide Governance
+            <div style="font-size: 11px; color: #6B21A8; margin-top: 4px;">
+                <code>{current_user.get('id')}</code> • Super User (Executive Governance)
             </div>
         </div>
         """, unsafe_allow_html=True)
 
-    st.divider()
     if st.button("🚪 Log Out", use_container_width=True):
         st.session_state["logged_in_user"] = None
         st.rerun()
 
 # -----------------------------------------------------------------------------
-# GLOBAL PERSISTENT HEADER (Always Visible on Top of Every Page)
+# SPACE-OPTIMIZED TOP HEADER WITH INTEGRATED CURRICULUM SELECTOR
 # -----------------------------------------------------------------------------
 board_options = ["CBSE (All India)", "ICSE / CISCE", "State Board (Maharashtra/UP/Karnataka)", "Cambridge IGCSE"]
-col_head1, col_head2 = st.columns([3, 1])
+col_head_left, col_head_right = st.columns([3.8, 1.2])
 
-with col_head1:
+with col_head_left:
     role_display = "Student Portal" if user_role == "student" else ("Teacher Audit Console" if user_role == "teacher" else "Admin Executive Governance")
     st.markdown(f"""
     <div class="aegis-header">
-        <div class="aegis-title">
-            <span>🛡️ EduAegis</span>
-            <span class="aegis-badge">AI Tutor & Governed Grader</span>
-            <span style="font-size: 12px; background: rgba(255,255,255,0.15); padding: 3px 10px; border-radius: 999px;">{role_display}</span>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 20px;">🛡️</span>
+                <span class="aegis-title">EduAegis</span>
+                <span class="aegis-badge">AI Tutor & Governed Grader</span>
+                <span style="font-size: 10.5px; background: rgba(255,255,255,0.18); color: #E2E8F0; padding: 2px 7px; border-radius: 999px; font-weight: 600;">{role_display}</span>
+            </div>
         </div>
         <div class="aegis-subtext">
-            Logged in as <strong>{current_user.get('name')}</strong> (<code>{current_user.get('id')}</code> • {user_role.capitalize()}).
-            Responsible AI Tutoring and Multi-Subject Subjective Evaluation aligned with DPDP Act 2023 & NITI Aayog AI Governance Guidelines.
+            Active: <strong>{current_user.get('name')}</strong> (<code>{current_user.get('id')}</code> • {user_role.capitalize()}) • DPDP Act 2023 Aligned • NITI Aayog Responsible AI Frameworks
         </div>
     </div>
     """, unsafe_allow_html=True)
 
-with col_head2:
+with col_head_right:
     selected_board = st.selectbox(
-        "🏛️ Persistent Curriculum Board",
+        "🏛️ Active Curriculum Board",
         board_options,
         index=0,
-        help="This board selector remains visible on top across all pages and modes."
+        help="Curriculum board remains active across all evaluations."
     )
-    st.markdown(f'<div class="board-pill">✓ Active Board: {selected_board.split(" ")[0]}</div>', unsafe_allow_html=True)
 
 # -----------------------------------------------------------------------------
 # DYNAMIC TAB RENDERING BASED ON USER ROLE
 # -----------------------------------------------------------------------------
-# 1. Student sees: Tutor, Grader, My History
-# 2. Teacher sees: Teacher / Governance Panel, Tutor, Grader
-# 3. Admin sees: Tutor, Grader, History, Teacher Panel, AND Admin Tab next to Teacher Panel!
-
 if user_role == "student":
     tab_tutor, tab_grader, tab_history = st.tabs([
         "💡 AI Tutor (Concept Learning & Audio)",
@@ -727,7 +804,7 @@ if tab_tutor is not None:
 
         active_learning_topic = custom_tutor_topic.strip() if custom_tutor_topic.strip() else t_selected_topic
 
-        st.markdown("---")
+        st.markdown("<hr>", unsafe_allow_html=True)
         col_c1, col_c2 = st.columns([2, 1])
 
         with col_c1:
@@ -792,11 +869,11 @@ if tab_tutor is not None:
             st.markdown("#### 🔊 Audio Teacher Voice Narration:")
             clean_audio_js = audio_text.replace("'", "\\'").replace("\n", " ")
             audio_html = f"""
-            <div style="background:#F1F5F9; padding:14px; border-radius:12px; border:1px solid #CBD5E1; display:flex; align-items:center; gap:12px;">
-                <button onclick="speakAudio()" style="background:#4F46E5; color:white; border:none; padding:8px 16px; border-radius:8px; font-weight:bold; cursor:pointer;">
+            <div style="background:#F1F5F9; padding:12px; border-radius:10px; border:1px solid #CBD5E1; display:flex; align-items:center; gap:10px;">
+                <button onclick="speakAudio()" style="background:#4F46E5; color:white; border:none; padding:7px 14px; border-radius:8px; font-weight:bold; cursor:pointer;">
                     ▶ Listen to Teacher
                 </button>
-                <button onclick="stopAudio()" style="background:#EF4444; color:white; border:none; padding:8px 14px; border-radius:8px; font-weight:bold; cursor:pointer;">
+                <button onclick="stopAudio()" style="background:#EF4444; color:white; border:none; padding:7px 12px; border-radius:8px; font-weight:bold; cursor:pointer;">
                     ⏹ Stop
                 </button>
                 <span id="audio-status" style="font-size:12px; color:#475569; font-weight:600;">Click Play to hear speech narration</span>
@@ -822,7 +899,7 @@ if tab_tutor is not None:
                 }}
             </script>
             """
-            components.html(audio_html, height=70)
+            components.html(audio_html, height=65)
 
             st.markdown("#### 💡 Everyday Real-World Analogies:")
             for an in analogies:
@@ -839,7 +916,7 @@ if tab_tutor is not None:
                 st.success("🎉 Superb! You have confirmed mastery of this concept.")
                 st.balloons()
 
-            st.markdown("---")
+            st.markdown("<hr>", unsafe_allow_html=True)
             st.markdown("### 🚀 Ready to Test?")
             st.info("Switch to the **AI Grader** tab to take the 5-question practice test with step-by-step scoring!")
 
@@ -979,7 +1056,7 @@ if tab_grader is not None:
             elif load_demo == "poor":
                 default_val = "Every action has reaction. Formula is F = ma where m is matter and a is speed. Unit is Joules." if g_subject == "Physics" else "Ice is cold so it cools things."
 
-            user_answers[q["id"]] = st.text_area(f"Your Subjective Answer for Q{idx+1}:", value=default_val, height=85, key=f"ans_{q['id']}")
+            user_answers[q["id"]] = st.text_area(f"Your Subjective Answer for Q{idx+1}:", value=default_val, height=80, key=f"ans_{q['id']}")
 
         submit_button = st.button("🚀 Submit Paper for AI & Teacher Evaluation", type="primary")
 
@@ -1107,20 +1184,21 @@ if tab_history is not None:
         all_subs = db.get("submissions", [])
         if user_role == "student":
             my_std_id = current_user.get("id", "STU-101")
-            display_subs = [s for s in all_subs if s.get("studentId") == my_std_id or s.get("studentName") == current_user.get("name")]
+            display_subs = [s for s in all_subs if s.get("studentId") == my_std_id]
             st.info(f"Showing academic evaluation history for: **{current_user.get('name')}** (Candidate ID: <code>{my_std_id}</code>)")
         else:
             # Admin view: Filter by student dropdown
             col_filt1, col_filt2 = st.columns([2, 1])
             with col_filt1:
-                std_names = ["All Students"] + sorted(list({s.get("studentName", "Student") for s in all_subs}))
+                std_names = ["All Students"] + sorted(list({f"{s.get('studentName', 'Student')} ({s.get('studentId', 'STU-101')})" for s in all_subs}))
                 chosen_std = st.selectbox("Filter by Student Profile:", std_names, index=0)
             with col_filt2:
                 status_filter = st.selectbox("Filter by Evaluation Status:", ["All Statuses", "PENDING_TEACHER_RELEASE", "RELEASED", "ACCEPTED", "CHALLENGED"])
 
             display_subs = all_subs
             if chosen_std != "All Students":
-                display_subs = [s for s in display_subs if s.get("studentName") == chosen_std]
+                selected_s_id = chosen_std.split("(")[-1].replace(")", "").strip()
+                display_subs = [s for s in display_subs if s.get("studentId") == selected_s_id]
             if status_filter != "All Statuses":
                 display_subs = [s for s in display_subs if s.get("status") == status_filter]
 
@@ -1166,7 +1244,7 @@ if tab_history is not None:
                                     for step in q_item["stepBreakdown"]:
                                         st.markdown(f"- **Step {step.get('stepNumber', '')}: {step.get('stepFocus', '')}** (`{step.get('marksAwarded', 0)} / {step.get('maxMarks', 1)} Marks`): {step.get('whyAwardedOrDeducted', '')}")
 
-                        st.markdown("---")
+                        st.markdown("<hr>", unsafe_allow_html=True)
                         st.markdown("##### ⚖️ Student Decision (Choose One Option):")
                         col_opt1, col_opt2 = st.columns(2)
                         with col_opt1:
@@ -1209,7 +1287,8 @@ if tab_history is not None:
 # =============================================================================
 if tab_teacher is not None:
     with tab_teacher:
-        st.subheader("🛡️ Teacher & AI Governance Console (edcafe.ai Inspired)")
+        # User specified: Text "(edcafe.ai Inspired)" removed, keeping all features intact
+        st.subheader("🛡️ Teacher & AI Governance Console")
         st.caption("Human-in-the-Loop review: Configure rubrics, monitor real-time evaluation timers, and release scores blind-anonymously.")
 
         all_submissions = db.get("submissions", [])
@@ -1244,34 +1323,34 @@ if tab_teacher is not None:
 
         with kpi_c1:
             st.markdown(f"""
-            <div class="kpi-box" style="border-top: 4px solid #F59E0B;">
+            <div class="kpi-box" style="border-top: 3px solid #F59E0B;">
                 <div class="kpi-num" style="color: #D97706;">{len(pending_subs)}</div>
                 <div class="kpi-label">Pending In Queue</div>
             </div>
             """, unsafe_allow_html=True)
         with kpi_c2:
             st.markdown(f"""
-            <div class="kpi-box" style="border-top: 4px solid #10B981;">
+            <div class="kpi-box" style="border-top: 3px solid #10B981;">
                 <div class="kpi-num" style="color: #059669;">{len(completed_subs)}</div>
                 <div class="kpi-label">Completed (1 Year)</div>
             </div>
             """, unsafe_allow_html=True)
         with kpi_c3:
             st.markdown(f"""
-            <div class="kpi-box" style="border-top: 4px solid #6366F1;">
+            <div class="kpi-box" style="border-top: 3px solid #6366F1;">
                 <div class="kpi-num" style="color: #4F46E5;">{format_minutes(avg_turnaround)}</div>
                 <div class="kpi-label">Avg Turnaround Time</div>
             </div>
             """, unsafe_allow_html=True)
         with kpi_c4:
             st.markdown(f"""
-            <div class="kpi-box" style="border-top: 4px solid #EF4444;">
+            <div class="kpi-box" style="border-top: 3px solid #EF4444;">
                 <div class="kpi-num" style="color: #DC2626;">{len(challenged_subs)}</div>
                 <div class="kpi-label">Appeals To Resolve</div>
             </div>
             """, unsafe_allow_html=True)
 
-        st.markdown("<br>", unsafe_allow_html=True)
+        st.markdown("<div style='height: 8px;'></div>", unsafe_allow_html=True)
 
         # 2. Detailed Pending Requests Breakdown: By Class, By Board, By Student ID
         st.markdown("#### ⏳ Summary of Pending Requests in Queue")
@@ -1327,7 +1406,7 @@ if tab_teacher is not None:
                 for s_k, s_v in p_student_counts.items():
                     st.markdown(f"- Candidate <code>{s_k}</code>: `{s_v}` pending", unsafe_allow_html=True)
 
-        st.markdown("---")
+        st.markdown("<hr>", unsafe_allow_html=True)
 
         # 3. Date-wise Evaluations Completed for Last 1 Year
         st.markdown("#### 📅 Date-wise Completed Evaluations (Last 1 Year)")
@@ -1370,14 +1449,14 @@ if tab_teacher is not None:
         else:
             st.info("No historical completed evaluations found for this subject domain.")
 
-        st.markdown("---")
+        st.markdown("<hr>", unsafe_allow_html=True)
 
-        # 4. Teacher Directives Configuration (Preserving existing feature)
-        with st.expander("⚙️ Configure Custom Teacher Directives (www.edcafe.ai Style)", expanded=False):
+        # 4. Teacher Directives Configuration (Preserving all features, text '(www.edcafe.ai Style)' removed)
+        with st.expander("⚙️ Configure Custom Teacher Directives", expanded=False):
             t_inst = st.text_area(
                 "Custom Grading Directives for Physics / Chemistry / Maths:",
                 value="Strictly penalize 0.5 marks if SI units (N, kg, m/s²) are omitted. Award partial credit for derivation steps.",
-                height=70
+                height=65
             )
             c_si = st.checkbox("Strict SI Units Check (-0.5 penalty)", value=True)
             c_part = st.checkbox("Award Partial Credit for Formula Steps", value=True)
@@ -1498,41 +1577,41 @@ if tab_admin is not None:
         kpi_a1, kpi_a2, kpi_a3, kpi_a4, kpi_a5 = st.columns(5)
         with kpi_a1:
             st.markdown(f"""
-            <div class="kpi-box" style="border-top: 4px solid #3B82F6;">
+            <div class="kpi-box" style="border-top: 3px solid #3B82F6;">
                 <div class="kpi-num" style="color: #1D4ED8;">{total_subs}</div>
                 <div class="kpi-label">Total Submissions</div>
             </div>
             """, unsafe_allow_html=True)
         with kpi_a2:
             st.markdown(f"""
-            <div class="kpi-box" style="border-top: 4px solid #F59E0B;">
+            <div class="kpi-box" style="border-top: 3px solid #F59E0B;">
                 <div class="kpi-num" style="color: #D97706;">{global_pending}</div>
                 <div class="kpi-label">Pending Across Faculty</div>
             </div>
             """, unsafe_allow_html=True)
         with kpi_a3:
             st.markdown(f"""
-            <div class="kpi-box" style="border-top: 4px solid #10B981;">
+            <div class="kpi-box" style="border-top: 3px solid #10B981;">
                 <div class="kpi-num" style="color: #059669;">{global_completed}</div>
                 <div class="kpi-label">Completed Evaluations</div>
             </div>
             """, unsafe_allow_html=True)
         with kpi_a4:
             st.markdown(f"""
-            <div class="kpi-box" style="border-top: 4px solid #6366F1;">
+            <div class="kpi-box" style="border-top: 3px solid #6366F1;">
                 <div class="kpi-num" style="color: #4F46E5;">{format_minutes(global_avg_turnaround)}</div>
                 <div class="kpi-label">System Avg Turnaround</div>
             </div>
             """, unsafe_allow_html=True)
         with kpi_a5:
             st.markdown(f"""
-            <div class="kpi-box" style="border-top: 4px solid #EC4899;">
+            <div class="kpi-box" style="border-top: 3px solid #EC4899;">
                 <div class="kpi-num" style="color: #BE185D;">{len(all_students)}</div>
                 <div class="kpi-label">Enrolled Candidates</div>
             </div>
             """, unsafe_allow_html=True)
 
-        st.markdown("<br>", unsafe_allow_html=True)
+        st.markdown("<div style='height: 8px;'></div>", unsafe_allow_html=True)
 
         # 2. All-Teacher Level Comparative Performance Dashboard
         st.markdown("### 🧑‍🏫 Teacher-Level Comparative Performance & Workload Analytics")
@@ -1582,13 +1661,13 @@ if tab_admin is not None:
             chart_turnaround.columns = ["Average Minutes to Release"]
             st.bar_chart(chart_turnaround, color="#6366F1")
 
-        st.markdown("---")
+        st.markdown("<hr>", unsafe_allow_html=True)
 
-        # 3. Students' Marks Information & Visualizations (Separate Visualization Section)
+        # 3. Students' Marks Information & Visualizations (Fixed Bug: Takes Student ID along with Name, strictly <= 100%)
         st.markdown("### 🎓 Student Marks Information & Academic Performance Analytics")
         st.caption("Institutional grade distribution, board benchmarks, and student-level academic progress.")
 
-        # Prepare Student Academic Table
+        # Prepare Student Academic Table strictly matching by studentId and bounding to 100%
         student_analytics = []
         for std in all_students:
             s_id = std.get("id")
@@ -1596,23 +1675,32 @@ if tab_admin is not None:
             s_class = std.get("studentClass", 9)
             s_board = std.get("board", "CBSE")
 
-            s_subs = [s for s in all_subs if s.get("studentId") == s_id or s.get("studentName") == s_name]
+            # Match strictly by student ID
+            s_subs = [s for s in all_subs if s.get("studentId") == s_id]
             completed_s_subs = [s for s in s_subs if s.get("status") in ["RELEASED", "ACCEPTED"]]
 
             if completed_s_subs:
-                scores = [s.get("totalAwarded", 0.0) for s in completed_s_subs]
-                maxes = [s.get("totalMax", 20.0) for s in completed_s_subs]
+                scores = [float(s.get("totalAwarded", 0.0)) for s in completed_s_subs]
+                maxes = [float(s.get("totalMax", 20.0)) for s in completed_s_subs]
                 avg_score = round(sum(scores) / len(scores), 1)
-                avg_pct = round((sum(scores) / sum(maxes)) * 100, 1)
+                total_max_sum = sum(maxes)
+                avg_pct = round((sum(scores) / total_max_sum) * 100.0, 1) if total_max_sum > 0 else 0.0
                 highest = max(scores)
             else:
-                avg_score = 16.5
-                avg_pct = 82.5
-                highest = 18.5
+                avg_score = 0.0
+                avg_pct = 0.0
+                highest = 0.0
+
+            # Strictly bound percentage to 100%
+            avg_pct = min(100.0, max(0.0, avg_pct))
+
+            # Unique Student Label combining Name and ID
+            student_label = f"{s_name} ({s_id})"
 
             student_analytics.append({
                 "Student ID": s_id,
                 "Student Name": s_name,
+                "Student Label": student_label,
                 "Class": f"Class {s_class}th",
                 "Board": s_board,
                 "Assessments Taken": len(s_subs),
@@ -1642,7 +1730,8 @@ if tab_admin is not None:
 
         with col_v2:
             st.markdown("**Student Average Performance Comparison (%):**")
-            chart_std_pct = df_std[["Student Name", "Avg Pct Num"]].set_index("Student Name")
+            # User request implemented: chart built with Student ID along with Name (Student Label), ensuring strictly <100%
+            chart_std_pct = df_std[["Student Label", "Avg Pct Num"]].set_index("Student Label")
             chart_std_pct.columns = ["Average Score (%)"]
             st.bar_chart(chart_std_pct, color="#10B981")
 
@@ -1653,7 +1742,7 @@ if tab_admin is not None:
             hide_index=True
         )
 
-        st.markdown("---")
+        st.markdown("<hr>", unsafe_allow_html=True)
 
         # 4. Global Directory & User Management
         with st.expander("👥 Institutional Directory: Registered Students & Faculty IDs", expanded=False):
@@ -1668,9 +1757,9 @@ if tab_admin is not None:
 # -----------------------------------------------------------------------------
 # GLOBAL FOOTER
 # -----------------------------------------------------------------------------
-st.markdown("---")
+st.markdown("<hr>", unsafe_allow_html=True)
 st.markdown("""
-<div style="text-align:center; font-size:12px; color:#64748B;">
+<div style="text-align:center; font-size:11.5px; color:#64748B;">
     🛡️ <strong>EduAegis</strong> • Responsible AI Tutor & Governed Grader • IIM Capstone Project<br>
     DPDP Act 2023 Aligned • Blind Evaluation Compliance • NITI Aayog Responsible AI Frameworks
 </div>
