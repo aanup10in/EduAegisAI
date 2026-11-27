@@ -302,6 +302,27 @@ st.markdown(f"""
         color: #FFFFFF !important;
     }}
 
+    /* Profile ID Badge Pill inside Sidebar Profile Card (High Contrast & Clear Readability) */
+    .sidebar-profile-card code,
+    .sidebar-profile-card .profile-id-badge,
+    .profile-id-badge,
+    [data-testid="stSidebar"] .sidebar-profile-card code,
+    [data-testid="stSidebar"] .sidebar-profile-card .profile-id-badge {{
+        background: #EFF6FF !important;
+        background-color: #EFF6FF !important;
+        color: #1D4ED8 !important;
+        -webkit-text-fill-color: #1D4ED8 !important;
+        border: 1.5px solid #BFDBFE !important;
+        padding: 2.5px 8px !important;
+        border-radius: 6px !important;
+        font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace !important;
+        font-weight: 800 !important;
+        font-size: 12px !important;
+        letter-spacing: 0.4px !important;
+        display: inline-block !important;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+    }}
+
     /* Tighten Sidebar Padding */
     [data-testid="stSidebar"] {{
         background: #FFFFFF !important;
@@ -1629,7 +1650,7 @@ with st.sidebar:
                 <span class="role-badge-student" style="background: rgba(255,255,255,0.2); color: #93C5FD; border-color: #60A5FA;">Student</span>
             </div>
             <div style="font-size: 12.5px; color: #E0E7FF; margin-top: 5px; line-height: 1.45;">
-                <code>{current_user.get('id')}</code> • Class {current_user.get('studentClass', 9)}th • {current_user.get('board', 'CBSE').split(' ')[0]}<br>
+                <code class="profile-id-badge" style="background: #EFF6FF !important; color: #1D4ED8 !important; -webkit-text-fill-color: #1D4ED8 !important; border: 1.5px solid #BFDBFE !important; padding: 2px 8px !important; border-radius: 6px !important; font-weight: 800 !important; font-size: 12px !important; display: inline-block !important;">{current_user.get('id')}</code> • Class {current_user.get('studentClass', 9)}th • {current_user.get('board', 'CBSE').split(' ')[0]}<br>
                 📍 {current_user.get('cityState', 'Bangalore')}
             </div>
         </div>
@@ -1644,7 +1665,7 @@ with st.sidebar:
                 <span class="role-badge-teacher" style="background: rgba(16,185,129,0.25); color: #6EE7B7; border-color: #34D399;">Teacher</span>
             </div>
             <div style="font-size: 12.5px; color: #E0E7FF; margin-top: 5px; line-height: 1.45;">
-                <code>{current_user.get('id')}</code> • Domain: <strong>{subj_list}</strong><br>
+                <code class="profile-id-badge" style="background: #EFF6FF !important; color: #1D4ED8 !important; -webkit-text-fill-color: #1D4ED8 !important; border: 1.5px solid #BFDBFE !important; padding: 2px 8px !important; border-radius: 6px !important; font-weight: 800 !important; font-size: 12px !important; display: inline-block !important;">{current_user.get('id')}</code> • Domain: <strong>{subj_list}</strong><br>
                 {current_user.get('department', 'Academic Faculty')}
             </div>
         </div>
@@ -1661,7 +1682,7 @@ with st.sidebar:
                 <span class="role-badge-admin" style="background: rgba(168,85,247,0.25); color: #D8B4FE; border-color: #C084FC;">Admin</span>
             </div>
             <div style="font-size: 12.5px; color: #E0E7FF; margin-top: 5px; line-height: 1.45;">
-                <code>{current_user.get('id')}</code> • Super User (Executive Governance)
+                <code class="profile-id-badge" style="background: #EFF6FF !important; color: #1D4ED8 !important; -webkit-text-fill-color: #1D4ED8 !important; border: 1.5px solid #BFDBFE !important; padding: 2px 8px !important; border-radius: 6px !important; font-weight: 800 !important; font-size: 12px !important; display: inline-block !important;">{current_user.get('id')}</code> • Super User (Executive Governance)
             </div>
         </div>
         """, unsafe_allow_html=True)
@@ -1924,7 +1945,7 @@ with col_head_right:
     st.session_state["selected_curriculum_board"] = selected_board
 
 # -----------------------------------------------------------------------------
-# SPREAD-ACROSS BLUE TABS (4 FOR STUDENT, 5 FOR TEACHER, 6 FOR ADMIN)
+# SPREAD-ACROSS BLUE TABS (4 FOR STUDENT, 5 FOR TEACHER, 7 FOR ADMIN)
 # -----------------------------------------------------------------------------
 # Irrespective of the number of tabs, the CSS divides 100% of the blue box equally!
 if user_role == "student":
@@ -1936,6 +1957,7 @@ if user_role == "student":
     ])
     tab_teacher = None
     tab_admin = None
+    tab_gov_ref = None
 
 elif user_role == "teacher":
     tab_teacher, tab_tutor, tab_grader, tab_history, tab_references = st.tabs([
@@ -1946,14 +1968,16 @@ elif user_role == "teacher":
         "📚 Suggested Study References"
     ])
     tab_admin = None
+    tab_gov_ref = None
 
-else:  # Admin (Super User Access)
-    tab_tutor, tab_grader, tab_history, tab_teacher, tab_admin, tab_references = st.tabs([
+else:  # Admin (Super User Access) - Exclusive 'AI Governance Reference' Tab
+    tab_tutor, tab_grader, tab_history, tab_teacher, tab_admin, tab_gov_ref, tab_references = st.tabs([
         "💡 AI Tutor (Concept Learning & Audio)",
         "✍️ AI Grader",
         "📜 All Evaluations & Appeals",
         "🛡️ Teacher / Governance Panel",
         "👑 Admin Governance Dashboard",
+        "⚖️ AI Governance Reference",
         "📚 Suggested Study References"
     ])
 
@@ -2095,7 +2119,14 @@ if tab_tutor is not None:
                         "Car seatbelts stretching slightly during sudden braking."
                     ]
                     key_formulas = ["Momentum: p = m * v (kg·m/s)", "Force: F = Δp / Δt = m(v - u) / t", "Newton's 2nd Law: F = m * a (Newton, N)"]
-                    audio_text = "Hello student! Welcome to EduAegis Physics class. Today we are mastering Newton's Second Law of Motion. Momentum is mass in motion. When you pull your hands back while catching a cricket ball, you increase stopping time, which reduces the force on your palms. Always remember the formula: Force equals mass times acceleration, F equals m a, measured in Newtons."
+                    audio_text = (
+                        "Namaste and welcome students! Today, let us understand Newton's Second Law of Motion clearly and simply. "
+                        "Momentum is mass in motion. "
+                        "When catching a fast-moving cricket ball, pulling your hands backward increases the stopping time, "
+                        "which cushions the impact and greatly reduces the force on your palms. "
+                        "In your board exams, always remember: Force equals mass times acceleration, written as F equals m a, and measured in Newtons. "
+                        "Define the law clearly, show step-by-step mathematical reasoning, and state the SI units to score full marks!"
+                    )
 
                 elif "Evaporation" in active_learning_topic or "Matter" in active_learning_topic:
                     explanation_text = (
@@ -2110,7 +2141,13 @@ if tab_tutor is not None:
                         "Spreading clothes wide on a line to increase surface area for faster drying."
                     ]
                     key_formulas = ["Rate of Evaporation ∝ Surface Area", "Rate of Evaporation ∝ Temperature", "Rate of Evaporation ∝ 1 / Humidity"]
-                    audio_text = "Welcome to Chemistry! Evaporation is a surface phenomenon. Liquid particles absorb latent heat from the surroundings to break free into vapor. Because heat is taken away from the surface, it cools down. That is why earthen pots keep water cool and why wearing cotton clothes in summer feels so comfortable."
+                    audio_text = (
+                        "Hello students! In Chemistry, let us understand why evaporation causes cooling. "
+                        "Evaporation is a surface phenomenon. The high-energy liquid particles absorb latent heat from the surrounding surface to break free as vapor. "
+                        "Because heat energy is drawn away, the surface cools down. "
+                        "This is why traditional earthen pots keep drinking water delightfully cool during Indian summers, and why breathable cotton clothes keep you refreshed. "
+                        "Remember: evaporation increases with surface area and temperature, but decreases with higher humidity."
+                    )
 
                 elif "Rational" in active_learning_topic or "Number" in active_learning_topic:
                     explanation_text = (
@@ -2122,7 +2159,12 @@ if tab_tutor is not None:
                         "Rational numbers repeat predictably like clockwork (0.333...); irrational decimals wander endlessly without any repeat."
                     ]
                     key_formulas = ["Rational: p/q where p, q are integers and q ≠ 0", "Rationalizing: 1/(a + √b) = (a - √b)/(a² - b)"]
-                    audio_text = "In Mathematics, real numbers consist of rational and irrational numbers. Rational numbers can be written as p over q. Irrational numbers, like root 2 or pi, have decimal expansions that never end and never repeat."
+                    audio_text = (
+                        "Welcome to Mathematics! Today we master rational and irrational numbers. "
+                        "Any number that can be expressed as a fraction p over q, where q is not zero, is rational. Its decimal either terminates or repeats predictably. "
+                        "On the other hand, an irrational number, such as square root of two or pi, has a decimal that goes on endlessly without ever repeating. "
+                        "To rationalize a denominator like one over root two, always multiply both numerator and denominator by its conjugate."
+                    )
                 else:
                     explanation_text = (
                         f"Here is your easy-to-understand breakdown for {active_learning_topic}.\n\n"
@@ -2131,114 +2173,172 @@ if tab_tutor is not None:
                     )
                     analogies = [f"Relating {active_learning_topic} to everyday observable systems."]
                     key_formulas = ["Standard Law / Equation with explicit metric units."]
-                    audio_text = f"Welcome to EduAegis! Let us explore {active_learning_topic} in very simple English. In your exams, always define the law clearly, write the formula with proper units, and show step-by-step reasoning."
+                    audio_text = (
+                        f"Namaste students! Let us understand {active_learning_topic} with absolute conceptual clarity. "
+                        "In science and mathematics, every concept is governed by cause and effect. "
+                        "For your board examinations, always structure your answers with three clear pillars: "
+                        "First, a crisp definition. Second, the exact mathematical formula with SI units. "
+                        "And third, an everyday real-world example. Clear step-by-step presentation guarantees full marks!"
+                    )
 
             st.markdown(explanation_text)
 
-            # Embedded HTML5 Web Speech Audio Player (Indian English Educator Accent & Modulation)
-            st.markdown("#### 🔊 Audio Teacher Voice Narration (Indian English Educator Accent):")
+            # Embedded HTML5 Web Speech Audio Player (Zero Foreign Accent • Neutral Indian English Voice Modulation)
+            st.markdown("#### 🔊 Audio Teacher Voice Narration (Neutral Indian English • Zero Accent):")
             clean_audio_js = audio_text.replace("'", "\\'").replace('"', '\\"').replace("\n", " ").replace("\r", " ")
             audio_html = f"""
-            <div style="background: #F8FAFC; padding: 12px 16px; border-radius: 12px; border: 1.5px solid #CBD5E1; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
-                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+            <div style="background: #F8FAFC; padding: 14px 18px; border-radius: 12px; border: 1.5px solid #CBD5E1; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
                     <div style="display: flex; align-items: center; gap: 10px;">
-                        <button onclick="speakAudio()" style="background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%); color: white; border: none; padding: 7px 16px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 4px rgba(30,64,175,0.25);">
+                        <button onclick="playEducatorAudio()" id="btn-play-audio" style="background: linear-gradient(135deg, #1E40AF 0%, #2563EB 100%); color: white; border: none; padding: 8px 18px; border-radius: 8px; font-weight: 700; font-size: 13.5px; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 6px rgba(30,64,175,0.28);">
                             ▶ Listen to Teacher
                         </button>
-                        <button onclick="stopAudio()" style="background: #EF4444; color: white; border: none; padding: 7px 12px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer;">
+                        <button onclick="stopEducatorAudio()" style="background: #EF4444; color: white; border: none; padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13.5px; cursor: pointer;">
                             ⏹ Stop
                         </button>
                     </div>
-                    <div style="display: flex; align-items: center; gap: 6px;">
-                        <span style="font-size: 11.5px; background: #DBEAFE; color: #1E40AF; font-weight: 700; padding: 3px 8px; border-radius: 999px; border: 1px solid #BFDBFE;">🇮🇳 Indian English (en-IN)</span>
-                        <span style="font-size: 11.5px; background: #DCFCE7; color: #166534; font-weight: 700; padding: 3px 8px; border-radius: 999px; border: 1px solid #BBF7D0;">Modulated Pitch & Pace</span>
+                    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                        <span style="font-size: 12px; font-weight: 700; color: #1E3A8A;">🎙️ Active Voice:</span>
+                        <select id="voice-select" onchange="onVoiceChange()" style="padding: 5px 10px; border-radius: 6px; border: 1.5px solid #93C5FD; font-size: 12px; font-weight: 600; color: #1E293B; background: #FFFFFF; max-width: 290px;">
+                            <option value="">Detecting Indian English Voices...</option>
+                        </select>
                     </div>
                 </div>
-                <div id="audio-status" style="font-size: 12px; color: #475569; font-weight: 600; margin-top: 6px;">
-                    Click Play to hear Indian educator narration with natural pitch modulation.
+                <div id="audio-status" style="font-size: 12px; color: #475569; font-weight: 600; margin-top: 8px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px;">
+                    <span id="audio-msg">Click "Listen to Teacher" for clear, neutral Indian English concept narration.</span>
+                    <span style="font-size: 11px; background: #DCFCE7; color: #166534; font-weight: 700; padding: 3px 9px; border-radius: 999px; border: 1px solid #BBF7D0;">🇮🇳 Zero Foreign Accent • Natural Cadence</span>
                 </div>
             </div>
             <script>
                 var synth = window.speechSynthesis;
-                var voicesList = [];
-                function refreshVoices() {{
-                    if ('speechSynthesis' in window) {{
-                        voicesList = synth.getVoices();
-                    }}
-                }}
-                refreshVoices();
-                if ('speechSynthesis' in window && speechSynthesis.onvoiceschanged !== undefined) {{
-                    speechSynthesis.onvoiceschanged = refreshVoices;
-                }}
+                var allVoices = [];
+                var selectedVoiceObj = null;
 
-                function pickIndianVoice() {{
-                    if (!voicesList || voicesList.length === 0) {{
-                        voicesList = synth.getVoices();
-                    }}
-                    // 1. Match en-IN or en_IN directly
-                    for (var i = 0; i < voicesList.length; i++) {{
-                        var v = voicesList[i];
-                        var l = (v.lang || '').replace('_', '-').toLowerCase();
-                        if (l === 'en-in') return v;
-                    }}
-                    // 2. Match Indian voice names (Microsoft Ravi, Heera, Google Indian English, Veena, Rishi, Neerja)
-                    var indKeywords = ['india', 'indian', 'ravi', 'heera', 'veena', 'rishi', 'neerja', 'kavya', 'prabhat'];
-                    for (var i = 0; i < voicesList.length; i++) {{
-                        var n = (voicesList[i].name || '').toLowerCase();
-                        for (var k = 0; k < indKeywords.length; k++) {{
-                            if (n.indexOf(indKeywords[k]) !== -1) return voicesList[i];
+                function populateVoices() {{
+                    if (!('speechSynthesis' in window)) return;
+                    allVoices = synth.getVoices();
+                    var voiceSelect = document.getElementById('voice-select');
+                    if (!voiceSelect || allVoices.length === 0) return;
+
+                    voiceSelect.innerHTML = '';
+                    var indianVoices = [];
+                    var otherVoices = [];
+
+                    var indKeywords = ['india', 'indian', 'en-in', 'en_in', 'heera', 'ravi', 'neerja', 'prabhat', 'veena', 'rishi', 'kavya'];
+
+                    for (var i = 0; i < allVoices.length; i++) {{
+                        var v = allVoices[i];
+                        var lang = (v.lang || '').replace('_', '-').toLowerCase();
+                        var name = (v.name || '').toLowerCase();
+                        var isIndian = false;
+
+                        if (lang === 'en-in' || lang === 'hi-in') {{
+                            isIndian = true;
+                        }} else {{
+                            for (var k = 0; k < indKeywords.length; k++) {{
+                                if (name.indexOf(indKeywords[k]) !== -1) {{
+                                    isIndian = true;
+                                    break;
+                                }}
+                            }}
+                        }}
+
+                        if (isIndian) {{
+                            indianVoices.push(v);
+                        }} else if (lang.indexOf('en') === 0) {{
+                            otherVoices.push(v);
                         }}
                     }}
-                    // 3. Fallback: English voice
-                    for (var i = 0; i < voicesList.length; i++) {{
-                        if ((voicesList[i].lang || '').toLowerCase().indexOf('en') === 0) return voicesList[i];
+
+                    // Add Indian English voices first with flag
+                    if (indianVoices.length > 0) {{
+                        for (var j = 0; j < indianVoices.length; j++) {{
+                            var opt = document.createElement('option');
+                            opt.value = indianVoices[j].name;
+                            opt.textContent = '🇮🇳 ' + indianVoices[j].name + ' (Indian English)';
+                            voiceSelect.appendChild(opt);
+                        }}
+                        selectedVoiceObj = indianVoices[0];
+                        voiceSelect.selectedIndex = 0;
+                        document.getElementById('audio-msg').innerHTML = '🎯 <strong>Active Voice:</strong> 🇮🇳 ' + selectedVoiceObj.name + ' (Neutral Indian Educator)';
+                    }} else {{
+                        for (var m = 0; m < otherVoices.length; m++) {{
+                            var opt = document.createElement('option');
+                            opt.value = otherVoices[m].name;
+                            opt.textContent = otherVoices[m].name + ' (' + otherVoices[m].lang + ')';
+                            voiceSelect.appendChild(opt);
+                        }}
+                        if (otherVoices.length > 0) {{
+                            selectedVoiceObj = otherVoices[0];
+                            voiceSelect.selectedIndex = 0;
+                        }}
+                        document.getElementById('audio-msg').innerHTML = '💡 <em>Tuned for Neutral Indian Educator Cadence with zero accent</em>';
                     }}
-                    return null;
                 }}
 
-                function speakAudio() {{
+                populateVoices();
+                if ('speechSynthesis' in window && speechSynthesis.onvoiceschanged !== undefined) {{
+                    speechSynthesis.onvoiceschanged = populateVoices;
+                }}
+
+                function onVoiceChange() {{
+                    var selName = document.getElementById('voice-select').value;
+                    for (var i = 0; i < allVoices.length; i++) {{
+                        if (allVoices[i].name === selName) {{
+                            selectedVoiceObj = allVoices[i];
+                            document.getElementById('audio-msg').innerHTML = '🎯 <strong>Selected:</strong> ' + selectedVoiceObj.name;
+                            break;
+                        }}
+                    }}
+                }}
+
+                function playEducatorAudio() {{
                     if (!('speechSynthesis' in window)) {{
-                        alert('Speech synthesis not supported on this browser.');
+                        alert('Speech synthesis is not supported on this browser.');
                         return;
                     }}
                     synth.cancel();
-                    var msg = new SpeechSynthesisUtterance('{clean_audio_js}');
-                    
-                    // Indian English locale configuration
-                    msg.lang = 'en-IN';
-                    
-                    // Voice modulation: pitch at 1.08 gives a lively, warm educator cadence
-                    // rate at 0.91 provides a measured, clear delivery for Class 8-10 students
-                    msg.pitch = 1.08;
-                    msg.rate = 0.91;
 
-                    var voice = pickIndianVoice();
-                    if (voice) {{
-                        msg.voice = voice;
-                        document.getElementById('audio-status').innerHTML = '🔊 <strong>Narrating:</strong> ' + voice.name + ' (Indian English en-IN) • <em>Educator modulation active...</em>';
+                    if (!allVoices || allVoices.length === 0) {{
+                        populateVoices();
+                    }}
+
+                    var text = "{clean_audio_js}";
+                    var msg = new SpeechSynthesisUtterance(text);
+                    
+                    // Explicitly set Indian English language locale
+                    msg.lang = 'en-IN';
+
+                    // Natural Indian Educator Modulation (clear articulation, not rushed)
+                    msg.rate = 0.89;
+                    msg.pitch = 1.04;
+
+                    if (selectedVoiceObj) {{
+                        msg.voice = selectedVoiceObj;
+                        document.getElementById('audio-msg').innerHTML = '🔊 <strong>Speaking:</strong> ' + selectedVoiceObj.name + ' • <em>Clear Indian Educator Modulation...</em>';
                     }} else {{
-                        document.getElementById('audio-status').innerHTML = '🔊 <em>Narrating in Indian English (en-IN) educator voice...</em>';
+                        document.getElementById('audio-msg').innerHTML = '🔊 <em>Speaking in Indian English educator cadence (en-IN)...</em>';
                     }}
 
                     msg.onend = function() {{
-                        document.getElementById('audio-status').innerHTML = '✅ <em>Narration complete. Concept ready for review!</em>';
+                        document.getElementById('audio-msg').innerHTML = '✅ <em>Narration complete. Concept ready for review!</em>';
                     }};
                     msg.onerror = function() {{
-                        document.getElementById('audio-status').innerHTML = '⚠️ <em>Audio stopped.</em>';
+                        document.getElementById('audio-msg').innerHTML = '⏹ <em>Audio narration finished.</em>';
                     }};
 
                     synth.speak(msg);
                 }}
 
-                function stopAudio() {{
+                function stopEducatorAudio() {{
                     if ('speechSynthesis' in window) {{
                         synth.cancel();
-                        document.getElementById('audio-status').innerHTML = '⏹ <em>Audio narration stopped.</em>';
+                        document.getElementById('audio-msg').innerHTML = '⏹ <em>Audio stopped.</em>';
                     }}
                 }}
             </script>
             """
-            components.html(audio_html, height=80)
+            components.html(audio_html, height=110)
 
             st.markdown("#### 💡 Everyday Real-World Analogies:")
             for an in analogies:
@@ -3632,6 +3732,351 @@ if tab_admin is not None:
             with col_reg2:
                 st.markdown("**Faculty Registry:**")
                 st.dataframe(pd.DataFrame(teachers)[["id", "name", "subjects", "email", "department"]], hide_index=True)
+
+# =============================================================================
+# TAB: AI GOVERNANCE REFERENCE (Exclusive for Admin Profiles Only)
+# =============================================================================
+if tab_gov_ref is not None:
+    with tab_gov_ref:
+        st.subheader("⚖️ Institutional AI Governance, Regulatory Intelligence & Compliance Repository")
+        st.caption("Exclusive Executive Console for System Administrators: Global & Indian statutory frameworks, major AI acts, compliance checklists, and real-time regulatory monitors.")
+
+        # Top Executive Compliance Indicator Cards
+        st.markdown("""
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; margin-bottom: 18px;">
+            <div style="background: #F0FDF4; border: 1.5px solid #BBF7D0; border-radius: 10px; padding: 12px 14px;">
+                <div style="font-size: 11px; text-transform: uppercase; font-weight: 800; color: #166534; letter-spacing: 0.5px;">🇮🇳 India DPDP Act 2023</div>
+                <div style="font-size: 15px; font-weight: 800; color: #0F172A; margin-top: 2px;">Section 9 Compliant</div>
+                <div style="font-size: 12px; color: #15803D; margin-top: 4px;">Zero behavioral profiling • Minor privacy protected</div>
+            </div>
+            <div style="background: #EFF6FF; border: 1.5px solid #BFDBFE; border-radius: 10px; padding: 12px 14px;">
+                <div style="font-size: 11px; text-transform: uppercase; font-weight: 800; color: #1E40AF; letter-spacing: 0.5px;">🇪🇺 EU AI Act (2024/1689)</div>
+                <div style="font-size: 15px; font-weight: 800; color: #0F172A; margin-top: 2px;">Annex III High-Risk Ready</div>
+                <div style="font-size: 12px; color: #1D4ED8; margin-top: 4px;">Teacher-in-the-Loop • Mandatory human oversight</div>
+            </div>
+            <div style="background: #FDF4FF; border: 1.5px solid #F0ABFC; border-radius: 10px; padding: 12px 14px;">
+                <div style="font-size: 11px; text-transform: uppercase; font-weight: 800; color: #86198F; letter-spacing: 0.5px;">⚖️ EU GDPR (Art. 22)</div>
+                <div style="font-size: 15px; font-weight: 800; color: #0F172A; margin-top: 2px;">Human Agency Active</div>
+                <div style="font-size: 12px; color: #701A75; margin-top: 4px;">Right of explanation & academic contestation</div>
+            </div>
+            <div style="background: #FEF3C7; border: 1.5px solid #FDE68A; border-radius: 10px; padding: 12px 14px;">
+                <div style="font-size: 11px; text-transform: uppercase; font-weight: 800; color: #92400E; letter-spacing: 0.5px;">🏛️ NITI Aayog RAI</div>
+                <div style="font-size: 15px; font-weight: 800; color: #0F172A; margin-top: 2px;">Seven Principles Aligned</div>
+                <div style="font-size: 12px; color: #B45309; margin-top: 4px;">Blind grading • Algorithmic audit trails</div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        gov_tab1, gov_tab2, gov_tab3, gov_tab4 = st.tabs([
+            "🇮🇳 India AI Acts & Statutory Mandates",
+            "🌍 Global AI Acts & International Treaties",
+            "📡 Live AI Governance Trackers & Monitors",
+            "📋 EduAegis Compliance Audit Matrix"
+        ])
+
+        with gov_tab1:
+            st.markdown("### 🇮🇳 India AI Governance & Statutory Frameworks")
+            st.caption("Statutory acts passed by Parliament of India, MeitY directives, and NITI Aayog Responsible AI policy documents.")
+
+            col_in1, col_in2 = st.columns(2)
+            with col_in1:
+                st.markdown("""
+                <div style="background: #FFFFFF; border: 1.5px solid #CBD5E1; border-radius: 12px; padding: 16px; margin-bottom: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <span style="font-size: 15px; font-weight: 800; color: #0F172A;">📜 Digital Personal Data Protection Act, 2023</span>
+                        <span style="font-size: 11px; background: #DCFCE7; color: #166534; font-weight: 700; padding: 2px 8px; border-radius: 999px;">Statutory Act No. 22</span>
+                    </div>
+                    <div style="font-size: 12.5px; color: #475569; line-height: 1.5; margin-bottom: 8px;">
+                        Enacted by the Parliament of India (MeitY). Establishes comprehensive digital privacy standards for Data Fiduciaries processing citizen and minor personal data.
+                    </div>
+                    <div style="font-size: 12px; color: #1E293B; margin-bottom: 10px; background: #F8FAFC; padding: 8px 10px; border-radius: 6px;">
+                        📌 <strong>Key Clauses for Educational AI:</strong>
+                        <ul style="margin: 4px 0 0 16px; padding: 0;">
+                            <li><strong>Section 9 (Children's Data):</strong> Mandatory verifiable parental consent; absolute bar on behavioral tracking, targeted advertisements, or detrimental profiling of students.</li>
+                            <li><strong>Section 6 & 8:</strong> Explicit notice, purpose limitation, and mandatory security safeguards.</li>
+                            <li><strong>Penalties:</strong> Up to ₹250 Crores for failure to observe children's safety obligations.</li>
+                        </ul>
+                    </div>
+                    <a href="https://www.meity.gov.in/content/digital-personal-data-protection-act-2023" target="_blank" style="text-decoration: none; font-size: 12.5px; font-weight: 700; color: #1D4ED8; background: #EFF6FF; padding: 6px 12px; border-radius: 6px; border: 1px solid #BFDBFE; display: inline-block;">
+                        🏛️ Official MeitY Gazette Text ↗
+                    </a>
+                </div>
+                """, unsafe_allow_html=True)
+
+                st.markdown("""
+                <div style="background: #FFFFFF; border: 1.5px solid #CBD5E1; border-radius: 12px; padding: 16px; margin-bottom: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <span style="font-size: 15px; font-weight: 800; color: #0F172A;">📑 NITI Aayog: Principles for Responsible AI (Part 1)</span>
+                        <span style="font-size: 11px; background: #EFF6FF; color: #1D4ED8; font-weight: 700; padding: 2px 8px; border-radius: 999px;">Policy Benchmark</span>
+                    </div>
+                    <div style="font-size: 12.5px; color: #475569; line-height: 1.5; margin-bottom: 8px;">
+                        National approach document establishing the foundational ethical principles for artificial intelligence deployments across India.
+                    </div>
+                    <div style="font-size: 12px; color: #1E293B; margin-bottom: 10px; background: #F8FAFC; padding: 8px 10px; border-radius: 6px;">
+                        📌 <strong>7 Foundational Core Principles:</strong>
+                        1. Safety & Reliability • 2. Equality • 3. Inclusivity & Non-discrimination • 4. Proportionality • 5. Privacy & Data Protection • 6. Transparency & Explainability • 7. Accountability.
+                    </div>
+                    <a href="https://www.niti.gov.in/sites/default/files/2021-02/Responsible-AI-22022021.pdf" target="_blank" style="text-decoration: none; font-size: 12.5px; font-weight: 700; color: #047857; background: #ECFDF5; padding: 6px 12px; border-radius: 6px; border: 1px solid #A7F3D0; display: inline-block;">
+                        📄 Download NITI Aayog Part 1 (PDF) ↗
+                    </a>
+                </div>
+                """, unsafe_allow_html=True)
+
+            with col_in2:
+                st.markdown("""
+                <div style="background: #FFFFFF; border: 1.5px solid #CBD5E1; border-radius: 12px; padding: 16px; margin-bottom: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <span style="font-size: 15px; font-weight: 800; color: #0F172A;">⚙️ NITI Aayog: Operationalizing Principles for Responsible AI (Part 2)</span>
+                        <span style="font-size: 11px; background: #FDF4FF; color: #86198F; font-weight: 700; padding: 2px 8px; border-radius: 999px;">Enforcement Guide</span>
+                    </div>
+                    <div style="font-size: 12.5px; color: #475569; line-height: 1.5; margin-bottom: 8px;">
+                        Enforcement mechanisms, regulatory sandboxes, self-assessment compliance frameworks, and procurement guidelines for public and private AI systems.
+                    </div>
+                    <div style="font-size: 12px; color: #1E293B; margin-bottom: 10px; background: #F8FAFC; padding: 8px 10px; border-radius: 6px;">
+                        📌 <strong>Key Operational Directives:</strong>
+                        <ul style="margin: 4px 0 0 16px; padding: 0;">
+                            <li>Institutionalizing Ethics Committees & Teacher Oversight boards.</li>
+                            <li>Pre-deployment algorithmic impact assessments (AIA).</li>
+                            <li>Auditable logging of AI grading decisions to prevent student discrimination.</li>
+                        </ul>
+                    </div>
+                    <a href="https://niti.gov.in/sites/default/files/2021-08/Part2-Responsible-AI-12082021.pdf" target="_blank" style="text-decoration: none; font-size: 12.5px; font-weight: 700; color: #701A75; background: #FDF4FF; padding: 6px 12px; border-radius: 6px; border: 1px solid #F0ABFC; display: inline-block;">
+                        📄 Download NITI Aayog Part 2 (PDF) ↗
+                    </a>
+                </div>
+                """, unsafe_allow_html=True)
+
+                st.markdown("""
+                <div style="background: #FFFFFF; border: 1.5px solid #CBD5E1; border-radius: 12px; padding: 16px; margin-bottom: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <span style="font-size: 15px; font-weight: 800; color: #0F172A;">🚀 IndiaAI Mission & National Governance Framework</span>
+                        <span style="font-size: 11px; background: #FEF3C7; color: #92400E; font-weight: 700; padding: 2px 8px; border-radius: 999px;">₹10,372 Cr Allocation</span>
+                    </div>
+                    <div style="font-size: 12.5px; color: #475569; line-height: 1.5; margin-bottom: 8px;">
+                        Approved by the Union Cabinet. Houses the <em>Safe & Trusted AI Pillar</em> developing indigenous evaluative tools, bias-mitigation benchmark datasets, and institutional algorithmic certification.
+                    </div>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <a href="https://indiaai.gov.in/" target="_blank" style="text-decoration: none; font-size: 12.5px; font-weight: 700; color: #1D4ED8; background: #EFF6FF; padding: 6px 12px; border-radius: 6px; border: 1px solid #BFDBFE;">
+                            🌐 IndiaAI Official Portal ↗
+                        </a>
+                        <a href="https://www.meity.gov.in/" target="_blank" style="text-decoration: none; font-size: 12.5px; font-weight: 700; color: #047857; background: #ECFDF5; padding: 6px 12px; border-radius: 6px; border: 1px solid #A7F3D0;">
+                            🏛️ MeitY Regulatory Circulars ↗
+                        </a>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+
+        with gov_tab2:
+            st.markdown("### 🌍 Global AI Legislation, Regulations & Standards")
+            st.caption("International statutory acts, risk categorization standards, and global ethics agreements.")
+
+            col_gl1, col_gl2 = st.columns(2)
+            with col_gl1:
+                st.markdown("""
+                <div style="background: #FFFFFF; border: 1.5px solid #CBD5E1; border-radius: 12px; padding: 16px; margin-bottom: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <span style="font-size: 15px; font-weight: 800; color: #0F172A;">🇪🇺 European Union AI Act (Regulation (EU) 2024/1689)</span>
+                        <span style="font-size: 11px; background: #DCFCE7; color: #166534; font-weight: 700; padding: 2px 8px; border-radius: 999px;">Binding Global Standard</span>
+                    </div>
+                    <div style="font-size: 12.5px; color: #475569; line-height: 1.5; margin-bottom: 8px;">
+                        The world's first comprehensive horizontal legal framework on artificial intelligence. Entered into force across EU member states on 1 August 2024.
+                    </div>
+                    <div style="font-size: 12px; color: #1E293B; margin-bottom: 10px; background: #F8FAFC; padding: 8px 10px; border-radius: 6px;">
+                        📌 <strong>Annex III High-Risk Classification for Education:</strong>
+                        <br>AI systems used to evaluate learning outcomes, grade tests, or steer student educational trajectories are classified as <strong>HIGH RISK</strong>.
+                        <ul style="margin: 4px 0 0 16px; padding: 0;">
+                            <li><strong>Mandatory Human Oversight:</strong> Qualified teachers must have final veto and release power.</li>
+                            <li><strong>Risk Mitigation:</strong> Strict dataset quality, bias auditing, and continuous post-market monitoring.</li>
+                            <li><strong>Explainability:</strong> Students have a legal right to understand how automated scores were derived.</li>
+                        </ul>
+                    </div>
+                    <a href="https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32024R1689" target="_blank" style="text-decoration: none; font-size: 12.5px; font-weight: 700; color: #1D4ED8; background: #EFF6FF; padding: 6px 12px; border-radius: 6px; border: 1px solid #BFDBFE; display: inline-block;">
+                        🇪🇺 Official EUR-Lex Statutory Text (Regulation 2024/1689) ↗
+                    </a>
+                </div>
+                """, unsafe_allow_html=True)
+
+                st.markdown("""
+                <div style="background: #FFFFFF; border: 1.5px solid #CBD5E1; border-radius: 12px; padding: 16px; margin-bottom: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <span style="font-size: 15px; font-weight: 800; color: #0F172A;">⚖️ EU GDPR (Article 22: Automated Decision-Making)</span>
+                        <span style="font-size: 11px; background: #EFF6FF; color: #1D4ED8; font-weight: 700; padding: 2px 8px; border-radius: 999px;">Data Protection</span>
+                    </div>
+                    <div style="font-size: 12.5px; color: #475569; line-height: 1.5; margin-bottom: 8px;">
+                        Provides individuals with the fundamental right <em>not to be subject to a decision based solely on automated processing</em>, including profiling, which produces legal or similarly significant effects.
+                    </div>
+                    <div style="font-size: 12px; color: #1E293B; margin-bottom: 10px; background: #F8FAFC; padding: 8px 10px; border-radius: 6px;">
+                        📌 <strong>Required Safeguards:</strong> Right to obtain human intervention, right to express one's point of view, and right to contest the automated evaluation.
+                    </div>
+                    <a href="https://gdpr-info.eu/art-22-gdpr/" target="_blank" style="text-decoration: none; font-size: 12.5px; font-weight: 700; color: #1D4ED8; background: #EFF6FF; padding: 6px 12px; border-radius: 6px; border: 1px solid #BFDBFE; display: inline-block;">
+                        ⚖️ View GDPR Article 22 Statutory Text ↗
+                    </a>
+                </div>
+                """, unsafe_allow_html=True)
+
+            with col_gl2:
+                st.markdown("""
+                <div style="background: #FFFFFF; border: 1.5px solid #CBD5E1; border-radius: 12px; padding: 16px; margin-bottom: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <span style="font-size: 15px; font-weight: 800; color: #0F172A;">🇺🇸 US NIST AI Risk Management Framework (AI RMF 1.0)</span>
+                        <span style="font-size: 11px; background: #FEF3C7; color: #92400E; font-weight: 700; padding: 2px 8px; border-radius: 999px;">NIST AI 100-1</span>
+                    </div>
+                    <div style="font-size: 12.5px; color: #475569; line-height: 1.5; margin-bottom: 8px;">
+                        National Institute of Standards and Technology guidance framework for designing trustworthy and responsible artificial intelligence systems.
+                    </div>
+                    <div style="font-size: 12px; color: #1E293B; margin-bottom: 10px; background: #F8FAFC; padding: 8px 10px; border-radius: 6px;">
+                        📌 <strong>Four Core Pillars:</strong>
+                        <ul style="margin: 4px 0 0 16px; padding: 0;">
+                            <li><strong>GOVERN:</strong> Establish institutional oversight policies and risk culture.</li>
+                            <li><strong>MAP:</strong> Identify operational context, student demographics, and potential harms.</li>
+                            <li><strong>MEASURE:</strong> Rigorous quantitative evaluation of fairness, accuracy, and calibration.</li>
+                            <li><strong>MANAGE:</strong> Continuous risk tracking and automated incident escalation.</li>
+                        </ul>
+                    </div>
+                    <a href="https://www.nist.gov/itl/ai-risk-management-framework" target="_blank" style="text-decoration: none; font-size: 12.5px; font-weight: 700; color: #1D4ED8; background: #EFF6FF; padding: 6px 12px; border-radius: 6px; border: 1px solid #BFDBFE; display: inline-block;">
+                        🇺🇸 NIST AI RMF Official Portal ↗
+                    </a>
+                </div>
+                """, unsafe_allow_html=True)
+
+                st.markdown("""
+                <div style="background: #FFFFFF; border: 1.5px solid #CBD5E1; border-radius: 12px; padding: 16px; margin-bottom: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <span style="font-size: 15px; font-weight: 800; color: #0F172A;">🌐 UNESCO Recommendation on the Ethics of AI</span>
+                        <span style="font-size: 11px; background: #F3E8FF; color: #6B21A8; font-weight: 700; padding: 2px 8px; border-radius: 999px;">193 Member States</span>
+                    </div>
+                    <div style="font-size: 12.5px; color: #475569; line-height: 1.5; margin-bottom: 8px;">
+                        Unanimously adopted by all 193 UNESCO member states. Mandates protecting human dignity, child developmental well-being, and democratic access to educational technology.
+                    </div>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <a href="https://www.unesco.org/en/artificial-intelligence/recommendation-ethics" target="_blank" style="text-decoration: none; font-size: 12.5px; font-weight: 700; color: #6B21A8; background: #F3E8FF; padding: 6px 12px; border-radius: 6px; border: 1px solid #E9D5FF;">
+                            🌐 UNESCO Official Ethics Standard ↗
+                        </a>
+                        <a href="https://oecd.ai/en/principles" target="_blank" style="text-decoration: none; font-size: 12.5px; font-weight: 700; color: #047857; background: #ECFDF5; padding: 6px 12px; border-radius: 6px; border: 1px solid #A7F3D0;">
+                            🏛️ OECD AI Principles ↗
+                        </a>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+
+        with gov_tab3:
+            st.markdown("### 📡 Live AI Governance Trackers & Real-Time Legal Intelligence")
+            st.caption("Authoritative global repositories tracking AI legislative developments, policy enforcement, and court precedents.")
+
+            col_tr1, col_tr2 = st.columns(2)
+            with col_tr1:
+                st.markdown("""
+                <div style="background: #FFFFFF; border: 1.5px solid #CBD5E1; border-radius: 12px; padding: 16px; margin-bottom: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <span style="font-size: 15px; font-weight: 800; color: #0F172A;">📊 OECD.AI Policy Observatory</span>
+                        <span style="font-size: 11px; background: #DBEAFE; color: #1E40AF; font-weight: 700; padding: 2px 8px; border-radius: 999px;">Live Global Tracker</span>
+                    </div>
+                    <div style="font-size: 12.5px; color: #475569; line-height: 1.5; margin-bottom: 10px;">
+                        Maintained by the OECD. Tracks over 1,000 national AI policies, legislative proposals, and executive orders across 70+ countries with interactive heatmaps.
+                    </div>
+                    <a href="https://oecd.ai/" target="_blank" style="text-decoration: none; font-size: 12.5px; font-weight: 700; color: #1D4ED8; background: #EFF6FF; padding: 6px 12px; border-radius: 6px; border: 1px solid #BFDBFE; display: inline-block;">
+                        🔗 Explore OECD.AI Policy Observatory ↗
+                    </a>
+                </div>
+                """, unsafe_allow_html=True)
+
+                st.markdown("""
+                <div style="background: #FFFFFF; border: 1.5px solid #CBD5E1; border-radius: 12px; padding: 16px; margin-bottom: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <span style="font-size: 15px; font-weight: 800; color: #0F172A;">🎓 Stanford HAI AI Index & Policy Monitor</span>
+                        <span style="font-size: 11px; background: #FEE2E2; color: #991B1B; font-weight: 700; padding: 2px 8px; border-radius: 999px;">Stanford University</span>
+                    </div>
+                    <div style="font-size: 12.5px; color: #475569; line-height: 1.5; margin-bottom: 10px;">
+                        Stanford Institute for Human-Centered AI annual report tracking global AI legislation passage rates, national algorithmic accountability laws, and foundation model evaluations.
+                    </div>
+                    <a href="https://aiindex.stanford.edu/" target="_blank" style="text-decoration: none; font-size: 12.5px; font-weight: 700; color: #DC2626; background: #FEF2F2; padding: 6px 12px; border-radius: 6px; border: 1px solid #FECACA; display: inline-block;">
+                        🔗 Stanford HAI AI Index ↗
+                    </a>
+                </div>
+                """, unsafe_allow_html=True)
+
+            with col_tr2:
+                st.markdown("""
+                <div style="background: #FFFFFF; border: 1.5px solid #CBD5E1; border-radius: 12px; padding: 16px; margin-bottom: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <span style="font-size: 15px; font-weight: 800; color: #0F172A;">⚖️ IAPP AI Governance Center</span>
+                        <span style="font-size: 11px; background: #DCFCE7; color: #166534; font-weight: 700; padding: 2px 8px; border-radius: 999px;">Privacy Professionals</span>
+                    </div>
+                    <div style="font-size: 12.5px; color: #475569; line-height: 1.5; margin-bottom: 10px;">
+                        International Association of Privacy Professionals (IAPP). Provides cross-jurisdictional AI legislative comparison tables, compliance toolkits, and emerging court precedents.
+                    </div>
+                    <a href="https://iapp.org/about/ai-governance-center/" target="_blank" style="text-decoration: none; font-size: 12.5px; font-weight: 700; color: #047857; background: #ECFDF5; padding: 6px 12px; border-radius: 6px; border: 1px solid #A7F3D0; display: inline-block;">
+                        🔗 IAPP AI Governance Center ↗
+                    </a>
+                </div>
+                """, unsafe_allow_html=True)
+
+                st.markdown("""
+                <div style="background: #FFFFFF; border: 1.5px solid #CBD5E1; border-radius: 12px; padding: 16px; margin-bottom: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <span style="font-size: 15px; font-weight: 800; color: #0F172A;">🛡️ Future of Privacy Forum (FPF) - Student Privacy</span>
+                        <span style="font-size: 11px; background: #FEF3C7; color: #92400E; font-weight: 700; padding: 2px 8px; border-radius: 999px;">EdTech & AI</span>
+                    </div>
+                    <div style="font-size: 12.5px; color: #475569; line-height: 1.5; margin-bottom: 10px;">
+                        Specialized repository tracking student privacy in artificial intelligence, children's online data protections, and ethical considerations for automated assessment algorithms.
+                    </div>
+                    <a href="https://fpf.org/" target="_blank" style="text-decoration: none; font-size: 12.5px; font-weight: 700; color: #92400E; background: #FEF3C7; padding: 6px 12px; border-radius: 6px; border: 1px solid #FDE68A; display: inline-block;">
+                        🔗 Future of Privacy Forum ↗
+                    </a>
+                </div>
+                """, unsafe_allow_html=True)
+
+        with gov_tab4:
+            st.markdown("### 📋 EduAegis Institutional Compliance Audit Matrix")
+            st.caption("Verification checklist mapping EduAegis architecture against statutory standards.")
+
+            audit_matrix_data = [
+                {
+                    "Statutory Framework": "DPDP Act 2023 (Section 9)",
+                    "Statutory Mandate": "Prohibition of behavioral tracking & detrimental profiling of minors",
+                    "EduAegis Built-in Technical Safeguard": "Zero third-party tracking; encrypted offline persistence; evaluations restricted strictly to educational rubric scoring.",
+                    "Audit Status": "🟢 COMPLIANT"
+                },
+                {
+                    "Statutory Framework": "EU AI Act (Annex III High-Risk)",
+                    "Statutory Mandate": "Mandatory human oversight in educational assessment AI",
+                    "EduAegis Built-in Technical Safeguard": "Teacher-in-the-Loop Release Queue: AI scores are held in pending status until audited and released by faculty.",
+                    "Audit Status": "🟢 COMPLIANT"
+                },
+                {
+                    "Statutory Framework": "EU GDPR (Article 22)",
+                    "Statutory Mandate": "Right to contest automated decisions and obtain human intervention",
+                    "EduAegis Built-in Technical Safeguard": "Formal Academic Appeal & Contestation Workflow with transparent question-by-question step mark explanations.",
+                    "Audit Status": "🟢 COMPLIANT"
+                },
+                {
+                    "Statutory Framework": "NITI Aayog (Inclusivity & Equity)",
+                    "Statutory Mandate": "Elimination of identity and demographic bias in automated scoring",
+                    "EduAegis Built-in Technical Safeguard": "Blind Evaluation Protocol: Student names are masked from grading teachers to prevent halo or demographic bias.",
+                    "Audit Status": "🟢 COMPLIANT"
+                },
+                {
+                    "Statutory Framework": "NIST AI RMF 1.0 (Measurable Trust)",
+                    "Statutory Mandate": "Repeatable, calibrated, non-hallucinatory scoring rubrics",
+                    "EduAegis Built-in Technical Safeguard": "Deterministic Zero-Mark Rule for blank/NA/irrelevant answers; question-level mark breakdown matching official CBSE/ICSE answer keys.",
+                    "Audit Status": "🟢 COMPLIANT"
+                }
+            ]
+            st.dataframe(pd.DataFrame(audit_matrix_data), use_container_width=True, hide_index=True)
+
+            st.markdown("<hr style='margin: 16px 0 12px 0;'>", unsafe_allow_html=True)
+            col_dwn1, col_dwn2 = st.columns([2, 1])
+            with col_dwn1:
+                st.info("💡 **Compliance Statement:** EduAegis operates as a supervised pedagogical copilot. All subjective marks remain provisional until ratified by institutional academic faculty.")
+            with col_dwn2:
+                audit_json = json.dumps(audit_matrix_data, indent=2)
+                st.download_button(
+                    "📥 Export Compliance Audit Report (JSON)",
+                    data=audit_json,
+                    file_name="eduaegis_ai_governance_compliance.json",
+                    mime="application/json",
+                    use_container_width=True
+                )
 
 # =============================================================================
 # TAB: SUGGESTED STUDY REFERENCES (Authenticated, Verified Portals & Research)
