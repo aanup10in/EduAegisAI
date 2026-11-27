@@ -903,9 +903,13 @@ def load_db():
 
     # Sync all students & teachers into DEFAULT_USERS for rapid authentication & lookup
     for s in data["students"]:
+        if not s.get("role"):
+            s["role"] = "student"
         if s.get("username"):
             DEFAULT_USERS[s["username"]] = s
     for t in data["teachers"]:
+        if not t.get("role"):
+            t["role"] = "teacher"
         if t.get("username"):
             DEFAULT_USERS[t["username"]] = t
 
@@ -974,15 +978,29 @@ def get_user_password(username):
 
 def get_user_profile(username):
     """Retrieves full profile dict for a given username."""
+    prof = None
     if username in DEFAULT_USERS:
-        return DEFAULT_USERS[username]
-    for s in db.get("students", []):
-        if s.get("username") == username:
-            return s
-    for t in db.get("teachers", []):
-        if t.get("username") == username:
-            return t
-    return None
+        prof = dict(DEFAULT_USERS[username])
+    if not prof:
+        for s in db.get("students", []):
+            if s.get("username") == username:
+                prof = dict(s)
+                break
+    if not prof:
+        for t in db.get("teachers", []):
+            if t.get("username") == username:
+                prof = dict(t)
+                break
+    if prof and not prof.get("role"):
+        if prof.get("id", "").startswith("STU-"):
+            prof["role"] = "student"
+        elif prof.get("id", "").startswith("TCH-"):
+            prof["role"] = "teacher"
+        elif prof.get("id", "").startswith("ADM-") or str(username).lower() == "admin":
+            prof["role"] = "admin"
+        else:
+            prof["role"] = "student"
+    return prof
 
 def update_user_password(username, new_pw):
     """Updates and permanently persists the new password."""
@@ -1004,17 +1022,27 @@ def get_all_users_list():
     user_map = {}
     for uname, prof in DEFAULT_USERS.items():
         user_map[uname] = dict(prof)
+        if not user_map[uname].get("role"):
+            user_map[uname]["role"] = "admin" if uname.lower() == "admin" else ("teacher" if str(user_map[uname].get("id", "")).startswith("TCH-") else "student")
     for s in db.get("students", []):
         uname = s.get("username", s.get("name"))
         if uname:
-            user_map[uname] = dict(s)
+            u_dict = dict(s)
+            if not u_dict.get("role"):
+                u_dict["role"] = "student"
+            user_map[uname] = u_dict
     for t in db.get("teachers", []):
         uname = t.get("username", t.get("name"))
         if uname:
-            user_map[uname] = dict(t)
+            u_dict = dict(t)
+            if not u_dict.get("role"):
+                u_dict["role"] = "teacher"
+            user_map[uname] = u_dict
     
     result = []
     for uname, u in user_map.items():
+        if not u.get("role"):
+            u["role"] = "admin" if uname.lower() == "admin" or str(u.get("id", "")).startswith("ADM-") else ("teacher" if str(u.get("id", "")).startswith("TCH-") else "student")
         u["active_password"] = get_user_password(uname)
         result.append(u)
     return result
@@ -1476,7 +1504,8 @@ if st.session_state["logged_in_user"] is None:
 current_user = st.session_state.get("logged_in_user")
 if not current_user:
     st.stop()
-user_role = current_user.get("role", "student")
+user_role = str(current_user.get("role") or ("admin" if str(current_user.get("id", "")).startswith("ADM-") or str(current_user.get("username", "")).lower() == "admin" else ("teacher" if str(current_user.get("id", "")).startswith("TCH-") else "student"))).lower()
+current_user["role"] = user_role
 
 # -----------------------------------------------------------------------------
 # SIDEBAR: Profile Card with Background Artwork + Password Change
@@ -1551,9 +1580,9 @@ with st.sidebar:
     if user_role == "admin":
         with st.expander("🔐 Reset Any User Password (Admin)", expanded=False):
             st.caption("Super User Override: Reset password for any student or teacher upon request.")
-            sb_candidates = [u for u in get_all_users_list() if u.get("role") != "admin"]
+            sb_candidates = [u for u in get_all_users_list() if str(u.get("role") or "").lower() != "admin"]
             if sb_candidates:
-                sb_labels = [f"{u.get('name')} ({u.get('id')} • {u.get('role').capitalize()})" for u in sb_candidates]
+                sb_labels = [f"{u.get('name')} ({u.get('id')} • {str(u.get('role') or 'student').capitalize()})" for u in sb_candidates]
                 sb_idx = st.selectbox("Select User to Reset:", range(len(sb_labels)), format_func=lambda i: sb_labels[i], key="sb_adm_sel_user_idx")
                 sb_sel_user = sb_candidates[sb_idx]
                 sb_target_uname = sb_sel_user.get("username", sb_sel_user.get("name"))
@@ -1765,7 +1794,7 @@ with col_head_left:
             </div>
         </div>
         <div class="aegis-subtext">
-            Active: <strong>{current_user.get('name')}</strong> (<code>{current_user.get('id')}</code> • {user_role.capitalize()}) • DPDP Act 2023 Aligned • NITI Aayog Responsible AI Frameworks
+            Active: <strong>{current_user.get('name')}</strong> (<code>{current_user.get('id')}</code> • {str(user_role or 'admin').capitalize()}) • DPDP Act 2023 Aligned • NITI Aayog Responsible AI Frameworks
         </div>
     </div>
     """, unsafe_allow_html=True)
@@ -3041,7 +3070,7 @@ if tab_admin is not None:
                 selected_target_user = None
             else:
                 target_user_labels = [
-                    f"{u.get('name')} ({u.get('id')} • {u.get('role').capitalize()} • {str(u.get('board') or u.get('department') or '').split(' ')[0]})"
+                    f"{u.get('name')} ({u.get('id')} • {str(u.get('role') or 'student').capitalize()} • {str(u.get('board') or u.get('department') or '').split(' ')[0]})"
                     for u in filtered_target_users
                 ]
                 sel_idx = st.selectbox(
@@ -3056,7 +3085,7 @@ if tab_admin is not None:
                 t_uname = selected_target_user.get("username", selected_target_user.get("name"))
                 t_name = selected_target_user.get("name", t_uname)
                 t_id = selected_target_user.get("id", "N/A")
-                t_role = selected_target_user.get("role", "student")
+                t_role = str(selected_target_user.get("role") or "student")
                 t_email = selected_target_user.get("email", "Not provided")
                 t_board = selected_target_user.get("board") or selected_target_user.get("department", "Sciences")
                 t_current_pw = get_user_password(t_uname)
@@ -3070,7 +3099,7 @@ if tab_admin is not None:
                             <span style="font-size: 15px; font-weight: 800; color: #0F172A;">{t_name}</span>
                             <span style="font-size: 12px; font-weight: 700; color: #475569; margin-left: 6px;">({t_id})</span>
                         </div>
-                        <span class="{badge_style}" style="padding: 2px 8px; border-radius: 999px;">{t_role.capitalize()}</span>
+                        <span class="{badge_style}" style="padding: 2px 8px; border-radius: 999px;">{str(t_role or 'student').capitalize()}</span>
                     </div>
                     <div style="font-size: 12.5px; color: #475569; line-height: 1.5;">
                         👤 <strong>Login Username:</strong> <code>{t_uname}</code><br>
@@ -3145,7 +3174,7 @@ if tab_admin is not None:
                     "User ID": u.get("id", "N/A"),
                     "Full Name": u.get("name", u_un),
                     "Login Username": u_un,
-                    "Role": u.get("role", "student").capitalize(),
+                    "Role": str(u.get("role") or "student").capitalize(),
                     "Curriculum Board / Department": u.get("board") or u.get("department", "Sciences"),
                     "Email Address": u.get("email", "N/A"),
                     "Active Password": display_pw,

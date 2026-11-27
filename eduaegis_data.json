@@ -9,7 +9,8 @@
       "email": "anup.sharma@school.edu",
       "phone": "+91 98765 43210",
       "cityState": "Bangalore, Karnataka",
-      "createdAt": "2025-11-15T10:00:00Z"
+      "createdAt": "2025-11-15T10:00:00Z",
+      "role": "student"
     },
     {
       "id": "STU-102",
@@ -20,7 +21,8 @@
       "email": "nandita.roy@school.edu",
       "phone": "+91 91234 56789",
       "cityState": "Kolkata, West Bengal",
-      "createdAt": "2025-11-20T11:30:00Z"
+      "createdAt": "2025-11-20T11:30:00Z",
+      "role": "student"
     },
     {
       "id": "STU-103",
@@ -50,7 +52,7 @@
     "force_and_laws": {
       "id": "instr_1",
       "topicId": "force_and_laws",
-      "specificInstructions": "Focus strictly on proper statement of Newton's 2nd Law (rate of change of momentum). Penalize 0.5 marks if SI units (N, kg, m/s²) are omitted. Allow partial marks for mathematical derivation steps.",
+      "specificInstructions": "Focus strictly on proper statement of Newton's 2nd Law (rate of change of momentum). Penalize 0.5 marks if SI units (N, kg, m/s\u00b2) are omitted. Allow partial marks for mathematical derivation steps.",
       "strictSIUnits": true,
       "partialCreditForSteps": true,
       "lenientSpelling": true,
@@ -75,8 +77,8 @@
       "topic": "Newton's Second Law of Motion",
       "chapterTitle": "Newton's Second Law of Motion",
       "topicName": "Newton's Second Law of Motion",
-      "totalAwarded": 0.0,
-      "totalAwardedMarks": 0.0,
+      "totalAwarded": 0.5,
+      "totalAwardedMarks": 0.5,
       "totalMax": 20.0,
       "totalMaxMarks": 20.0,
       "status": "PENDING_TEACHER_RELEASE",
@@ -173,8 +175,8 @@
           "questionText": "A 1200 kg car slows from 90 km/h to 18 km/h in 4 s. Calculate acceleration and force.",
           "max": 5.0,
           "maxMarks": 5.0,
-          "score": 0.0,
-          "awardedMarks": 0.0,
+          "score": 0.5,
+          "awardedMarks": 0.5,
           "student_ans": "dont know",
           "studentAnswer": "dont know",
           "evalStatus": "EVASIVE_OR_NA",
@@ -239,7 +241,7 @@
       "totalMaxMarks": 20.0,
       "totalAwardedMarks": 5.9,
       "status": "RELEASED",
-      "teacherInstructionsUsed": "Focus strictly on proper statement of Newton's 2nd Law (rate of change of momentum). Penalize 0.5 marks if SI units (N, kg, m/s²) are omitted. Allow partial marks for mathematical derivation steps.",
+      "teacherInstructionsUsed": "Focus strictly on proper statement of Newton's 2nd Law (rate of change of momentum). Penalize 0.5 marks if SI units (N, kg, m/s\u00b2) are omitted. Allow partial marks for mathematical derivation steps.",
       "questions": [
         {
           "questionId": "q1",
@@ -274,7 +276,7 @@
               "stepFocus": "Specification of SI Units for All Quantities",
               "marksAwarded": 1,
               "maxMarks": 1,
-              "whyAwardedOrDeducted": "Correctly specified SI units for Force (N), Mass (kg), and Acceleration (m/s²)."
+              "whyAwardedOrDeducted": "Correctly specified SI units for Force (N), Mass (kg), and Acceleration (m/s\u00b2)."
             }
           ],
           "strengths": [],
@@ -342,10 +344,10 @@
           ],
           "strengths": [],
           "gapsAndMisconceptions": [
-            "Teacher Directive Violation: SI units (Newton / N, kg, m/s²) were omitted (-1.0).",
+            "Teacher Directive Violation: SI units (Newton / N, kg, m/s\u00b2) were omitted (-1.0).",
             "Answer is excessively brief. In subjective board exams, full marks require step-by-step elaboration."
           ],
-          "deductionExplanation": "Teacher Directive Violation: SI units (Newton / N, kg, m/s²) were omitted (-1.0). Answer is excessively brief. In subjective board exams, full marks require step-by-step elaboration.",
+          "deductionExplanation": "Teacher Directive Violation: SI units (Newton / N, kg, m/s\u00b2) were omitted (-1.0). Answer is excessively brief. In subjective board exams, full marks require step-by-step elaboration.",
           "referenceChapter": "Force and Laws of Motion (NCERT Class 9 - Chapter 8)",
           "authenticReferences": [
             {
@@ -1068,6 +1070,42 @@
     "Daksh": "daksh@123"
   },
   "objective_submissions": [
+    {
+      "id": "obj_sub_1795755034549",
+      "studentId": "TCH-202",
+      "studentName": "Akanksha Singh",
+      "board": "CBSE (All India)",
+      "className": "Class 9th",
+      "subject": "Physics",
+      "topic": "Motion (Kinematics, Graphs & Equations)",
+      "score": 1.0,
+      "maxMarks": 5.0,
+      "submittedAt": "2026-11-27T10:20:34.549521Z"
+    },
+    {
+      "id": "obj_sub_1795755031921",
+      "studentId": "TCH-202",
+      "studentName": "Akanksha Singh",
+      "board": "CBSE (All India)",
+      "className": "Class 9th",
+      "subject": "Physics",
+      "topic": "Motion (Kinematics, Graphs & Equations)",
+      "score": 1.0,
+      "maxMarks": 5.0,
+      "submittedAt": "2026-11-27T10:20:31.921676Z"
+    },
+    {
+      "id": "obj_sub_1795755021838",
+      "studentId": "TCH-202",
+      "studentName": "Akanksha Singh",
+      "board": "CBSE (All India)",
+      "className": "Class 9th",
+      "subject": "Physics",
+      "topic": "Motion (Kinematics, Graphs & Equations)",
+      "score": 1.0,
+      "maxMarks": 5.0,
+      "submittedAt": "2026-11-27T10:20:21.838997Z"
+    },
     {
       "id": "obj_sub_1795718953146",
       "studentId": "TCH-201",
