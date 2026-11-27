@@ -52,7 +52,7 @@
     "force_and_laws": {
       "id": "instr_1",
       "topicId": "force_and_laws",
-      "specificInstructions": "Focus strictly on proper statement of Newton's 2nd Law (rate of change of momentum). Penalize 0.5 marks if SI units (N, kg, m/s\u00b2) are omitted. Allow partial marks for mathematical derivation steps.",
+      "specificInstructions": "Focus strictly on proper statement of Newton's 2nd Law (rate of change of momentum). Penalize 0.5 marks if SI units (N, kg, m/s²) are omitted. Allow partial marks for mathematical derivation steps.",
       "strictSIUnits": true,
       "partialCreditForSteps": true,
       "lenientSpelling": true,
@@ -241,7 +241,7 @@
       "totalMaxMarks": 20.0,
       "totalAwardedMarks": 5.9,
       "status": "RELEASED",
-      "teacherInstructionsUsed": "Focus strictly on proper statement of Newton's 2nd Law (rate of change of momentum). Penalize 0.5 marks if SI units (N, kg, m/s\u00b2) are omitted. Allow partial marks for mathematical derivation steps.",
+      "teacherInstructionsUsed": "Focus strictly on proper statement of Newton's 2nd Law (rate of change of momentum). Penalize 0.5 marks if SI units (N, kg, m/s²) are omitted. Allow partial marks for mathematical derivation steps.",
       "questions": [
         {
           "questionId": "q1",
@@ -276,7 +276,7 @@
               "stepFocus": "Specification of SI Units for All Quantities",
               "marksAwarded": 1,
               "maxMarks": 1,
-              "whyAwardedOrDeducted": "Correctly specified SI units for Force (N), Mass (kg), and Acceleration (m/s\u00b2)."
+              "whyAwardedOrDeducted": "Correctly specified SI units for Force (N), Mass (kg), and Acceleration (m/s²)."
             }
           ],
           "strengths": [],
@@ -344,10 +344,10 @@
           ],
           "strengths": [],
           "gapsAndMisconceptions": [
-            "Teacher Directive Violation: SI units (Newton / N, kg, m/s\u00b2) were omitted (-1.0).",
+            "Teacher Directive Violation: SI units (Newton / N, kg, m/s²) were omitted (-1.0).",
             "Answer is excessively brief. In subjective board exams, full marks require step-by-step elaboration."
           ],
-          "deductionExplanation": "Teacher Directive Violation: SI units (Newton / N, kg, m/s\u00b2) were omitted (-1.0). Answer is excessively brief. In subjective board exams, full marks require step-by-step elaboration.",
+          "deductionExplanation": "Teacher Directive Violation: SI units (Newton / N, kg, m/s²) were omitted (-1.0). Answer is excessively brief. In subjective board exams, full marks require step-by-step elaboration.",
           "referenceChapter": "Force and Laws of Motion (NCERT Class 9 - Chapter 8)",
           "authenticReferences": [
             {
@@ -946,11 +946,11 @@
       "subjectName": "Chemistry",
       "topic": "Evaporation & Factors Affecting Rate of Evaporation",
       "totalMax": 20.0,
-      "totalAwarded": 16.0,
-      "status": "PENDING_TEACHER_RELEASE",
+      "totalAwarded": 4.0,
+      "status": "RELEASED",
       "submittedAt": "2026-11-25T12:50:00Z",
-      "releasedAt": null,
-      "turnaroundMinutes": null,
+      "releasedAt": "2026-11-27T14:31:27.585064Z",
+      "turnaroundMinutes": 2981.5,
       "questions": [
         {
           "question": "Define Evaporation. Explain four factors affecting evaporation with examples.",
@@ -977,13 +977,14 @@
           "awardedMarks": 4.0,
           "maxMarks": 5.0,
           "studentAnswer": "Evaporation is the transition of liquid into vapor below boiling point. Factors: Surface area, temperature, humidity, and wind speed.",
-          "isReleased": false
+          "isReleased": true
         }
       ],
       "chapterTitle": "Evaporation & Factors Affecting Rate of Evaporation",
       "topicName": "Evaporation & Factors Affecting Rate of Evaporation",
-      "totalAwardedMarks": 16.0,
-      "totalMaxMarks": 20.0
+      "totalAwardedMarks": 4.0,
+      "totalMaxMarks": 20.0,
+      "teacherRemarks": "Step-by-step marks verified and approved by faculty."
     },
     {
       "id": "sub_pend_m1",
@@ -995,11 +996,11 @@
       "subjectName": "Mathematics",
       "topic": "Rationalizing the Denominator and Real Numbers",
       "totalMax": 20.0,
-      "totalAwarded": 17.0,
-      "status": "PENDING_TEACHER_RELEASE",
+      "totalAwarded": 3.0,
+      "status": "RELEASED",
       "submittedAt": "2026-11-25T10:35:00Z",
-      "releasedAt": null,
-      "turnaroundMinutes": null,
+      "releasedAt": "2026-11-27T14:31:25.026124Z",
+      "turnaroundMinutes": 3116.4,
       "questions": [
         {
           "question": "Rationalize the denominator of 1 / (7 + 3*sqrt(2)).",
@@ -1026,13 +1027,14 @@
           "awardedMarks": 3.0,
           "maxMarks": 3.0,
           "studentAnswer": "Multiply numerator and denominator by conjugate (7 - 3*sqrt(2)). Result is (7 - 3*sqrt(2)) / 31.",
-          "isReleased": false
+          "isReleased": true
         }
       ],
       "chapterTitle": "Rationalizing the Denominator and Real Numbers",
       "topicName": "Rationalizing the Denominator and Real Numbers",
-      "totalAwardedMarks": 17.0,
-      "totalMaxMarks": 20.0
+      "totalAwardedMarks": 3.0,
+      "totalMaxMarks": 20.0,
+      "teacherRemarks": "Step-by-step marks verified and approved by faculty."
     }
   ],
   "teachers": [
