@@ -93,25 +93,30 @@ st.markdown(f"""
         }}
     }}
 
-    html, body, [class*="css"] {{
+    html, body {{
         font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
         -webkit-font-smoothing: antialiased;
-        color: #0F172A !important;
+        color: #0F172A;
     }}
 
-    /* Universal Text Readability - Guarantees dark text on light backgrounds across all mobile browsers */
-    .stApp, p, span, label, div, h1, h2, h3, h4, h5, h6,
-    [data-testid="stMarkdownContainer"] p, 
-    [data-testid="stMarkdownContainer"] span,
-    [data-testid="stMarkdownContainer"] div,
-    [data-testid="stMarkdownContainer"] li,
-    [data-testid="stMarkdownContainer"] strong,
-    [data-testid="stMarkdownContainer"] em {{
+    .stApp {{
+        color: #0F172A;
+    }}
+
+    /* Standard Headings and Text on Light Backgrounds */
+    h1, h2, h3, h4, h5, h6 {{
         color: #0F172A !important;
+        -webkit-text-fill-color: #0F172A !important;
+    }}
+
+    /* Default Card Content */
+    .soothing-card, .soothing-card p, .soothing-card span, .soothing-card div {{
+        color: #0F172A;
     }}
 
     .stCaption, [data-testid="stCaptionContainer"] p, [data-testid="stCaptionContainer"] * {{
         color: #475569 !important;
+        -webkit-text-fill-color: #475569 !important;
         font-size: 13px !important;
     }}
 
@@ -142,42 +147,76 @@ st.markdown(f"""
         background-size: cover, cover, cover, cover, 360px 360px;
     }}
     
-    /* Sleek, Space-Optimized Header */
+    /* ========================================================================= */
+    /* BLUE BOX 1: TOP HEADER BANNER (PURE BRIGHT WHITE TEXT, NEVER BLACK)       */
+    /* ========================================================================= */
     .aegis-header {{
         background: linear-gradient(135deg, #0F172A 0%, #1E1B4B 45%, #1E3A8A 85%, #0F172A 100%) !important;
-        padding: 12px 20px !important;
+        padding: 14px 22px !important;
         border-radius: 14px !important;
-        color: #FFFFFF !important;
-        margin-bottom: 12px !important;
+        margin-bottom: 14px !important;
         border: 1px solid rgba(99, 102, 241, 0.4) !important;
         box-shadow: 0 4px 15px -3px rgba(15, 23, 42, 0.25) !important;
     }}
     
-    .aegis-title {{
-        font-size: 20px !important;
+    /* Enforce pure white text on all children inside aegis-header */
+    .aegis-header,
+    .aegis-header *,
+    .aegis-header p,
+    .aegis-header span,
+    .aegis-header div,
+    .aegis-header strong,
+    .aegis-header em {{
+        color: #FFFFFF !important;
+        -webkit-text-fill-color: #FFFFFF !important;
+    }}
+    
+    .aegis-title, .aegis-title * {{
+        font-size: 21px !important;
         font-weight: 800 !important;
         letter-spacing: -0.3px !important;
         color: #FFFFFF !important;
+        -webkit-text-fill-color: #FFFFFF !important;
         display: flex !important;
         align-items: center !important;
         gap: 8px !important;
     }}
     
     .aegis-badge {{
-        background: rgba(16, 185, 129, 0.2) !important;
+        background: rgba(16, 185, 129, 0.25) !important;
         color: #34D399 !important;
+        -webkit-text-fill-color: #34D399 !important;
         font-size: 12px !important;
         font-weight: 700 !important;
         padding: 3px 10px !important;
         border-radius: 9999px !important;
-        border: 1px solid rgba(16, 185, 129, 0.4) !important;
+        border: 1px solid rgba(52, 211, 153, 0.5) !important;
         text-transform: uppercase !important;
         letter-spacing: 0.4px !important;
+    }}
+
+    .aegis-subtext, .aegis-subtext * {{
+        font-size: 13px !important;
+        color: #E2E8F0 !important;
+        -webkit-text-fill-color: #E2E8F0 !important;
+        margin-top: 4px !important;
+        line-height: 1.45 !important;
+    }}
+
+    .aegis-header code {{
+        background: rgba(255, 255, 255, 0.2) !important;
+        color: #93C5FD !important;
+        -webkit-text-fill-color: #93C5FD !important;
+        padding: 2px 7px !important;
+        border-radius: 4px !important;
+        border: 1px solid rgba(147, 197, 253, 0.4) !important;
+        font-weight: 700 !important;
     }}
 
     .role-badge-student {{
         background: #EFF6FF !important;
         color: #1D4ED8 !important;
+        -webkit-text-fill-color: #1D4ED8 !important;
         font-size: 12px !important;
         font-weight: 700 !important;
         padding: 3px 10px !important;
@@ -188,6 +227,7 @@ st.markdown(f"""
     .role-badge-teacher {{
         background: #ECFDF5 !important;
         color: #047857 !important;
+        -webkit-text-fill-color: #047857 !important;
         font-size: 12px !important;
         font-weight: 700 !important;
         padding: 3px 10px !important;
@@ -198,18 +238,12 @@ st.markdown(f"""
     .role-badge-admin {{
         background: #FAF5FF !important;
         color: #7E22CE !important;
+        -webkit-text-fill-color: #7E22CE !important;
         font-size: 12px !important;
         font-weight: 700 !important;
         padding: 3px 10px !important;
         border-radius: 9999px !important;
         border: 1px solid #E9D5FF !important;
-    }}
-    
-    .aegis-subtext {{
-        font-size: 13px !important;
-        color: #CBD5E1 !important;
-        margin-top: 3px !important;
-        line-height: 1.4 !important;
     }}
     
     /* Compact Persistent Board Pill */
@@ -265,72 +299,156 @@ st.markdown(f"""
     }}
 
     /* ========================================================================= */
-    /* BLUE BOX SPREAD-ACROSS TABS (RESPONSIVE, NEVER TRUNCATES) */
+    /* BLUE BOX 2: SPREAD-ACROSS BLUE TABS (100% CONTRAST & ZERO TRIMMING)       */
     /* ========================================================================= */
+    .stTabs {{
+        width: 100% !important;
+    }}
+
     .stTabs [data-baseweb="tab-list"] {{
         display: flex !important;
         width: 100% !important;
-        background: linear-gradient(135deg, #0F172A 0%, #1E3A8A 50%, #2563EB 100%) !important;
-        padding: 6px !important;
-        border-radius: 12px !important;
-        border: 1px solid rgba(99, 102, 241, 0.4) !important;
-        gap: 6px !important;
-        box-shadow: 0 4px 14px rgba(29, 78, 216, 0.18) !important;
-        margin-bottom: 14px !important;
         flex-wrap: wrap !important;
+        overflow: visible !important;
+        height: auto !important;
+        min-height: 52px !important;
+        background: linear-gradient(135deg, #0F172A 0%, #1E3A8A 50%, #2563EB 100%) !important;
+        padding: 8px !important;
+        border-radius: 14px !important;
+        border: 1.5px solid rgba(99, 102, 241, 0.5) !important;
+        gap: 8px !important;
+        box-shadow: 0 4px 16px rgba(29, 78, 216, 0.22) !important;
+        margin-bottom: 16px !important;
     }}
     
+    /* Base Tab Pill Container (No Trimming, Flexible Auto-Wrap) */
     .stTabs [data-baseweb="tab"] {{
         flex: 1 1 auto !important;
-        min-width: 140px !important;
+        min-width: fit-content !important;
+        max-width: none !important;
+        height: auto !important;
+        min-height: 44px !important;
+        padding: 10px 20px !important;
+        border-radius: 9px !important;
         text-align: center !important;
         justify-content: center !important;
-        border-radius: 8px !important;
-        padding: 10px 18px !important;
-        color: #E2E8F0 !important;
-        font-weight: 700 !important;
-        font-size: 13.5px !important;
-        background: transparent !important;
-        border: none !important;
-        white-space: normal !important; /* CRITICAL: Never truncate text with ellipsis! */
+        align-items: center !important;
+        cursor: pointer !important;
+        box-sizing: border-box !important;
+        transition: all 0.2s ease-in-out !important;
+
+        /* Critical: Prevent Any Text Trimming or Cut-Off */
+        white-space: normal !important;
         word-break: normal !important;
         overflow: visible !important;
         text-overflow: unset !important;
-        transition: all 0.2s ease-in-out !important;
     }}
 
+    /* Inner text container of tab: never trim or clip */
     .stTabs [data-baseweb="tab"],
     .stTabs [data-baseweb="tab"] > div,
+    .stTabs [data-baseweb="tab"] [data-testid="stMarkdownContainer"],
     .stTabs [data-baseweb="tab"] p,
     .stTabs [data-baseweb="tab"] span,
-    .stTabs [data-baseweb="tab"] * {{
+    .stTabs [data-baseweb="tab"] div,
+    .stTabs [data-baseweb="tab"] strong {{
         white-space: normal !important;
+        word-break: normal !important;
         overflow: visible !important;
         text-overflow: unset !important;
-        word-break: normal !important;
+        max-width: none !important;
+        line-height: 1.35 !important;
     }}
 
-    .stTabs [data-baseweb="tab"]:hover {{
-        background: rgba(255, 255, 255, 0.2) !important;
+    /* --------------------------------------------------------------------- */
+    /* UNSELECTED TABS: Translucent White Pill with PURE BRIGHT WHITE TEXT   */
+    /* (100% Crystal-Clear Contrast against Dark Blue: Never Invisible!)      */
+    /* --------------------------------------------------------------------- */
+    .stTabs [data-baseweb="tab"]:not([aria-selected="true"]),
+    .stTabs button[role="tab"]:not([aria-selected="true"]),
+    .stTabs [data-baseweb="tab"][aria-selected="false"],
+    .stTabs button[role="tab"][aria-selected="false"] {{
+        background: rgba(255, 255, 255, 0.16) !important;
+        background-color: rgba(255, 255, 255, 0.16) !important;
+        border: 1.5px solid rgba(255, 255, 255, 0.45) !important;
         color: #FFFFFF !important;
+        -webkit-text-fill-color: #FFFFFF !important;
     }}
 
+    .stTabs [data-baseweb="tab"]:not([aria-selected="true"]) *,
+    .stTabs [data-baseweb="tab"]:not([aria-selected="true"]) p,
+    .stTabs [data-baseweb="tab"]:not([aria-selected="true"]) span,
+    .stTabs [data-baseweb="tab"]:not([aria-selected="true"]) div,
+    .stTabs [data-baseweb="tab"]:not([aria-selected="true"]) strong,
+    .stTabs button[role="tab"]:not([aria-selected="true"]) *,
+    .stTabs button[role="tab"]:not([aria-selected="true"]) p,
+    .stTabs button[role="tab"]:not([aria-selected="true"]) span,
+    .stTabs button[role="tab"]:not([aria-selected="true"]) div,
+    .stTabs [data-baseweb="tab"][aria-selected="false"] *,
+    .stTabs [data-baseweb="tab"][aria-selected="false"] p,
+    .stTabs [data-baseweb="tab"][aria-selected="false"] span,
+    .stTabs [data-baseweb="tab"][aria-selected="false"] div,
+    .stTabs button[role="tab"][aria-selected="false"] *,
+    .stTabs button[role="tab"][aria-selected="false"] p {{
+        color: #FFFFFF !important; /* PURE CRISP WHITE: 100% VISIBLE ON DARK BLUE! */
+        -webkit-text-fill-color: #FFFFFF !important;
+        font-weight: 700 !important;
+        font-size: 14px !important;
+    }}
+
+    /* Unselected Tab Hover */
+    .stTabs [data-baseweb="tab"]:not([aria-selected="true"]):hover,
+    .stTabs button[role="tab"]:not([aria-selected="true"]):hover,
+    .stTabs [data-baseweb="tab"][aria-selected="false"]:hover,
+    .stTabs button[role="tab"][aria-selected="false"]:hover {{
+        background: rgba(255, 255, 255, 0.28) !important;
+        background-color: rgba(255, 255, 255, 0.28) !important;
+        border-color: #FFFFFF !important;
+    }}
+    .stTabs [data-baseweb="tab"]:not([aria-selected="true"]):hover *,
+    .stTabs button[role="tab"]:not([aria-selected="true"]):hover * {{
+        color: #FFFFFF !important;
+        -webkit-text-fill-color: #FFFFFF !important;
+    }}
+
+    /* --------------------------------------------------------------------- */
+    /* SELECTED / ACTIVE TAB: Crisp Solid Pure White with Deep Navy Blue Text*/
+    /* --------------------------------------------------------------------- */
+    .stTabs [data-baseweb="tab"][aria-selected="true"],
+    .stTabs button[role="tab"][aria-selected="true"],
     .stTabs [aria-selected="true"] {{
         background: #FFFFFF !important;
-        color: #0F172A !important;
-        font-weight: 800 !important;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25) !important;
-    }}
-    .stTabs [aria-selected="true"] * {{
+        background-color: #FFFFFF !important;
+        border: 2px solid #93C5FD !important;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35) !important;
+        transform: translateY(-1px) !important;
         color: #0F172A !important;
         -webkit-text-fill-color: #0F172A !important;
     }}
-    .stTabs [aria-selected="false"] {{
-        color: #E2E8F0 !important;
+
+    .stTabs [data-baseweb="tab"][aria-selected="true"] *,
+    .stTabs [data-baseweb="tab"][aria-selected="true"] p,
+    .stTabs [data-baseweb="tab"][aria-selected="true"] span,
+    .stTabs [data-baseweb="tab"][aria-selected="true"] div,
+    .stTabs [data-baseweb="tab"][aria-selected="true"] strong,
+    .stTabs button[role="tab"][aria-selected="true"] *,
+    .stTabs button[role="tab"][aria-selected="true"] p,
+    .stTabs button[role="tab"][aria-selected="true"] span,
+    .stTabs button[role="tab"][aria-selected="true"] div,
+    .stTabs [aria-selected="true"] *,
+    .stTabs [aria-selected="true"] p,
+    .stTabs [aria-selected="true"] span,
+    .stTabs [aria-selected="true"] div {{
+        color: #0F172A !important; /* CRISP DARK SLATE / DEEP NAVY: 100% VISIBLE ON WHITE! */
+        -webkit-text-fill-color: #0F172A !important;
+        font-weight: 800 !important;
+        font-size: 14.5px !important;
     }}
-    .stTabs [aria-selected="false"] * {{
-        color: #E2E8F0 !important;
-        -webkit-text-fill-color: #E2E8F0 !important;
+
+    /* Hide default BaseWeb bottom indicator lines */
+    .stTabs [data-baseweb="tab-highlight"],
+    .stTabs [data-baseweb="tab-border"] {{
+        display: none !important;
     }}
 
     /* Vibrant Compact KPI Summary Cards */
@@ -382,6 +500,28 @@ st.markdown(f"""
         display: flex !important;
         align-items: center !important;
         gap: 8px !important;
+    }}
+
+    /* Objective Evaluation & Marks Score Banner (High-Contrast White on Deep Gradient) */
+    .score-banner {{
+        background: linear-gradient(135deg, #0F172A 0%, #1E1B4B 50%, #2563EB 100%) !important;
+        border-radius: 12px !important;
+        padding: 18px 22px !important;
+        margin: 16px 0 !important;
+        box-shadow: 0 4px 16px rgba(37, 99, 235, 0.22) !important;
+        border: 1px solid rgba(99, 102, 241, 0.4) !important;
+    }}
+    .score-banner, .score-banner * {{
+        color: #FFFFFF !important;
+        -webkit-text-fill-color: #FFFFFF !important;
+    }}
+    .score-banner code {{
+        background: rgba(255, 255, 255, 0.2) !important;
+        color: #93C5FD !important;
+        -webkit-text-fill-color: #93C5FD !important;
+        padding: 2px 7px !important;
+        border-radius: 4px !important;
+        border: 1px solid rgba(147, 197, 253, 0.4) !important;
     }}
 
     .step-item {{
@@ -1941,7 +2081,7 @@ if tab_grader is not None:
                 obj_pct = int(round((obj_score / 5.0) * 100))
                 
                 st.markdown(f"""
-                <div style="background: linear-gradient(135deg, #0F172A 0%, #1E1B4B 50%, #2563EB 100%); color: #FFFFFF; border-radius: 12px; padding: 18px 22px; margin: 16px 0; box-shadow: 0 4px 16px rgba(37,99,235,0.22);">
+                <div class="score-banner">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <div>
                             <div style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.8px; color: #93C5FD; font-weight: 700;">Instant Objective Evaluation Completed</div>
