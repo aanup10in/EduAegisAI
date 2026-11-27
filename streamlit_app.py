@@ -1576,9 +1576,15 @@ with st.sidebar:
                 st.session_state["logged_in_user"] = current_user
                 st.success("Password updated successfully!")
 
+    # Log Out Option: Consistently placed and prominently visible across Student, Teacher, and Admin views
+    if st.button("🚪 Log Out", use_container_width=True, key="btn_sidebar_logout"):
+        st.session_state["logged_in_user"] = None
+        st.session_state["obj_submitted_flag"] = False
+        st.rerun()
+
     # Admin Quick Reset Any User Password in Sidebar
     if user_role == "admin":
-        with st.expander("🔐 Reset Any User Password (Admin)", expanded=False):
+        with st.expander("🔐 Quick Reset User Password", expanded=False):
             st.caption("Super User Override: Reset password for any student or teacher upon request.")
             sb_candidates = [u for u in get_all_users_list() if str(u.get("role") or "").lower() != "admin"]
             if sb_candidates:
@@ -1600,10 +1606,6 @@ with st.sidebar:
                         st.success(f"Password updated for {sb_sel_user.get('name')}!")
                         time.sleep(0.4)
                         st.rerun()
-
-    if st.button("🚪 Log Out", use_container_width=True):
-        st.session_state["logged_in_user"] = None
-        st.rerun()
 
     # -------------------------------------------------------------------------
     # ACADEMIC RESOURCES & NCERT REFERENCE BOOKS HUB (Space Utilization)
