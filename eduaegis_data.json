@@ -1073,6 +1073,18 @@
   },
   "objective_submissions": [
     {
+      "id": "obj_sub_1795786933500",
+      "studentId": "STU-101",
+      "studentName": "Anup Sharma",
+      "board": "CBSE (All India)",
+      "className": "Class 9th",
+      "subject": "Physics",
+      "topic": "Motion (Kinematics, Graphs & Equations)",
+      "score": 4.0,
+      "maxMarks": 5.0,
+      "submittedAt": "2026-11-27T19:12:13.500194Z"
+    },
+    {
       "id": "obj_sub_1795755034549",
       "studentId": "TCH-202",
       "studentName": "Akanksha Singh",

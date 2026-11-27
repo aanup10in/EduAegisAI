@@ -63,6 +63,7 @@ export const AITutor: React.FC<AITutorProps> = ({ currentBoard, onNavigateToGrad
   // Audio Speech Synthesis
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
   const [speechRate, setSpeechRate] = useState<number>(1.0);
+  const [selectedVoiceMode, setSelectedVoiceMode] = useState<string>("google_hindi");
   const speechUtteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
 
   // Update selected subject/chapter when class changes
@@ -148,15 +149,31 @@ export const AITutor: React.FC<AITutorProps> = ({ currentBoard, onNavigateToGrad
         : (searchedTopicResult || selectedConcept).audioScript;
 
     const utterance = new SpeechSynthesisUtterance(scriptToSpeak);
-    utterance.rate = speechRate;
-    utterance.pitch = 1.0;
+    utterance.rate = selectedVoiceMode === "google_hindi" ? 0.88 : speechRate;
+    utterance.pitch = 1.03;
 
     const voices = window.speechSynthesis.getVoices();
-    const friendlyVoice = voices.find(
-      (v) => v.lang.includes("en-IN") || v.lang.includes("en-US") || v.lang.includes("en-GB")
-    );
-    if (friendlyVoice) {
-      utterance.voice = friendlyVoice;
+    let targetVoice: SpeechSynthesisVoice | undefined = undefined;
+    if (selectedVoiceMode === "google_hindi") {
+      utterance.lang = "hi-IN";
+      targetVoice = voices.find(
+        (v) => (v.name.toLowerCase().includes("google") && (v.name.toLowerCase().includes("hindi") || v.name.includes("हिन्दी") || v.lang.toLowerCase().includes("hi")))
+      ) || voices.find(
+        (v) => v.lang.includes("hi-IN") || v.lang.includes("en-IN") || v.name.toLowerCase().includes("india")
+      );
+    } else {
+      utterance.lang = "en-IN";
+      targetVoice = voices.find(
+        (v) => v.lang.includes("en-IN") || v.name.toLowerCase().includes("india")
+      );
+    }
+    if (!targetVoice) {
+      targetVoice = voices.find(
+        (v) => v.lang.includes("en-IN") || v.lang.includes("en-US") || v.lang.includes("en-GB")
+      );
+    }
+    if (targetVoice) {
+      utterance.voice = targetVoice;
     }
 
     utterance.onend = () => {
@@ -621,7 +638,19 @@ export const AITutor: React.FC<AITutorProps> = ({ currentBoard, onNavigateToGrad
                   </div>
                 </div>
 
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2 flex-wrap gap-y-2">
+                  {/* Voice Selector (Defaults to In Google Hindi) */}
+                  <select
+                    value={selectedVoiceMode}
+                    onChange={(e) => setSelectedVoiceMode(e.target.value)}
+                    className="bg-slate-800 text-xs text-indigo-200 font-bold px-2.5 py-1.5 rounded-lg border border-indigo-700/60 outline-none"
+                    title="Active Voice Selection (Defaults to In Google Hindi)"
+                  >
+                    <option value="google_hindi">🇮🇳 In Google Hindi (Indian English)</option>
+                    <option value="en_in_educator">🇮🇳 Indian English (Educator Neutral)</option>
+                    <option value="en_in_natural">🇮🇳 Indian English (Natural Cadence)</option>
+                  </select>
+
                   {/* Speed control */}
                   <select
                     value={speechRate}
@@ -657,13 +686,40 @@ export const AITutor: React.FC<AITutorProps> = ({ currentBoard, onNavigateToGrad
                 </div>
               </div>
 
-              {/* Conversational Explanation */}
+              {/* 1. Formal Definition (Board Standard) */}
+              <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-300 shadow-sm space-y-1">
+                <div className="text-[11px] font-black uppercase tracking-wider text-emerald-800 flex items-center space-x-1.5">
+                  <span>📌 Formal Definition (Board Exam Standard)</span>
+                </div>
+                <p className="text-xs font-semibold leading-relaxed text-emerald-950">
+                  {activeConceptToDisplay.summary}
+                </p>
+              </div>
+
+              {/* 2. Core Governing Formulas & SI Units */}
+              {activeConceptToDisplay.keyFormulas && activeConceptToDisplay.keyFormulas.length > 0 && (
+                <div className="p-4 rounded-2xl bg-blue-50/80 border border-blue-300 space-y-2 shadow-sm">
+                  <div className="text-[11px] font-black uppercase tracking-wider text-blue-900">
+                    📐 Core Mathematical Formulas & SI Units
+                  </div>
+                  <ul className="space-y-1 text-xs text-blue-950 font-mono font-medium">
+                    {activeConceptToDisplay.keyFormulas.map((f, i) => (
+                      <li key={i} className="flex items-center space-x-2">
+                        <span className="text-blue-500 font-bold">›</span>
+                        <span>{f}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* 3. Conversational Explanation */}
               <div className="space-y-3">
                 <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center space-x-1.5">
                   <BookOpen className="w-3.5 h-3.5 text-indigo-600" />
-                  <span>Teacher's Plain English Breakdown</span>
+                  <span>Teacher's Plain English Breakdown & Physical Mechanism</span>
                 </h4>
-                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs text-slate-800 leading-relaxed font-sans">
+                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs text-slate-800 leading-relaxed font-sans whitespace-pre-line">
                   {activeConceptToDisplay.teacherExplanation}
                 </div>
               </div>

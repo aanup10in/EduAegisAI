@@ -33,6 +33,11 @@ except Exception:
     generate_dynamic_mcqs_from_source = lambda st, sx, **kw: get_objective_question_set("Physics", 9)
     generate_dynamic_subjective_from_source = lambda st, sx, **kw: get_question_set("Physics", 9)
 
+try:
+    from tutor_curriculum_engine import get_comprehensive_tutor_lesson
+except Exception:
+    get_comprehensive_tutor_lesson = None
+
 # Page Configuration with Soothing Theme
 st.set_page_config(
     page_title="EduAegis | Responsible AI Tutor & Grader",
@@ -2095,95 +2100,73 @@ if tab_tutor is not None:
 
                 # Dynamic Lesson Synthesis from Uploaded Document or YouTube Video
                 lesson_synth = synthesize_tutor_lesson(active_source["name"], active_source["text"], subject=t_subject, class_num=t_class)
-                explanation_text = lesson_synth["explanation"]
-                analogies = lesson_synth["analogies"]
-                key_formulas = lesson_synth["key_principles"]
-                audio_text = lesson_synth["audio_text"]
-
+                lesson_data = get_comprehensive_tutor_lesson(active_source["name"], subject=t_subject, class_num=t_class, board=selected_board) if get_comprehensive_tutor_lesson else {}
+                
+                # Merge dynamic synthesis with curriculum structure
+                definition_text = lesson_data.get("definition", f"{active_source['name']} is synthesized from your uploaded learning material and aligned with Class {t_class}th {t_subject}.")
+                formulas_list = lesson_synth.get("key_principles") or lesson_data.get("formulas", ["Standard Principles from Source Document"])
+                explanation_text = lesson_synth.get("explanation") or lesson_data.get("explanation", "")
+                analogies_list = lesson_synth.get("analogies") or lesson_data.get("analogies", [])
+                pitfalls_list = lesson_data.get("pitfalls", ["Avoid superficial skimming; review key definitions and quantitative relationships."])
+                board_tips_list = lesson_data.get("board_tips", ["Cite primary definitions and show step-by-step reasoning in examinations."])
+                audio_text = lesson_synth.get("audio_text") or lesson_data.get("audio_text", "")
             else:
                 active_learning_topic = custom_tutor_topic.strip() if custom_tutor_topic.strip() else t_selected_topic
                 st.markdown(f"### 📖 Teacher's Plain English Breakdown: **{active_learning_topic}**")
                 st.info(f"**Curriculum Context:** {selected_board} • Class {t_class}th {t_subject}")
 
-                # Pre-crafted simple explanations
-                if "Newton" in active_learning_topic or "Momentum" in active_learning_topic or "Force" in active_learning_topic:
-                    explanation_text = (
-                        "Hello! Let's understand Newton's Second Law in very simple terms.\n\n"
-                        "Imagine you are in a cricket match. When a fast cricket ball comes towards you, catching it hurts your hand if you stop it instantly. "
-                        "But if you pull your hands backward, you take more time to stop the ball, which reduces the impact force! "
-                        "That's momentum and Newton's Second Law in real life. Force equals mass times acceleration (F = ma)."
-                    )
-                    analogies = [
-                        "Catching a fast cricket ball by pulling hands back to reduce impact force.",
-                        "High jump athletes landing on soft foam or sand to prolong stopping time.",
-                        "Car seatbelts stretching slightly during sudden braking."
-                    ]
-                    key_formulas = ["Momentum: p = m * v (kg·m/s)", "Force: F = Δp / Δt = m(v - u) / t", "Newton's 2nd Law: F = m * a (Newton, N)"]
-                    audio_text = (
-                        "Namaste and welcome students! Today, let us understand Newton's Second Law of Motion clearly and simply. "
-                        "Momentum is mass in motion. "
-                        "When catching a fast-moving cricket ball, pulling your hands backward increases the stopping time, "
-                        "which cushions the impact and greatly reduces the force on your palms. "
-                        "In your board exams, always remember: Force equals mass times acceleration, written as F equals m a, and measured in Newtons. "
-                        "Define the law clearly, show step-by-step mathematical reasoning, and state the SI units to score full marks!"
-                    )
-
-                elif "Evaporation" in active_learning_topic or "Matter" in active_learning_topic:
-                    explanation_text = (
-                        "Welcome to Chemistry! Let's understand why evaporation causes cooling.\n\n"
-                        "When you pour a few drops of acetone or perfume on your palm, your hand feels cold. Why? "
-                        "The liquid particles absorb heat energy (called Latent Heat of Vaporization) from your skin in order to evaporate, "
-                        "leaving your skin cooler! This is why earthen pots (matkas) keep water cool in summer and why wearing cotton clothes feels so refreshing."
-                    )
-                    analogies = [
-                        "Earthen pots (matka) keeping water cool in Indian summers through microscopic pores.",
-                        "Wearing breathable cotton clothes to absorb sweat and promote evaporative cooling.",
-                        "Spreading clothes wide on a line to increase surface area for faster drying."
-                    ]
-                    key_formulas = ["Rate of Evaporation ∝ Surface Area", "Rate of Evaporation ∝ Temperature", "Rate of Evaporation ∝ 1 / Humidity"]
-                    audio_text = (
-                        "Hello students! In Chemistry, let us understand why evaporation causes cooling. "
-                        "Evaporation is a surface phenomenon. The high-energy liquid particles absorb latent heat from the surrounding surface to break free as vapor. "
-                        "Because heat energy is drawn away, the surface cools down. "
-                        "This is why traditional earthen pots keep drinking water delightfully cool during Indian summers, and why breathable cotton clothes keep you refreshed. "
-                        "Remember: evaporation increases with surface area and temperature, but decreases with higher humidity."
-                    )
-
-                elif "Rational" in active_learning_topic or "Number" in active_learning_topic:
-                    explanation_text = (
-                        "Welcome to Mathematics! Numbers are divided into rational and irrational.\n\n"
-                        "A Rational number can always be written as a fraction p/q (like 1/2 = 0.5, or 1/3 = 0.333 recurring). "
-                        "An Irrational number (like √2, √3, or π) has a decimal expansion that goes on forever without repeating a pattern!"
-                    )
-                    analogies = [
-                        "Rational numbers repeat predictably like clockwork (0.333...); irrational decimals wander endlessly without any repeat."
-                    ]
-                    key_formulas = ["Rational: p/q where p, q are integers and q ≠ 0", "Rationalizing: 1/(a + √b) = (a - √b)/(a² - b)"]
-                    audio_text = (
-                        "Welcome to Mathematics! Today we master rational and irrational numbers. "
-                        "Any number that can be expressed as a fraction p over q, where q is not zero, is rational. Its decimal either terminates or repeats predictably. "
-                        "On the other hand, an irrational number, such as square root of two or pi, has a decimal that goes on endlessly without ever repeating. "
-                        "To rationalize a denominator like one over root two, always multiply both numerator and denominator by its conjugate."
-                    )
+                if get_comprehensive_tutor_lesson:
+                    lesson_data = get_comprehensive_tutor_lesson(active_learning_topic, subject=t_subject, class_num=t_class, board=selected_board)
                 else:
-                    explanation_text = (
-                        f"Here is your easy-to-understand breakdown for {active_learning_topic}.\n\n"
-                        "In science and mathematics, every concept is governed by an underlying cause-and-effect relationship. "
-                        "In your board exams, always frame your answers with: 1. A formal definition, 2. The mathematical formula with SI units, and 3. A real-world practical illustration."
-                    )
-                    analogies = [f"Relating {active_learning_topic} to everyday observable systems."]
-                    key_formulas = ["Standard Law / Equation with explicit metric units."]
-                    audio_text = (
-                        f"Namaste students! Let us understand {active_learning_topic} with absolute conceptual clarity. "
-                        "In science and mathematics, every concept is governed by cause and effect. "
-                        "For your board examinations, always structure your answers with three clear pillars: "
-                        "First, a crisp definition. Second, the exact mathematical formula with SI units. "
-                        "And third, an everyday real-world example. Clear step-by-step presentation guarantees full marks!"
-                    )
+                    lesson_data = {
+                        "topic": active_learning_topic,
+                        "definition": f"{active_learning_topic} is a core topic in Class {t_class}th {t_subject} ({selected_board}).",
+                        "formulas": ["Standard Governing Laws & SI Units"],
+                        "explanation": f"Understanding {active_learning_topic} requires analyzing cause-and-effect physical mechanisms and board-exam principles.",
+                        "analogies": [f"Everyday practical applications of {active_learning_topic}"],
+                        "pitfalls": ["Avoid omitting metric SI units and standard law statements."],
+                        "board_tips": ["State definition, write formula with SI units, and give one real-world application."],
+                        "audio_text": f"Namaste students! Let us understand {active_learning_topic} clearly for your board examinations."
+                    }
 
+                definition_text = lesson_data["definition"]
+                formulas_list = lesson_data["formulas"]
+                explanation_text = lesson_data["explanation"]
+                analogies_list = lesson_data["analogies"]
+                pitfalls_list = lesson_data["pitfalls"]
+                board_tips_list = lesson_data["board_tips"]
+                audio_text = lesson_data["audio_text"]
+
+            # 1. Formal Board Definition Callout Card
+            st.markdown(f"""
+            <div style="background: #F0FDF4; border: 1.5px solid #86EFAC; border-left: 5px solid #16A34A; border-radius: 12px; padding: 14px 18px; margin-bottom: 16px;">
+                <div style="font-size: 13px; font-weight: 800; color: #166534; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                    <span>📌 Formal Definition (Board Exam Standard)</span>
+                </div>
+                <div style="font-size: 14.5px; color: #14532D; line-height: 1.6; font-weight: 600;">
+                    {definition_text}
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+            # 2. Mathematical Formulas & SI Units Box
+            formulas_html_items = "".join([f"<li style='margin-bottom: 5px;'><strong style='color: #1E40AF;'>›</strong> {f}</li>" for f in formulas_list])
+            st.markdown(f"""
+            <div style="background: #EFF6FF; border: 1.5px solid #93C5FD; border-left: 5px solid #2563EB; border-radius: 12px; padding: 14px 18px; margin-bottom: 16px;">
+                <div style="font-size: 13px; font-weight: 800; color: #1E40AF; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">
+                    📐 Core Governing Formulas & SI Units
+                </div>
+                <ul style="margin: 0; padding-left: 18px; font-size: 13.5px; color: #1E293B; line-height: 1.6; font-family: monospace, monospace;">
+                    {formulas_html_items}
+                </ul>
+            </div>
+            """, unsafe_allow_html=True)
+
+            # 3. Descriptive Explanation & Physical Mechanism
+            st.markdown("#### 🔬 In-Depth Conceptual Breakdown & Physical Mechanism:")
             st.markdown(explanation_text)
 
-            # Embedded HTML5 Web Speech Audio Player (Zero Foreign Accent • Neutral Indian English Voice Modulation)
+            # 4. Embedded HTML5 Web Speech Audio Player (Default Active Voice: In Google Hindi (Indian English))
             st.markdown("#### 🔊 Audio Teacher Voice Narration (Neutral Indian English • Zero Accent):")
             clean_audio_js = audio_text.replace("'", "\\'").replace('"', '\\"').replace("\n", " ").replace("\r", " ")
             audio_html = f"""
@@ -2199,14 +2182,16 @@ if tab_tutor is not None:
                     </div>
                     <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                         <span style="font-size: 12px; font-weight: 700; color: #1E3A8A;">🎙️ Active Voice:</span>
-                        <select id="voice-select" onchange="onVoiceChange()" style="padding: 5px 10px; border-radius: 6px; border: 1.5px solid #93C5FD; font-size: 12px; font-weight: 600; color: #1E293B; background: #FFFFFF; max-width: 290px;">
-                            <option value="">Detecting Indian English Voices...</option>
+                        <select id="voice-select" onchange="onVoiceChange()" style="padding: 6px 12px; border-radius: 8px; border: 1.5px solid #3B82F6; font-size: 12px; font-weight: 700; color: #1E3A8A; background: #FFFFFF; min-width: 270px; cursor: pointer;">
+                            <option value="google_hindi" selected>🇮🇳 In Google Hindi (Indian English)</option>
+                            <option value="en_in_educator">🇮🇳 Indian English (Educator Neutral)</option>
+                            <option value="en_in_natural">🇮🇳 Indian English (Natural Cadence)</option>
                         </select>
                     </div>
                 </div>
-                <div id="audio-status" style="font-size: 12px; color: #475569; font-weight: 600; margin-top: 8px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px;">
-                    <span id="audio-msg">Click "Listen to Teacher" for clear, neutral Indian English concept narration.</span>
-                    <span style="font-size: 11px; background: #DCFCE7; color: #166534; font-weight: 700; padding: 3px 9px; border-radius: 999px; border: 1px solid #BBF7D0;">🇮🇳 Zero Foreign Accent • Natural Cadence</span>
+                <div id="audio-status" style="font-size: 12px; color: #475569; font-weight: 600; margin-top: 10px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px;">
+                    <span id="audio-msg">🎯 <strong>Active Voice:</strong> 🇮🇳 In Google Hindi (Indian English) • <em>Clear Indian Educator Modulation</em></span>
+                    <span style="font-size: 11px; background: #DCFCE7; color: #166534; font-weight: 700; padding: 3px 9px; border-radius: 999px; border: 1px solid #BBF7D0;">🇮🇳 Default: In Google Hindi (Indian English)</span>
                 </div>
             </div>
             <script>
@@ -2218,62 +2203,38 @@ if tab_tutor is not None:
                     if (!('speechSynthesis' in window)) return;
                     allVoices = synth.getVoices();
                     var voiceSelect = document.getElementById('voice-select');
-                    if (!voiceSelect || allVoices.length === 0) return;
+                    if (!voiceSelect) return;
 
-                    voiceSelect.innerHTML = '';
-                    var indianVoices = [];
-                    var otherVoices = [];
-
+                    var googleHindiVoice = null;
+                    var indianEnVoice = null;
                     var indKeywords = ['india', 'indian', 'en-in', 'en_in', 'heera', 'ravi', 'neerja', 'prabhat', 'veena', 'rishi', 'kavya'];
 
                     for (var i = 0; i < allVoices.length; i++) {{
                         var v = allVoices[i];
                         var lang = (v.lang || '').replace('_', '-').toLowerCase();
                         var name = (v.name || '').toLowerCase();
-                        var isIndian = false;
 
-                        if (lang === 'en-in' || lang === 'hi-in') {{
-                            isIndian = true;
+                        if ((name.indexOf('google') !== -1 && (name.indexOf('hindi') !== -1 || lang === 'hi-in' || name.indexOf('हिन्दी') !== -1)) || 
+                            (lang === 'hi-in' && !googleHindiVoice)) {{
+                            googleHindiVoice = v;
+                        }}
+
+                        if (lang === 'en-in' || lang === 'en_in') {{
+                            if (!indianEnVoice) indianEnVoice = v;
                         }} else {{
                             for (var k = 0; k < indKeywords.length; k++) {{
                                 if (name.indexOf(indKeywords[k]) !== -1) {{
-                                    isIndian = true;
+                                    if (!indianEnVoice) indianEnVoice = v;
                                     break;
                                 }}
                             }}
                         }}
-
-                        if (isIndian) {{
-                            indianVoices.push(v);
-                        }} else if (lang.indexOf('en') === 0) {{
-                            otherVoices.push(v);
-                        }}
                     }}
 
-                    // Add Indian English voices first with flag
-                    if (indianVoices.length > 0) {{
-                        for (var j = 0; j < indianVoices.length; j++) {{
-                            var opt = document.createElement('option');
-                            opt.value = indianVoices[j].name;
-                            opt.textContent = '🇮🇳 ' + indianVoices[j].name + ' (Indian English)';
-                            voiceSelect.appendChild(opt);
-                        }}
-                        selectedVoiceObj = indianVoices[0];
-                        voiceSelect.selectedIndex = 0;
-                        document.getElementById('audio-msg').innerHTML = '🎯 <strong>Active Voice:</strong> 🇮🇳 ' + selectedVoiceObj.name + ' (Neutral Indian Educator)';
-                    }} else {{
-                        for (var m = 0; m < otherVoices.length; m++) {{
-                            var opt = document.createElement('option');
-                            opt.value = otherVoices[m].name;
-                            opt.textContent = otherVoices[m].name + ' (' + otherVoices[m].lang + ')';
-                            voiceSelect.appendChild(opt);
-                        }}
-                        if (otherVoices.length > 0) {{
-                            selectedVoiceObj = otherVoices[0];
-                            voiceSelect.selectedIndex = 0;
-                        }}
-                        document.getElementById('audio-msg').innerHTML = '💡 <em>Tuned for Neutral Indian Educator Cadence with zero accent</em>';
-                    }}
+                    // Set default voice object: Google Hindi first, fallback to Indian English
+                    selectedVoiceObj = googleHindiVoice || indianEnVoice;
+                    voiceSelect.value = "google_hindi";
+                    document.getElementById('audio-msg').innerHTML = '🎯 <strong>Active Voice:</strong> 🇮🇳 In Google Hindi (Indian English) • <em>Clear Indian Educator Modulation</em>';
                 }}
 
                 populateVoices();
@@ -2282,13 +2243,13 @@ if tab_tutor is not None:
                 }}
 
                 function onVoiceChange() {{
-                    var selName = document.getElementById('voice-select').value;
-                    for (var i = 0; i < allVoices.length; i++) {{
-                        if (allVoices[i].name === selName) {{
-                            selectedVoiceObj = allVoices[i];
-                            document.getElementById('audio-msg').innerHTML = '🎯 <strong>Selected:</strong> ' + selectedVoiceObj.name;
-                            break;
-                        }}
+                    var sel = document.getElementById('voice-select').value;
+                    if (sel === 'google_hindi') {{
+                        document.getElementById('audio-msg').innerHTML = '🎯 <strong>Active Voice:</strong> 🇮🇳 In Google Hindi (Indian English) • <em>Clear Indian Educator Modulation</em>';
+                    }} else if (sel === 'en_in_educator') {{
+                        document.getElementById('audio-msg').innerHTML = '🎯 <strong>Active Voice:</strong> 🇮🇳 Indian English (Educator Neutral) • <em>Deliberate Classroom Pace</em>';
+                    }} else {{
+                        document.getElementById('audio-msg').innerHTML = '🎯 <strong>Active Voice:</strong> 🇮🇳 Indian English (Natural Cadence) • <em>Conversational Rhythm</em>';
                     }}
                 }}
 
@@ -2306,19 +2267,27 @@ if tab_tutor is not None:
                     var text = "{clean_audio_js}";
                     var msg = new SpeechSynthesisUtterance(text);
                     
-                    // Explicitly set Indian English language locale
-                    msg.lang = 'en-IN';
+                    var sel = document.getElementById('voice-select') ? document.getElementById('voice-select').value : 'google_hindi';
 
-                    // Natural Indian Educator Modulation (clear articulation, not rushed)
-                    msg.rate = 0.89;
-                    msg.pitch = 1.04;
+                    if (sel === 'google_hindi') {{
+                        msg.lang = 'hi-IN';
+                        msg.rate = 0.88;
+                        msg.pitch = 1.03;
+                    }} else if (sel === 'en_in_educator') {{
+                        msg.lang = 'en-IN';
+                        msg.rate = 0.86;
+                        msg.pitch = 1.01;
+                    }} else {{
+                        msg.lang = 'en-IN';
+                        msg.rate = 0.92;
+                        msg.pitch = 1.04;
+                    }}
 
                     if (selectedVoiceObj) {{
                         msg.voice = selectedVoiceObj;
-                        document.getElementById('audio-msg').innerHTML = '🔊 <strong>Speaking:</strong> ' + selectedVoiceObj.name + ' • <em>Clear Indian Educator Modulation...</em>';
-                    }} else {{
-                        document.getElementById('audio-msg').innerHTML = '🔊 <em>Speaking in Indian English educator cadence (en-IN)...</em>';
                     }}
+
+                    document.getElementById('audio-msg').innerHTML = '🔊 <strong>Speaking in:</strong> 🇮🇳 In Google Hindi (Indian English) • <em>Clear Concept Narration...</em>';
 
                     msg.onend = function() {{
                         document.getElementById('audio-msg').innerHTML = '✅ <em>Narration complete. Concept ready for review!</em>';
@@ -2338,15 +2307,26 @@ if tab_tutor is not None:
                 }}
             </script>
             """
-            components.html(audio_html, height=110)
+            components.html(audio_html, height=125)
 
+            # 5. Everyday Real-World Analogies
             st.markdown("#### 💡 Everyday Real-World Analogies:")
-            for an in analogies:
+            for an in analogies_list:
                 st.markdown(f"- 🌟 {an}")
 
+            # 6. Critical Board Exam Pitfalls & Misconceptions to Avoid
+            with st.expander("⚠️ Critical Board Exam Pitfalls & Misconceptions to Avoid", expanded=True):
+                for pit in pitfalls_list:
+                    st.markdown(f"- ❌ **Avoid:** {pit}")
+
+            # 7. How to Write Answers in Board Exams for Full Marks (Marking Rubrics)
+            with st.expander("📝 How to Write Answers in Board Exams for Full Marks (Marking Rubrics)", expanded=False):
+                for tip in board_tips_list:
+                    st.markdown(f"- {tip}")
+
         with col_c2:
-            st.markdown("### 📐 Key Formulas & Units")
-            for f in key_formulas:
+            st.markdown("### 📐 Quick Formula Cheat-Sheet")
+            for f in formulas_list:
                 st.code(f)
 
             st.markdown("### 🎯 Socratic Check")
