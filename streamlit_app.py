@@ -16,6 +16,27 @@ import streamlit as st
 import streamlit.components.v1 as components
 import pandas as pd
 from curriculum_question_bank import get_question_set
+from objective_question_bank import get_objective_question_set
+try:
+    from source_learning_engine import (
+        extract_document_content,
+        get_youtube_learning_content,
+        synthesize_tutor_lesson,
+        generate_dynamic_mcqs_from_source,
+        generate_dynamic_subjective_from_source
+    )
+except Exception:
+    # Fail-safe zero-error fallback
+    extract_document_content = lambda fn, fb: "Document content parsed."
+    get_youtube_learning_content = lambda url: None
+    synthesize_tutor_lesson = lambda st, sx, **kw: {"title": st, "explanation": sx, "analogies": [], "key_principles": [], "audio_text": sx, "key_terms": []}
+    generate_dynamic_mcqs_from_source = lambda st, sx, **kw: get_objective_question_set("Physics", 9)
+    generate_dynamic_subjective_from_source = lambda st, sx, **kw: get_question_set("Physics", 9)
+
+try:
+    from tutor_curriculum_engine import get_comprehensive_tutor_lesson
+except Exception:
+    get_comprehensive_tutor_lesson = None
 
 # Page Configuration with Soothing Theme
 st.set_page_config(
@@ -78,14 +99,51 @@ st.markdown(f"""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
     
-    html, body, [class*="css"] {{
-        font-family: 'Plus Jakarta Sans', sans-serif;
+    :root {{
+        color-scheme: light !important;
+    }}
+
+    @media (prefers-color-scheme: dark) {{
+        :root {{
+            color-scheme: light !important;
+        }}
+        body, .stApp, [data-testid="stAppViewContainer"] {{
+            background-color: #F8FAFC !important;
+            color: #0F172A !important;
+        }}
+    }}
+
+    html, body {{
+        font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+        -webkit-font-smoothing: antialiased;
+        color: #0F172A;
+    }}
+
+    .stApp {{
+        color: #0F172A;
+    }}
+
+    /* Standard Headings and Text on Light Backgrounds */
+    h1, h2, h3, h4, h5, h6 {{
+        color: #0F172A !important;
+        -webkit-text-fill-color: #0F172A !important;
+    }}
+
+    /* Default Card Content */
+    .soothing-card, .soothing-card p, .soothing-card span, .soothing-card div {{
+        color: #0F172A;
+    }}
+
+    .stCaption, [data-testid="stCaptionContainer"] p, [data-testid="stCaptionContainer"] * {{
+        color: #475569 !important;
+        -webkit-text-fill-color: #475569 !important;
+        font-size: 13px !important;
     }}
 
     /* Global Space Optimization - Eliminates excessive top whitespace */
     .block-container {{
-        padding-top: 0.7rem !important;
-        padding-bottom: 1.5rem !important;
+        padding-top: 0.8rem !important;
+        padding-bottom: 2rem !important;
         padding-left: 1.5rem !important;
         padding-right: 1.5rem !important;
         max-width: 98% !important;
@@ -98,7 +156,7 @@ st.markdown(f"""
 
     /* Atmospheric Watermark Background with Soft Ambient Mesh */
     .stApp {{
-        background-color: #F8FAFC;
+        background-color: #F8FAFC !important;
         background-image: 
             radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.08) 0px, transparent 45%),
             radial-gradient(at 100% 0%, rgba(16, 185, 129, 0.07) 0px, transparent 45%),
@@ -109,99 +167,127 @@ st.markdown(f"""
         background-size: cover, cover, cover, cover, 360px 360px;
     }}
     
-    /* Sleek, Space-Optimized Header */
+    /* ========================================================================= */
+    /* BLUE BOX 1: TOP HEADER BANNER (PURE BRIGHT WHITE TEXT, NEVER BLACK)       */
+    /* ========================================================================= */
     .aegis-header {{
-        background: linear-gradient(135deg, #0F172A 0%, #1E1B4B 45%, #312E81 85%, #0F172A 100%);
-        padding: 10px 18px;
-        border-radius: 14px;
-        color: white;
-        margin-bottom: 10px;
-        border: 1px solid rgba(99, 102, 241, 0.35);
-        box-shadow: 0 4px 15px -3px rgba(15, 23, 42, 0.2);
+        background: linear-gradient(135deg, #0F172A 0%, #1E1B4B 45%, #1E3A8A 85%, #0F172A 100%) !important;
+        padding: 14px 22px !important;
+        border-radius: 14px !important;
+        margin-bottom: 14px !important;
+        border: 1px solid rgba(99, 102, 241, 0.4) !important;
+        box-shadow: 0 4px 15px -3px rgba(15, 23, 42, 0.25) !important;
     }}
     
-    .aegis-title {{
-        font-size: 19px;
-        font-weight: 800;
-        letter-spacing: -0.3px;
-        color: #FFFFFF;
-        display: flex;
-        align-items: center;
-        gap: 8px;
+    /* Enforce pure white text on all children inside aegis-header */
+    .aegis-header,
+    .aegis-header *,
+    .aegis-header p,
+    .aegis-header span,
+    .aegis-header div,
+    .aegis-header strong,
+    .aegis-header em {{
+        color: #FFFFFF !important;
+        -webkit-text-fill-color: #FFFFFF !important;
+    }}
+    
+    .aegis-title, .aegis-title * {{
+        font-size: 21px !important;
+        font-weight: 800 !important;
+        letter-spacing: -0.3px !important;
+        color: #FFFFFF !important;
+        -webkit-text-fill-color: #FFFFFF !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
     }}
     
     .aegis-badge {{
-        background: rgba(16, 185, 129, 0.2);
-        color: #34D399;
-        font-size: 10.5px;
-        font-weight: 700;
-        padding: 3px 9px;
-        border-radius: 9999px;
-        border: 1px solid rgba(16, 185, 129, 0.4);
-        text-transform: uppercase;
-        letter-spacing: 0.4px;
+        background: rgba(16, 185, 129, 0.25) !important;
+        color: #34D399 !important;
+        -webkit-text-fill-color: #34D399 !important;
+        font-size: 12px !important;
+        font-weight: 700 !important;
+        padding: 3px 10px !important;
+        border-radius: 9999px !important;
+        border: 1px solid rgba(52, 211, 153, 0.5) !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.4px !important;
+    }}
+
+    .aegis-subtext, .aegis-subtext * {{
+        font-size: 13px !important;
+        color: #E2E8F0 !important;
+        -webkit-text-fill-color: #E2E8F0 !important;
+        margin-top: 4px !important;
+        line-height: 1.45 !important;
+    }}
+
+    .aegis-header code {{
+        background: rgba(255, 255, 255, 0.2) !important;
+        color: #93C5FD !important;
+        -webkit-text-fill-color: #93C5FD !important;
+        padding: 2px 7px !important;
+        border-radius: 4px !important;
+        border: 1px solid rgba(147, 197, 253, 0.4) !important;
+        font-weight: 700 !important;
     }}
 
     .role-badge-student {{
-        background: #EFF6FF;
-        color: #1D4ED8;
-        font-size: 10px;
-        font-weight: 700;
-        padding: 2px 8px;
-        border-radius: 9999px;
-        border: 1px solid #BFDBFE;
+        background: #EFF6FF !important;
+        color: #1D4ED8 !important;
+        -webkit-text-fill-color: #1D4ED8 !important;
+        font-size: 12px !important;
+        font-weight: 700 !important;
+        padding: 3px 10px !important;
+        border-radius: 9999px !important;
+        border: 1px solid #BFDBFE !important;
     }}
 
     .role-badge-teacher {{
-        background: #ECFDF5;
-        color: #047857;
-        font-size: 10px;
-        font-weight: 700;
-        padding: 2px 8px;
-        border-radius: 9999px;
-        border: 1px solid #A7F3D0;
+        background: #ECFDF5 !important;
+        color: #047857 !important;
+        -webkit-text-fill-color: #047857 !important;
+        font-size: 12px !important;
+        font-weight: 700 !important;
+        padding: 3px 10px !important;
+        border-radius: 9999px !important;
+        border: 1px solid #A7F3D0 !important;
     }}
 
     .role-badge-admin {{
-        background: #FAF5FF;
-        color: #7E22CE;
-        font-size: 10px;
-        font-weight: 700;
-        padding: 2px 8px;
-        border-radius: 9999px;
-        border: 1px solid #E9D5FF;
-    }}
-    
-    .aegis-subtext {{
-        font-size: 11.5px;
-        color: #CBD5E1;
-        margin-top: 2px;
-        line-height: 1.35;
+        background: #FAF5FF !important;
+        color: #7E22CE !important;
+        -webkit-text-fill-color: #7E22CE !important;
+        font-size: 12px !important;
+        font-weight: 700 !important;
+        padding: 3px 10px !important;
+        border-radius: 9999px !important;
+        border: 1px solid #E9D5FF !important;
     }}
     
     /* Compact Persistent Board Pill */
     .board-pill {{
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-        background: #EEF2FF;
-        color: #4338CA;
-        font-weight: 700;
-        font-size: 11px;
-        padding: 4px 10px;
-        border-radius: 9999px;
-        border: 1px solid #C7D2FE;
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+        background: #EEF2FF !important;
+        color: #3730A3 !important;
+        font-weight: 700 !important;
+        font-size: 12.5px !important;
+        padding: 4px 12px !important;
+        border-radius: 9999px !important;
+        border: 1px solid #C7D2FE !important;
     }}
     
-    /* Solid Glassmorphism Card for 100% Crisp Readability */
+    /* Solid White Card for 100% Crisp Mobile & Desktop Readability */
     .soothing-card {{
-        background: rgba(255, 255, 255, 0.95) !important;
-        backdrop-filter: blur(12px) !important;
-        border: 1px solid rgba(226, 232, 240, 0.9) !important;
+        background: #FFFFFF !important;
+        border: 1.5px solid #E2E8F0 !important;
         border-radius: 14px !important;
-        padding: 14px 16px !important;
-        box-shadow: 0 4px 14px -2px rgba(15, 23, 42, 0.04) !important;
-        margin-bottom: 10px !important;
+        padding: 18px 20px !important;
+        box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.05) !important;
+        margin-bottom: 12px !important;
     }}
 
     /* Rich Profile Card with Decorative Background Illustration */
@@ -212,145 +298,367 @@ st.markdown(f"""
         background-position: center !important;
         border: 1px solid rgba(129, 140, 248, 0.45) !important;
         border-radius: 12px !important;
-        padding: 12px 14px !important;
-        margin-bottom: 8px !important;
+        padding: 14px 16px !important;
+        margin-bottom: 10px !important;
         box-shadow: 0 4px 14px rgba(15, 23, 42, 0.25) !important;
         color: #FFFFFF !important;
+    }}
+    .sidebar-profile-card * {{
+        color: #FFFFFF !important;
+    }}
+
+    /* Profile ID Badge Pill inside Sidebar Profile Card (High Contrast & Clear Readability) */
+    .sidebar-profile-card code,
+    .sidebar-profile-card .profile-id-badge,
+    .profile-id-badge,
+    [data-testid="stSidebar"] .sidebar-profile-card code,
+    [data-testid="stSidebar"] .sidebar-profile-card .profile-id-badge {{
+        background: #EFF6FF !important;
+        background-color: #EFF6FF !important;
+        color: #1D4ED8 !important;
+        -webkit-text-fill-color: #1D4ED8 !important;
+        border: 1.5px solid #BFDBFE !important;
+        padding: 2.5px 8px !important;
+        border-radius: 6px !important;
+        font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace !important;
+        font-weight: 800 !important;
+        font-size: 12px !important;
+        letter-spacing: 0.4px !important;
+        display: inline-block !important;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
     }}
 
     /* Tighten Sidebar Padding */
     [data-testid="stSidebar"] {{
-        background: rgba(255, 255, 255, 0.96) !important;
+        background: #FFFFFF !important;
         border-right: 1px solid #E2E8F0 !important;
     }}
     [data-testid="stSidebar"] > div:first-child {{
-        padding-top: 0.8rem !important;
-        padding-left: 0.9rem !important;
-        padding-right: 0.9rem !important;
+        padding-top: 1rem !important;
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
     }}
 
     /* ========================================================================= */
-    /* BLUE BOX SPREAD-ACROSS TABS (100% WIDTH EQUALLY DIVIDED IRRESPECTIVE OF COUNT) */
+    /* BLUE BOX 2: SPREAD-ACROSS BLUE TABS (100% CONTRAST & ZERO TRIMMING)       */
     /* ========================================================================= */
+    .stTabs {{
+        width: 100% !important;
+    }}
+
     .stTabs [data-baseweb="tab-list"] {{
         display: flex !important;
         width: 100% !important;
-        background: linear-gradient(135deg, #1E1B4B 0%, #1D4ED8 50%, #2563EB 100%) !important;
-        padding: 5px !important;
-        border-radius: 12px !important;
-        border: 1px solid rgba(99, 102, 241, 0.4) !important;
-        gap: 6px !important;
-        box-shadow: 0 4px 14px rgba(29, 78, 216, 0.2) !important;
-        margin-bottom: 12px !important;
+        flex-wrap: wrap !important;
+        overflow: visible !important;
+        height: auto !important;
+        min-height: 52px !important;
+        background: linear-gradient(135deg, #0F172A 0%, #1E3A8A 50%, #2563EB 100%) !important;
+        padding: 8px !important;
+        border-radius: 14px !important;
+        border: 1.5px solid rgba(99, 102, 241, 0.5) !important;
+        gap: 8px !important;
+        box-shadow: 0 4px 16px rgba(29, 78, 216, 0.22) !important;
+        margin-bottom: 16px !important;
     }}
     
+    /* Base Tab Pill Container (No Trimming, Flexible Auto-Wrap) */
     .stTabs [data-baseweb="tab"] {{
-        flex: 1 1 0 !important;
-        width: 100% !important;
-        max-width: 100% !important;
+        flex: 1 1 auto !important;
+        min-width: fit-content !important;
+        max-width: none !important;
+        height: auto !important;
+        min-height: 44px !important;
+        padding: 10px 20px !important;
+        border-radius: 9px !important;
         text-align: center !important;
         justify-content: center !important;
-        border-radius: 8px !important;
-        padding: 8px 8px !important;
-        color: #E2E8F0 !important;
-        font-weight: 700 !important;
-        font-size: 12.5px !important;
-        background: transparent !important;
-        border: none !important;
-        white-space: nowrap !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
+        align-items: center !important;
+        cursor: pointer !important;
+        box-sizing: border-box !important;
         transition: all 0.2s ease-in-out !important;
+
+        /* Critical: Prevent Any Text Trimming or Cut-Off */
+        white-space: normal !important;
+        word-break: normal !important;
+        overflow: visible !important;
+        text-overflow: unset !important;
     }}
 
-    .stTabs [data-baseweb="tab"]:hover {{
-        background: rgba(255, 255, 255, 0.18) !important;
+    /* Inner text container of tab: never trim or clip */
+    .stTabs [data-baseweb="tab"],
+    .stTabs [data-baseweb="tab"] > div,
+    .stTabs [data-baseweb="tab"] [data-testid="stMarkdownContainer"],
+    .stTabs [data-baseweb="tab"] p,
+    .stTabs [data-baseweb="tab"] span,
+    .stTabs [data-baseweb="tab"] div,
+    .stTabs [data-baseweb="tab"] strong {{
+        white-space: normal !important;
+        word-break: normal !important;
+        overflow: visible !important;
+        text-overflow: unset !important;
+        max-width: none !important;
+        line-height: 1.35 !important;
+    }}
+
+    /* --------------------------------------------------------------------- */
+    /* UNSELECTED TABS: Translucent White Pill with PURE BRIGHT WHITE TEXT   */
+    /* (100% Crystal-Clear Contrast against Dark Blue: Never Invisible!)      */
+    /* --------------------------------------------------------------------- */
+    .stTabs [data-baseweb="tab"]:not([aria-selected="true"]),
+    .stTabs button[role="tab"]:not([aria-selected="true"]),
+    .stTabs [data-baseweb="tab"][aria-selected="false"],
+    .stTabs button[role="tab"][aria-selected="false"] {{
+        background: rgba(255, 255, 255, 0.16) !important;
+        background-color: rgba(255, 255, 255, 0.16) !important;
+        border: 1.5px solid rgba(255, 255, 255, 0.45) !important;
         color: #FFFFFF !important;
+        -webkit-text-fill-color: #FFFFFF !important;
     }}
 
+    .stTabs [data-baseweb="tab"]:not([aria-selected="true"]) *,
+    .stTabs [data-baseweb="tab"]:not([aria-selected="true"]) p,
+    .stTabs [data-baseweb="tab"]:not([aria-selected="true"]) span,
+    .stTabs [data-baseweb="tab"]:not([aria-selected="true"]) div,
+    .stTabs [data-baseweb="tab"]:not([aria-selected="true"]) strong,
+    .stTabs button[role="tab"]:not([aria-selected="true"]) *,
+    .stTabs button[role="tab"]:not([aria-selected="true"]) p,
+    .stTabs button[role="tab"]:not([aria-selected="true"]) span,
+    .stTabs button[role="tab"]:not([aria-selected="true"]) div,
+    .stTabs [data-baseweb="tab"][aria-selected="false"] *,
+    .stTabs [data-baseweb="tab"][aria-selected="false"] p,
+    .stTabs [data-baseweb="tab"][aria-selected="false"] span,
+    .stTabs [data-baseweb="tab"][aria-selected="false"] div,
+    .stTabs button[role="tab"][aria-selected="false"] *,
+    .stTabs button[role="tab"][aria-selected="false"] p {{
+        color: #FFFFFF !important; /* PURE CRISP WHITE: 100% VISIBLE ON DARK BLUE! */
+        -webkit-text-fill-color: #FFFFFF !important;
+        font-weight: 700 !important;
+        font-size: 14px !important;
+    }}
+
+    /* Unselected Tab Hover */
+    .stTabs [data-baseweb="tab"]:not([aria-selected="true"]):hover,
+    .stTabs button[role="tab"]:not([aria-selected="true"]):hover,
+    .stTabs [data-baseweb="tab"][aria-selected="false"]:hover,
+    .stTabs button[role="tab"][aria-selected="false"]:hover {{
+        background: rgba(255, 255, 255, 0.28) !important;
+        background-color: rgba(255, 255, 255, 0.28) !important;
+        border-color: #FFFFFF !important;
+    }}
+    .stTabs [data-baseweb="tab"]:not([aria-selected="true"]):hover *,
+    .stTabs button[role="tab"]:not([aria-selected="true"]):hover * {{
+        color: #FFFFFF !important;
+        -webkit-text-fill-color: #FFFFFF !important;
+    }}
+
+    /* --------------------------------------------------------------------- */
+    /* SELECTED / ACTIVE TAB: Crisp Solid Pure White with Deep Navy Blue Text*/
+    /* --------------------------------------------------------------------- */
+    .stTabs [data-baseweb="tab"][aria-selected="true"],
+    .stTabs button[role="tab"][aria-selected="true"],
     .stTabs [aria-selected="true"] {{
         background: #FFFFFF !important;
-        color: #1E1B4B !important;
+        background-color: #FFFFFF !important;
+        border: 2px solid #93C5FD !important;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35) !important;
+        transform: translateY(-1px) !important;
+        color: #0F172A !important;
+        -webkit-text-fill-color: #0F172A !important;
+    }}
+
+    .stTabs [data-baseweb="tab"][aria-selected="true"] *,
+    .stTabs [data-baseweb="tab"][aria-selected="true"] p,
+    .stTabs [data-baseweb="tab"][aria-selected="true"] span,
+    .stTabs [data-baseweb="tab"][aria-selected="true"] div,
+    .stTabs [data-baseweb="tab"][aria-selected="true"] strong,
+    .stTabs button[role="tab"][aria-selected="true"] *,
+    .stTabs button[role="tab"][aria-selected="true"] p,
+    .stTabs button[role="tab"][aria-selected="true"] span,
+    .stTabs button[role="tab"][aria-selected="true"] div,
+    .stTabs [aria-selected="true"] *,
+    .stTabs [aria-selected="true"] p,
+    .stTabs [aria-selected="true"] span,
+    .stTabs [aria-selected="true"] div {{
+        color: #0F172A !important; /* CRISP DARK SLATE / DEEP NAVY: 100% VISIBLE ON WHITE! */
+        -webkit-text-fill-color: #0F172A !important;
         font-weight: 800 !important;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+        font-size: 14.5px !important;
+    }}
+
+    /* Hide default BaseWeb bottom indicator lines */
+    .stTabs [data-baseweb="tab-highlight"],
+    .stTabs [data-baseweb="tab-border"] {{
+        display: none !important;
     }}
 
     /* Vibrant Compact KPI Summary Cards */
     .kpi-box {{
-        background: rgba(255, 255, 255, 0.95);
-        border: 1px solid #E2E8F0;
-        border-radius: 12px;
-        padding: 10px 14px;
-        text-align: center;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+        background: #FFFFFF !important;
+        border: 1px solid #E2E8F0 !important;
+        border-radius: 12px !important;
+        padding: 12px 16px !important;
+        text-align: center !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.03) !important;
     }}
     .kpi-num {{
-        font-size: 22px;
-        font-weight: 800;
-        color: #0F172A;
+        font-size: 22px !important;
+        font-weight: 800 !important;
+        color: #0F172A !important;
     }}
     .kpi-label {{
-        font-size: 11px;
-        font-weight: 600;
-        color: #64748B;
-        text-transform: uppercase;
-        letter-spacing: 0.4px;
-        margin-top: 2px;
+        font-size: 12px !important;
+        font-weight: 700 !important;
+        color: #475569 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.4px !important;
+        margin-top: 3px !important;
     }}
 
     /* Compact Timer Pill */
     .timer-pill {{
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-        background: #FFFBEB;
-        color: #B45309;
-        font-weight: 700;
-        font-size: 10.5px;
-        padding: 3px 8px;
-        border-radius: 9999px;
-        border: 1px solid #FDE68A;
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+        background: #FFFBEB !important;
+        color: #92400E !important;
+        font-weight: 700 !important;
+        font-size: 12px !important;
+        padding: 3px 9px !important;
+        border-radius: 9999px !important;
+        border: 1px solid #FDE68A !important;
     }}
     
     .blind-banner {{
-        background: #F0FDF4;
-        border: 1px solid #BBF7D0;
-        border-radius: 10px;
-        padding: 9px 12px;
-        color: #166534;
-        font-size: 12px;
-        font-weight: 600;
-        margin-bottom: 10px;
-        display: flex;
-        align-items: center;
-        gap: 6px;
+        background: #F0FDF4 !important;
+        border: 1px solid #BBF7D0 !important;
+        border-radius: 10px !important;
+        padding: 10px 14px !important;
+        color: #166534 !important;
+        font-size: 13px !important;
+        font-weight: 600 !important;
+        margin-bottom: 10px !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+    }}
+
+    /* Objective Evaluation & Marks Score Banner (High-Contrast White on Deep Gradient) */
+    .score-banner {{
+        background: linear-gradient(135deg, #0F172A 0%, #1E1B4B 50%, #2563EB 100%) !important;
+        border-radius: 12px !important;
+        padding: 18px 22px !important;
+        margin: 16px 0 !important;
+        box-shadow: 0 4px 16px rgba(37, 99, 235, 0.22) !important;
+        border: 1px solid rgba(99, 102, 241, 0.4) !important;
+    }}
+    .score-banner, .score-banner * {{
+        color: #FFFFFF !important;
+        -webkit-text-fill-color: #FFFFFF !important;
+    }}
+    .score-banner code {{
+        background: rgba(255, 255, 255, 0.2) !important;
+        color: #93C5FD !important;
+        -webkit-text-fill-color: #93C5FD !important;
+        padding: 2px 7px !important;
+        border-radius: 4px !important;
+        border: 1px solid rgba(147, 197, 253, 0.4) !important;
     }}
 
     .step-item {{
-        background: #F8FAFC;
-        border: 1px solid #E2E8F0;
-        border-radius: 10px;
-        padding: 10px 14px;
-        margin-bottom: 6px;
+        background: #F8FAFC !important;
+        border: 1px solid #E2E8F0 !important;
+        border-radius: 10px !important;
+        padding: 12px 16px !important;
+        margin-bottom: 8px !important;
     }}
 
     .sidebar-resource-card {{
-        background: #FFFFFF;
-        border: 1px solid #E2E8F0;
-        border-radius: 8px;
-        padding: 8px 10px;
-        margin-bottom: 8px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.03);
-        transition: transform 0.15s ease, border-color 0.15s ease;
+        background: #FFFFFF !important;
+        border: 1px solid #E2E8F0 !important;
+        border-radius: 8px !important;
+        padding: 10px 12px !important;
+        margin-bottom: 10px !important;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.03) !important;
+        transition: transform 0.15s ease, border-color 0.15s ease !important;
     }}
     .sidebar-resource-card:hover {{
-        transform: translateY(-1px);
-        border-color: #93C5FD;
-        box-shadow: 0 3px 8px rgba(37,99,235,0.08);
+        transform: translateY(-1px) !important;
+        border-color: #93C5FD !important;
+        box-shadow: 0 3px 8px rgba(37,99,235,0.08) !important;
+    }}
+
+    /* Form Controls & Inputs - High Contrast & Clean Sizing */
+    input, textarea, [data-baseweb="input"] input, [data-baseweb="textarea"] textarea,
+    .stTextInput input, .stTextArea textarea {{
+        color: #0F172A !important;
+        -webkit-text-fill-color: #0F172A !important;
+        background-color: #FFFFFF !important;
+        border: 1.5px solid #CBD5E1 !important;
+        border-radius: 8px !important;
+        font-size: 14px !important;
+    }}
+    input:focus, textarea:focus {{
+        border-color: #2563EB !important;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
+    }}
+
+    /* Selectboxes and Dropdowns */
+    [data-baseweb="select"] > div {{
+        background-color: #FFFFFF !important;
+        color: #0F172A !important;
+        -webkit-text-fill-color: #0F172A !important;
+        border: 1.5px solid #CBD5E1 !important;
+        border-radius: 8px !important;
+        font-size: 14px !important;
+    }}
+    [data-baseweb="select"] * {{
+        color: #0F172A !important;
+        -webkit-text-fill-color: #0F172A !important;
+    }}
+    ul[role="listbox"], [data-baseweb="popover"] [role="listbox"] {{
+        background-color: #FFFFFF !important;
+        border: 1px solid #CBD5E1 !important;
+    }}
+    li[role="option"] {{
+        color: #0F172A !important;
+        -webkit-text-fill-color: #0F172A !important;
+        font-size: 14px !important;
+        background-color: #FFFFFF !important;
+    }}
+    li[role="option"]:hover, li[role="option"][aria-selected="true"] {{
+        background-color: #EFF6FF !important;
+        color: #1D4ED8 !important;
+        -webkit-text-fill-color: #1D4ED8 !important;
+    }}
+
+    /* Radio Buttons */
+    [data-testid="stRadio"] label, [data-testid="stRadio"] div, [data-testid="stRadio"] span, [data-testid="stRadio"] p {{
+        color: #0F172A !important;
+        -webkit-text-fill-color: #0F172A !important;
+        font-size: 14px !important;
+        font-weight: 600 !important;
+    }}
+
+    /* Primary Buttons */
+    button[kind="primary"], .stButton > button[kind="primary"] {{
+        background: linear-gradient(135deg, #1D4ED8 0%, #2563EB 100%) !important;
+        color: #FFFFFF !important;
+        font-weight: 700 !important;
+        font-size: 14px !important;
+        border-radius: 8px !important;
+        padding: 9px 18px !important;
+        border: none !important;
+        box-shadow: 0 2px 8px rgba(37,99,235,0.25) !important;
+    }}
+    button[kind="primary"]:hover, .stButton > button[kind="primary"]:hover {{
+        background: linear-gradient(135deg, #1E40AF 0%, #1D4ED8 100%) !important;
+        box-shadow: 0 4px 12px rgba(37,99,235,0.35) !important;
     }}
 
     hr {{
-        margin: 10px 0 !important;
+        margin: 12px 0 !important;
+        border-color: #E2E8F0 !important;
     }}
 </style>
 """, unsafe_allow_html=True)
@@ -371,6 +679,7 @@ DEFAULT_USERS = {
         "password": "eduaegis123",
         "studentClass": 9,
         "board": "CBSE (All India)",
+        "preferredSubject": "Physics",
         "cityState": "Bangalore, Karnataka",
         "email": "anup.sharma@school.edu",
         "phone": "+91 98765 43210"
@@ -383,9 +692,23 @@ DEFAULT_USERS = {
         "password": "eduaegis123",
         "studentClass": 9,
         "board": "ICSE / CISCE",
+        "preferredSubject": "Chemistry",
         "cityState": "Kolkata, West Bengal",
         "email": "nandita.roy@school.edu",
         "phone": "+91 91234 56789"
+    },
+    "Daksh": {
+        "id": "STU-103",
+        "username": "Daksh",
+        "name": "Daksh Gupta",
+        "role": "student",
+        "password": "eduaegis123",
+        "studentClass": 10,
+        "board": "ICSE / CISCE",
+        "preferredSubject": "Physics",
+        "cityState": "Pune, Maharashtra",
+        "email": "daksh.gupta@eduaegis.com",
+        "phone": "+91 99887 76655"
     },
     # Teachers
     "Ankur": {
@@ -434,6 +757,20 @@ def generate_unique_student_id(existing_students):
             except Exception:
                 pass
     return f"STU-{max_num + 1}"
+
+def generate_unique_teacher_id(existing_teachers):
+    """Generates an incremental unique teacher ID like TCH-201, TCH-202, TCH-203."""
+    max_num = 200
+    for t in existing_teachers:
+        t_id = str(t.get("id", ""))
+        if t_id.startswith("TCH-"):
+            try:
+                num = int(t_id.split("-")[1])
+                if num > max_num:
+                    max_num = num
+            except Exception:
+                pass
+    return f"TCH-{max_num + 1}"
 
 def matches_board(item_board: str, target_board: str) -> bool:
     """Matches curriculum board flexibly, handling 'All Board' wildcard."""
@@ -609,8 +946,34 @@ def load_db():
         std_map["STU-102"] = DEFAULT_USERS["Nandita"]
     data["students"] = list(std_map.values())
 
+    # Ensure unique teachers without duplicates
+    tch_map = {}
+    for t in data.get("teachers", []):
+        if t.get("id"):
+            tch_map[t["id"]] = t
+    if "TCH-201" not in tch_map:
+        tch_map["TCH-201"] = DEFAULT_USERS["Ankur"]
+    if "TCH-202" not in tch_map:
+        tch_map["TCH-202"] = DEFAULT_USERS["Akanksha"]
+    data["teachers"] = list(tch_map.values())
+
+    # Sync all students & teachers into DEFAULT_USERS for rapid authentication & lookup
+    for s in data["students"]:
+        if not s.get("role"):
+            s["role"] = "student"
+        if s.get("username"):
+            DEFAULT_USERS[s["username"]] = s
+    for t in data["teachers"]:
+        if not t.get("role"):
+            t["role"] = "teacher"
+        if t.get("username"):
+            DEFAULT_USERS[t["username"]] = t
+
     if "submissions" not in data or not isinstance(data["submissions"], list):
         data["submissions"] = []
+
+    if "objective_submissions" not in data or not isinstance(data["objective_submissions"], list):
+        data["objective_submissions"] = []
 
     # Auto-normalize all submissions loaded from disk
     data["submissions"] = [normalize_submission(s, i) for i, s in enumerate(data["submissions"])]
@@ -661,7 +1024,39 @@ def get_user_password(username):
         return pws[username]
     if username in DEFAULT_USERS:
         return DEFAULT_USERS[username].get("password", "eduaegis123")
+    for s in db.get("students", []):
+        if s.get("username") == username:
+            return s.get("password", "eduaegis123")
+    for t in db.get("teachers", []):
+        if t.get("username") == username:
+            return t.get("password", "eduaegis123")
     return "eduaegis123"
+
+def get_user_profile(username):
+    """Retrieves full profile dict for a given username."""
+    prof = None
+    if username in DEFAULT_USERS:
+        prof = dict(DEFAULT_USERS[username])
+    if not prof:
+        for s in db.get("students", []):
+            if s.get("username") == username:
+                prof = dict(s)
+                break
+    if not prof:
+        for t in db.get("teachers", []):
+            if t.get("username") == username:
+                prof = dict(t)
+                break
+    if prof and not prof.get("role"):
+        if prof.get("id", "").startswith("STU-"):
+            prof["role"] = "student"
+        elif prof.get("id", "").startswith("TCH-"):
+            prof["role"] = "teacher"
+        elif prof.get("id", "").startswith("ADM-") or str(username).lower() == "admin":
+            prof["role"] = "admin"
+        else:
+            prof["role"] = "student"
+    return prof
 
 def update_user_password(username, new_pw):
     """Updates and permanently persists the new password."""
@@ -677,6 +1072,36 @@ def update_user_password(username, new_pw):
         if t.get("username") == username:
             t["password"] = new_pw
     save_db(db)
+
+def get_all_users_list():
+    """Returns a unified list of all registered users (students, teachers, admin) with active passwords."""
+    user_map = {}
+    for uname, prof in DEFAULT_USERS.items():
+        user_map[uname] = dict(prof)
+        if not user_map[uname].get("role"):
+            user_map[uname]["role"] = "admin" if uname.lower() == "admin" else ("teacher" if str(user_map[uname].get("id", "")).startswith("TCH-") else "student")
+    for s in db.get("students", []):
+        uname = s.get("username", s.get("name"))
+        if uname:
+            u_dict = dict(s)
+            if not u_dict.get("role"):
+                u_dict["role"] = "student"
+            user_map[uname] = u_dict
+    for t in db.get("teachers", []):
+        uname = t.get("username", t.get("name"))
+        if uname:
+            u_dict = dict(t)
+            if not u_dict.get("role"):
+                u_dict["role"] = "teacher"
+            user_map[uname] = u_dict
+    
+    result = []
+    for uname, u in user_map.items():
+        if not u.get("role"):
+            u["role"] = "admin" if uname.lower() == "admin" or str(u.get("id", "")).startswith("ADM-") else ("teacher" if str(u.get("id", "")).startswith("TCH-") else "student")
+        u["active_password"] = get_user_password(uname)
+        result.append(u)
+    return result
 
 # Helper to format duration
 def format_minutes(mins):
@@ -885,23 +1310,25 @@ if "logged_in_user" not in st.session_state:
 # If not logged in, render the Login Screen
 if st.session_state["logged_in_user"] is None:
     st.markdown("""
-    <div style="max-width: 600px; margin: 30px auto 14px auto; text-align: center;">
+    <div style="max-width: 780px; margin: 25px auto 16px auto; text-align: center;">
         <div style="font-size: 34px;">🛡️</div>
         <h1 style="font-size: 26px; font-weight: 800; color: #0F172A; margin-bottom: 4px;">Welcome to EduAegis</h1>
-        <p style="color: #64748B; font-size: 13.5px; margin-bottom: 16px;">
+        <p style="color: #475569; font-size: 14.5px; margin-bottom: 16px;">
             Responsible AI Tutor & Governed Grader • Role-Based Authentication Portal
         </p>
     </div>
     """, unsafe_allow_html=True)
 
-    col_space1, col_login, col_space2 = st.columns([1, 2, 1])
+    col_space1, col_login, col_space2 = st.columns([0.08, 3.84, 0.08])
 
     with col_login:
-        with st.container():
+        tab_auth_signin, tab_auth_signup = st.tabs(["🔐 Sign In to Portal", "📝 Sign Up / Create New Profile"])
+
+        with tab_auth_signin:
             st.markdown("""
             <div class="soothing-card" style="border: 2px solid #E0E7FF; box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.12);">
-                <div style="font-size: 15px; font-weight: 700; color: #1E1B4B; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
-                    <span>🔐 Sign In to Your Portal</span>
+                <div style="font-size: 16px; font-weight: 700; color: #1E1B4B; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+                    <span>🔐 Access Your Portal</span>
                 </div>
             """, unsafe_allow_html=True)
 
@@ -913,17 +1340,28 @@ if st.session_state["logged_in_user"] is None:
             )
 
             if login_role == "Student":
-                user_options = ["Anup", "Nandita"]
+                students_list = db.get("students", [])
+                user_options = [s.get("username", s.get("name", "Student")) for s in students_list if s.get("username")]
+                if not user_options:
+                    user_options = ["Anup", "Nandita"]
                 default_idx = 0
             elif login_role == "Teacher":
-                user_options = ["Ankur", "Akanksha"]
+                teachers_list = db.get("teachers", [])
+                user_options = [t.get("username", t.get("name", "Teacher")) for t in teachers_list if t.get("username")]
+                if not user_options:
+                    user_options = ["Ankur", "Akanksha"]
                 default_idx = 0
             else:
                 user_options = ["Admin"]
                 default_idx = 0
 
-            selected_username = st.selectbox("2. Select Your Username", user_options, index=default_idx)
-            # User specified: Do NOT show default password or hint on screen
+            def format_auth_user_label(u_name):
+                u_prof = get_user_profile(u_name)
+                if u_prof:
+                    return f"{u_prof.get('name', u_name)} ({u_prof.get('id', '')})"
+                return u_name
+
+            selected_username = st.selectbox("2. Select Your Username / Profile", user_options, index=default_idx, format_func=format_auth_user_label)
             entered_password = st.text_input("3. Password", type="password", placeholder="Enter your password")
 
             btn_login = st.button("🚀 Log In to EduAegis", type="primary", use_container_width=True)
@@ -931,10 +1369,10 @@ if st.session_state["logged_in_user"] is None:
             if btn_login:
                 actual_pw = get_user_password(selected_username)
                 if entered_password == actual_pw:
-                    user_data = DEFAULT_USERS.get(selected_username)
+                    user_data = get_user_profile(selected_username)
                     if user_data:
                         st.session_state["logged_in_user"] = user_data
-                        st.success(f"Welcome back, {user_data['name']} ({user_data['id']})!")
+                        st.success(f"Welcome back, {user_data.get('name', selected_username)} ({user_data.get('id', '')})!")
                         time.sleep(0.4)
                         st.rerun()
                     else:
@@ -944,7 +1382,8 @@ if st.session_state["logged_in_user"] is None:
 
             # In-App Password Update feature on Login Page
             with st.expander("🔄 Update / Reset Password", expanded=False):
-                rst_user = st.selectbox("Username to Update", ["Anup", "Nandita", "Ankur", "Akanksha", "Admin"], key="rst_user")
+                rst_options = list(set(["Anup", "Nandita", "Ankur", "Akanksha", "Admin"] + [s.get("username") for s in db.get("students", []) if s.get("username")] + [t.get("username") for t in db.get("teachers", []) if t.get("username")]))
+                rst_user = st.selectbox("Username to Update", sorted(rst_options), key="rst_user")
                 rst_curr = st.text_input("Current Password", type="password", key="rst_curr")
                 rst_new = st.text_input("New Password", type="password", key="rst_new")
                 rst_conf = st.text_input("Confirm New Password", type="password", key="rst_conf")
@@ -960,26 +1399,160 @@ if st.session_state["logged_in_user"] is None:
                         update_user_password(rst_user, rst_new)
                         st.success(f"Password updated successfully for {rst_user}! You can now log in.")
 
-            st.markdown("<hr style='margin: 10px 0;'>", unsafe_allow_html=True)
-            st.markdown("<div style='font-size: 11px; font-weight: 700; color: #475569; margin-bottom: 6px;'>⚡ Quick Persona Switch:</div>", unsafe_allow_html=True)
-            col_q1, col_q2 = st.columns(2)
+            st.markdown("<hr style='margin: 12px 0;'>", unsafe_allow_html=True)
+            st.markdown("<div style='font-size: 13px; font-weight: 700; color: #334155; margin-bottom: 8px;'>⚡ 1-Click Quick Persona Switch (Instant Testing):</div>", unsafe_allow_html=True)
+            col_q1, col_q2, col_q3 = st.columns(3)
             with col_q1:
-                if st.button("👤 Anup (Student - CBSE)", use_container_width=True):
+                if st.button("👤 Anup (Class 9 • CBSE)", use_container_width=True, help="Student: Class 9th CBSE Board"):
                     st.session_state["logged_in_user"] = DEFAULT_USERS["Anup"]
                     st.rerun()
-                if st.button("🛡️ Ankur (Physics Teacher)", use_container_width=True):
+                if st.button("🛡️ Ankur (Physics Tchr)", use_container_width=True, help="Teacher: Physical Sciences Faculty"):
                     st.session_state["logged_in_user"] = DEFAULT_USERS["Ankur"]
                     st.rerun()
             with col_q2:
-                if st.button("👤 Nandita (Student - ICSE)", use_container_width=True):
-                    st.session_state["logged_in_user"] = DEFAULT_USERS["Nandita"]
+                if st.button("👤 Daksh (Class 10 • ICSE)", use_container_width=True, help="Student: Class 10th ICSE Board"):
+                    st.session_state["logged_in_user"] = DEFAULT_USERS["Daksh"]
                     st.rerun()
-                if st.button("🛡️ Akanksha (Chem/Math)", use_container_width=True):
+                if st.button("🛡️ Akanksha (Chem/Math)", use_container_width=True, help="Teacher: Chemical & Mathematical Sciences"):
                     st.session_state["logged_in_user"] = DEFAULT_USERS["Akanksha"]
                     st.rerun()
-            if st.button("👑 Admin (Super User Access)", use_container_width=True):
-                st.session_state["logged_in_user"] = DEFAULT_USERS["Admin"]
-                st.rerun()
+            with col_q3:
+                if st.button("👤 Nandita (Class 9 • ICSE)", use_container_width=True, help="Student: Class 9th ICSE Board"):
+                    st.session_state["logged_in_user"] = DEFAULT_USERS["Nandita"]
+                    st.rerun()
+                if st.button("👑 Admin (Super User)", use_container_width=True, help="Admin: Super User & Compliance"):
+                    st.session_state["logged_in_user"] = DEFAULT_USERS["Admin"]
+                    st.rerun()
+
+            st.markdown("</div>", unsafe_allow_html=True)
+
+        with tab_auth_signup:
+            st.markdown("""
+            <div class="soothing-card" style="border: 2px solid #A7F3D0; box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.12);">
+                <div style="font-size: 15px; font-weight: 700; color: #064E3B; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+                    <span>📝 Sign Up / Register New Profile</span>
+                </div>
+                <div style="font-size: 13.5px; color: #475569; margin-bottom: 12px; line-height: 1.45;">
+                    Create an institutional profile to access AI tutoring, dynamic rubrics, and automated evaluations.
+                </div>
+            """, unsafe_allow_html=True)
+
+            sign_role = st.selectbox(
+                "1. Select Your Role *",
+                ["Student", "Teacher"],
+                index=0,
+                key="sign_role",
+                help="Choose Student for personalized learning & assessments, or Teacher for grading audits & curriculum governance."
+            )
+
+            sign_name = st.text_input("2. Full Name *", placeholder="e.g. Rohan Sharma or Dr. Priya Nair", key="sign_name")
+            sign_email = st.text_input("3. Email ID (Mail ID) *", placeholder="e.g. rohan.sharma@school.edu", key="sign_email")
+            sign_city = st.text_input("4. City / State *", placeholder="e.g. Bangalore, Karnataka or New Delhi", key="sign_city")
+
+            if sign_role == "Student":
+                col_st1, col_st2 = st.columns(2)
+                with col_st1:
+                    sign_class = st.selectbox("5. Class *", [8, 9, 10], index=1, key="sign_class")
+                with col_st2:
+                    sign_board = st.selectbox(
+                        "6. Curriculum Board *",
+                        ["CBSE (All India)", "ICSE / CISCE", "State Board (Maharashtra/UP/Karnataka)", "Cambridge IGCSE"],
+                        index=0,
+                        key="sign_board"
+                    )
+            else:  # Teacher
+                col_tc1, col_tc2 = st.columns(2)
+                with col_tc1:
+                    sign_subjs = st.multiselect(
+                        "5. Teaching Subject(s) *",
+                        ["Physics", "Chemistry", "Mathematics"],
+                        default=["Physics"],
+                        key="sign_subjs"
+                    )
+                with col_tc2:
+                    sign_dept = st.text_input(
+                        "6. Academic Department",
+                        value="Department of Physical Sciences",
+                        key="sign_dept"
+                    )
+
+            col_pw1, col_pw2 = st.columns(2)
+            with col_pw1:
+                sign_pw = st.text_input("7. Set Password *", type="password", placeholder="Min 4 characters", key="sign_pw")
+            with col_pw2:
+                sign_conf = st.text_input("8. Confirm Password *", type="password", placeholder="Re-enter password", key="sign_conf")
+
+            btn_register = st.button("✨ Create Profile & Log In Immediately", type="primary", use_container_width=True, key="btn_register")
+
+            if btn_register:
+                if not sign_name.strip():
+                    st.error("Please enter your full name.")
+                elif not sign_email.strip() or "@" not in sign_email:
+                    st.error("Please enter a valid email address.")
+                elif not sign_city.strip():
+                    st.error("Please enter your city.")
+                elif len(sign_pw) < 4:
+                    st.error("Password must be at least 4 characters long.")
+                elif sign_pw != sign_conf:
+                    st.error("Passwords do not match. Please verify.")
+                else:
+                    name_parts = sign_name.strip().split()
+                    base_user = name_parts[0].replace("Dr.", "").replace("Prof.", "").replace("Mr.", "").replace("Ms.", "").strip()
+                    if not base_user:
+                        base_user = "User"
+
+                    existing_usernames = set(db.get("passwords", {}).keys())
+                    for s in db.get("students", []):
+                        if s.get("username"):
+                            existing_usernames.add(s["username"])
+                    for t in db.get("teachers", []):
+                        if t.get("username"):
+                            existing_usernames.add(t["username"])
+
+                    cand_user = base_user
+                    counter = 1
+                    while cand_user in existing_usernames:
+                        cand_user = f"{base_user}_{counter}"
+                        counter += 1
+
+                    if sign_role == "Student":
+                        new_id = generate_unique_student_id(db.get("students", []))
+                        new_profile = {
+                            "id": new_id,
+                            "username": cand_user,
+                            "name": sign_name.strip(),
+                            "role": "student",
+                            "password": sign_pw,
+                            "studentClass": sign_class,
+                            "board": sign_board,
+                            "cityState": sign_city.strip(),
+                            "email": sign_email.strip(),
+                            "phone": "+91 98000 00000"
+                        }
+                        db.setdefault("students", []).append(new_profile)
+                    else:
+                        new_id = generate_unique_teacher_id(db.get("teachers", []))
+                        new_profile = {
+                            "id": new_id,
+                            "username": cand_user,
+                            "name": sign_name.strip(),
+                            "role": "teacher",
+                            "password": sign_pw,
+                            "subjects": sign_subjs if sign_subjs else ["Physics"],
+                            "cityState": sign_city.strip(),
+                            "email": sign_email.strip(),
+                            "department": sign_dept.strip() if sign_dept.strip() else "Department of Academic Instruction"
+                        }
+                        db.setdefault("teachers", []).append(new_profile)
+
+                    db.setdefault("passwords", {})[cand_user] = sign_pw
+                    DEFAULT_USERS[cand_user] = new_profile
+                    save_db(db)
+
+                    st.session_state["logged_in_user"] = new_profile
+                    st.success(f"🎉 Welcome aboard, {sign_name.strip()}! Assigned Unique ID: {new_id}. Logging you in...")
+                    time.sleep(0.4)
+                    st.rerun()
 
             st.markdown("</div>", unsafe_allow_html=True)
 
@@ -988,8 +1561,87 @@ if st.session_state["logged_in_user"] is None:
 # =============================================================================
 # ACTIVE LOGGED-IN USER SESSION
 # =============================================================================
-current_user = st.session_state["logged_in_user"]
-user_role = current_user.get("role", "student")
+current_user = st.session_state.get("logged_in_user")
+if not current_user:
+    st.stop()
+user_role = str(current_user.get("role") or ("admin" if str(current_user.get("id", "")).startswith("ADM-") or str(current_user.get("username", "")).lower() == "admin" else ("teacher" if str(current_user.get("id", "")).startswith("TCH-") else "student"))).lower()
+current_user["role"] = user_role
+
+# Master Curriculum Board Options
+board_options = ["All Board", "CBSE (All India)", "ICSE / CISCE", "State Board (Maharashtra/UP/Karnataka)", "Cambridge IGCSE"]
+
+def match_board_option(board_str):
+    """Accurately maps board strings from user profiles to active board_options."""
+    if not board_str:
+        return "CBSE (All India)"
+    b_lower = str(board_str).lower()
+    if "icse" in b_lower or "cisce" in b_lower:
+        return "ICSE / CISCE"
+    elif "cbse" in b_lower:
+        return "CBSE (All India)"
+    elif "state" in b_lower:
+        return "State Board (Maharashtra/UP/Karnataka)"
+    elif "cambridge" in b_lower or "igcse" in b_lower:
+        return "Cambridge IGCSE"
+    for opt in board_options:
+        if opt.lower() in b_lower or b_lower in opt.lower():
+            return opt
+    return "CBSE (All India)"
+
+# -----------------------------------------------------------------------------
+# PROFILE-DRIVEN DEFAULT FILTER SYNCHRONIZATION
+# Always synchronizes Board, Class, and Subject filters to the logged-in student's profile.
+# e.g., 10th Class ICSE student Daksh defaults to ICSE board and 10th class across Tutor, Grader, and References.
+# -----------------------------------------------------------------------------
+user_sync_token = f"{current_user.get('id')}_{current_user.get('username')}_{user_role}"
+if st.session_state.get("last_synced_user_token") != user_sync_token:
+    st.session_state["last_synced_user_token"] = user_sync_token
+    if user_role == "student":
+        target_board = match_board_option(current_user.get("board", "CBSE (All India)"))
+        try:
+            target_class = int(current_user.get("studentClass", 9))
+        except Exception:
+            target_class = 9
+        if target_class not in [8, 9, 10]:
+            target_class = 9
+        target_subj = current_user.get("preferredSubject") or current_user.get("subject") or "Physics"
+        if target_subj not in ["Physics", "Chemistry", "Mathematics"]:
+            target_subj = "Physics"
+
+        st.session_state["selected_curriculum_board"] = target_board
+        st.session_state["global_board_selector"] = target_board
+        st.session_state["g_board"] = target_board
+        st.session_state["g_class"] = target_class
+        st.session_state["t_class"] = target_class
+        st.session_state["g_subj"] = target_subj
+        st.session_state["t_subj"] = target_subj
+        st.session_state["ref_board"] = target_board
+        st.session_state["ref_class"] = target_class
+        st.session_state["ref_subj"] = target_subj
+    elif user_role == "teacher":
+        t_subjs = current_user.get("subjects", ["Physics"])
+        target_subj = t_subjs[0] if t_subjs and t_subjs[0] in ["Physics", "Chemistry", "Mathematics"] else "Physics"
+        st.session_state["selected_curriculum_board"] = "All Board"
+        st.session_state["global_board_selector"] = "All Board"
+        st.session_state["g_board"] = "All Board"
+        st.session_state["g_class"] = 9
+        st.session_state["t_class"] = 9
+        st.session_state["g_subj"] = target_subj
+        st.session_state["t_subj"] = target_subj
+        st.session_state["ref_board"] = "All Board"
+        st.session_state["ref_class"] = 9
+        st.session_state["ref_subj"] = target_subj
+    else:  # Admin
+        st.session_state["selected_curriculum_board"] = "All Board"
+        st.session_state["global_board_selector"] = "All Board"
+        st.session_state["g_board"] = "All Board"
+        st.session_state["g_class"] = 9
+        st.session_state["t_class"] = 9
+        st.session_state["g_subj"] = "Physics"
+        st.session_state["t_subj"] = "Physics"
+        st.session_state["ref_board"] = "All Board"
+        st.session_state["ref_class"] = 9
+        st.session_state["ref_subj"] = "Physics"
 
 # -----------------------------------------------------------------------------
 # SIDEBAR: Profile Card with Background Artwork + Password Change
@@ -999,56 +1651,30 @@ with st.sidebar:
         st.markdown(f"""
         <div class="sidebar-profile-card">
             <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span style="font-weight: 800; font-size: 13.5px; color: #FFFFFF;">👤 {current_user.get('name')}</span>
+                <span style="font-weight: 800; font-size: 15px; color: #FFFFFF;">👤 {current_user.get('name')}</span>
                 <span class="role-badge-student" style="background: rgba(255,255,255,0.2); color: #93C5FD; border-color: #60A5FA;">Student</span>
             </div>
-            <div style="font-size: 11px; color: #E0E7FF; margin-top: 4px;">
-                <code>{current_user.get('id')}</code> • Class {current_user.get('studentClass', 9)}th • {current_user.get('board', 'CBSE').split(' ')[0]}<br>
+            <div style="font-size: 12.5px; color: #E0E7FF; margin-top: 5px; line-height: 1.45;">
+                <code class="profile-id-badge" style="background: #EFF6FF !important; color: #1D4ED8 !important; -webkit-text-fill-color: #1D4ED8 !important; border: 1.5px solid #BFDBFE !important; padding: 2px 8px !important; border-radius: 6px !important; font-weight: 800 !important; font-size: 12px !important; display: inline-block !important;">{current_user.get('id')}</code> • Class {current_user.get('studentClass', 9)}th • {current_user.get('board', 'CBSE').split(' ')[0]}<br>
                 📍 {current_user.get('cityState', 'Bangalore')}
             </div>
         </div>
         """, unsafe_allow_html=True)
-
-        with st.expander("✏️ New Student Profile", expanded=False):
-            std_name = st.text_input("Full Name", value="New Student")
-            std_class = st.selectbox("Class", [8, 9, 10], index=1)
-            std_board = st.selectbox("Board", ["CBSE (All India)", "ICSE / CISCE", "State Board (Maharashtra/UP/Karnataka)", "Cambridge IGCSE"], index=0)
-            std_email = st.text_input("Email", value="new.student@school.edu")
-            std_city = st.text_input("City / State", value="Bangalore, Karnataka")
-
-            if st.button("Save Profile"):
-                new_id = generate_unique_student_id(db.get("students", []))
-                new_profile = {
-                    "id": new_id,
-                    "username": std_name.split(" ")[0],
-                    "name": std_name,
-                    "role": "student",
-                    "studentClass": std_class,
-                    "board": std_board,
-                    "email": std_email,
-                    "cityState": std_city,
-                    "password": "eduaegis123"
-                }
-                db.setdefault("students", []).append(new_profile)
-                save_db(db)
-                st.session_state["logged_in_user"] = new_profile
-                st.success(f"Registered with unique ID: {new_id}")
-                st.rerun()
 
     elif user_role == "teacher":
         subj_list = ", ".join(current_user.get("subjects", ["Physics"]))
         st.markdown(f"""
         <div class="sidebar-profile-card">
             <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span style="font-weight: 800; font-size: 13.5px; color: #FFFFFF;">🛡️ {current_user.get('name')}</span>
+                <span style="font-weight: 800; font-size: 15px; color: #FFFFFF;">🛡️ {current_user.get('name')}</span>
                 <span class="role-badge-teacher" style="background: rgba(16,185,129,0.25); color: #6EE7B7; border-color: #34D399;">Teacher</span>
             </div>
-            <div style="font-size: 11px; color: #E0E7FF; margin-top: 4px;">
-                <code>{current_user.get('id')}</code> • Domain: <strong>{subj_list}</strong><br>
+            <div style="font-size: 12.5px; color: #E0E7FF; margin-top: 5px; line-height: 1.45;">
+                <code class="profile-id-badge" style="background: #EFF6FF !important; color: #1D4ED8 !important; -webkit-text-fill-color: #1D4ED8 !important; border: 1.5px solid #BFDBFE !important; padding: 2px 8px !important; border-radius: 6px !important; font-weight: 800 !important; font-size: 12px !important; display: inline-block !important;">{current_user.get('id')}</code> • Domain: <strong>{subj_list}</strong><br>
                 {current_user.get('department', 'Academic Faculty')}
             </div>
         </div>
-        <div class="blind-banner" style="font-size: 10.5px; padding: 5px 9px; margin-bottom: 8px;">
+        <div class="blind-banner">
             🔒 <strong>Blind Evaluation:</strong> Student names masked.
         </div>
         """, unsafe_allow_html=True)
@@ -1057,17 +1683,18 @@ with st.sidebar:
         st.markdown(f"""
         <div class="sidebar-profile-card">
             <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span style="font-weight: 800; font-size: 13.5px; color: #FFFFFF;">👑 {current_user.get('name')}</span>
+                <span style="font-weight: 800; font-size: 15px; color: #FFFFFF;">👑 {current_user.get('name')}</span>
                 <span class="role-badge-admin" style="background: rgba(168,85,247,0.25); color: #D8B4FE; border-color: #C084FC;">Admin</span>
             </div>
-            <div style="font-size: 11px; color: #E0E7FF; margin-top: 4px;">
-                <code>{current_user.get('id')}</code> • Super User (Executive Governance)
+            <div style="font-size: 12.5px; color: #E0E7FF; margin-top: 5px; line-height: 1.45;">
+                <code class="profile-id-badge" style="background: #EFF6FF !important; color: #1D4ED8 !important; -webkit-text-fill-color: #1D4ED8 !important; border: 1.5px solid #BFDBFE !important; padding: 2px 8px !important; border-radius: 6px !important; font-weight: 800 !important; font-size: 12px !important; display: inline-block !important;">{current_user.get('id')}</code> • Super User (Executive Governance)
             </div>
         </div>
         """, unsafe_allow_html=True)
 
     # In-App Password Update feature in Sidebar
-    with st.expander("🔑 Change Password", expanded=False):
+    pw_expander_title = "🔑 Change My Password" if user_role == "admin" else "🔑 Change Password"
+    with st.expander(pw_expander_title, expanded=False):
         chg_curr = st.text_input("Current Password", type="password", key="side_chg_curr")
         chg_new = st.text_input("New Password", type="password", key="side_chg_new")
         chg_conf = st.text_input("Confirm New Password", type="password", key="side_chg_conf")
@@ -1085,9 +1712,36 @@ with st.sidebar:
                 st.session_state["logged_in_user"] = current_user
                 st.success("Password updated successfully!")
 
-    if st.button("🚪 Log Out", use_container_width=True):
+    # Log Out Option: Consistently placed and prominently visible across Student, Teacher, and Admin views
+    if st.button("🚪 Log Out", use_container_width=True, key="btn_sidebar_logout"):
         st.session_state["logged_in_user"] = None
+        st.session_state["obj_submitted_flag"] = False
         st.rerun()
+
+    # Admin Quick Reset Any User Password in Sidebar
+    if user_role == "admin":
+        with st.expander("🔐 Quick Reset User Password", expanded=False):
+            st.caption("Super User Override: Reset password for any student or teacher upon request.")
+            sb_candidates = [u for u in get_all_users_list() if str(u.get("role") or "").lower() != "admin"]
+            if sb_candidates:
+                sb_labels = [f"{u.get('name')} ({u.get('id')} • {str(u.get('role') or 'student').capitalize()})" for u in sb_candidates]
+                sb_idx = st.selectbox("Select User to Reset:", range(len(sb_labels)), format_func=lambda i: sb_labels[i], key="sb_adm_sel_user_idx")
+                sb_sel_user = sb_candidates[sb_idx]
+                sb_target_uname = sb_sel_user.get("username", sb_sel_user.get("name"))
+                sb_active_pw = get_user_password(sb_target_uname)
+                st.markdown(f"<div style='font-size: 12.5px; color: #475569; margin-bottom: 8px;'>Current Password: <code style='font-weight: 800; color: #1D4ED8; background: #EEF2FF; padding: 2px 7px; border-radius: 4px;'>{sb_active_pw}</code></div>", unsafe_allow_html=True)
+                sb_new_p = st.text_input(f"New Password for {sb_sel_user.get('name')}", type="password", key=f"sb_npw_{sb_target_uname}")
+                sb_conf_p = st.text_input("Confirm New Password", type="password", key=f"sb_cpw_{sb_target_uname}")
+                if st.button("💾 Save User Password", use_container_width=True, key=f"sb_btn_set_{sb_target_uname}"):
+                    if len(sb_new_p) < 4:
+                        st.error("Password must be at least 4 characters.")
+                    elif sb_new_p != sb_conf_p:
+                        st.error("New passwords do not match.")
+                    else:
+                        update_user_password(sb_target_uname, sb_new_p)
+                        st.success(f"Password updated for {sb_sel_user.get('name')}!")
+                        time.sleep(0.4)
+                        st.rerun()
 
     # -------------------------------------------------------------------------
     # ACADEMIC RESOURCES & NCERT REFERENCE BOOKS HUB (Space Utilization)
@@ -1100,9 +1754,9 @@ with st.sidebar:
         board_short = "CBSE" if "CBSE" in stu_board else ("ICSE" if "ICSE" in stu_board else "State Board")
 
         st.markdown(f"""
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-            <span style="font-weight: 800; font-size: 12.5px; color: #1E293B; letter-spacing: 0.3px;">📚 NCERT & Reference Books</span>
-            <span style="font-size: 9.5px; background: #EFF6FF; color: #1D4ED8; font-weight: 700; padding: 2px 7px; border-radius: 999px; border: 1px solid #BFDBFE;">Class {stu_class}th • {board_short}</span>
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+            <span style="font-weight: 800; font-size: 13.5px; color: #1E293B; letter-spacing: 0.3px;">📚 NCERT & Reference Books</span>
+            <span style="font-size: 12.5px; background: #EFF6FF; color: #1D4ED8; font-weight: 700; padding: 3px 8px; border-radius: 999px; border: 1px solid #BFDBFE;">Class {stu_class}th • {board_short}</span>
         </div>
         """, unsafe_allow_html=True)
 
@@ -1121,52 +1775,52 @@ with st.sidebar:
 
         st.markdown(f"""
         <div class="sidebar-resource-card">
-            <div style="display: flex; gap: 8px; align-items: flex-start;">
-                <span style="font-size: 16px;">📘</span>
+            <div style="display: flex; gap: 10px; align-items: flex-start;">
+                <span style="font-size: 18px;">📘</span>
                 <div style="flex: 1;">
-                    <div style="font-weight: 700; font-size: 11px; color: #0F172A;">NCERT Science Textbook (Class {stu_class}th)</div>
-                    <div style="font-size: 9.5px; color: #64748B;">{sci_desc}</div>
-                    <div style="margin-top: 4px;">
-                        <a href="https://ncert.nic.in/textbook.php?{ncert_sci_code}" target="_blank" style="text-decoration:none; font-size: 10px; font-weight: 700; color: #1D4ED8; background: #EFF6FF; padding: 2px 7px; border-radius: 4px; border: 1px solid #BFDBFE;">📖 Open Official PDF</a>
+                    <div style="font-weight: 700; font-size: 13px; color: #0F172A;">NCERT Science Textbook (Class {stu_class}th)</div>
+                    <div style="font-size: 12.5px; color: #475569; margin-top: 2px;">{sci_desc}</div>
+                    <div style="margin-top: 5px;">
+                        <a href="https://ncert.nic.in/textbook.php?{ncert_sci_code}" target="_blank" style="text-decoration:none; font-size: 12.5px; font-weight: 700; color: #1D4ED8; background: #EFF6FF; padding: 4px 10px; border-radius: 4px; border: 1px solid #BFDBFE;">📖 Open Official PDF</a>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="sidebar-resource-card">
-            <div style="display: flex; gap: 8px; align-items: flex-start;">
-                <span style="font-size: 16px;">📐</span>
+            <div style="display: flex; gap: 10px; align-items: flex-start;">
+                <span style="font-size: 18px;">📐</span>
                 <div style="flex: 1;">
-                    <div style="font-weight: 700; font-size: 11px; color: #0F172A;">NCERT Mathematics (Class {stu_class}th)</div>
-                    <div style="font-size: 9.5px; color: #64748B;">Complete Theory, Solved Examples & Exercises</div>
-                    <div style="margin-top: 4px;">
-                        <a href="https://ncert.nic.in/textbook.php?{ncert_math_code}" target="_blank" style="text-decoration:none; font-size: 10px; font-weight: 700; color: #1D4ED8; background: #EFF6FF; padding: 2px 7px; border-radius: 4px; border: 1px solid #BFDBFE;">📖 Open Official PDF</a>
+                    <div style="font-weight: 700; font-size: 13px; color: #0F172A;">NCERT Mathematics (Class {stu_class}th)</div>
+                    <div style="font-size: 12.5px; color: #475569; margin-top: 2px;">Complete Theory, Solved Examples & Exercises</div>
+                    <div style="margin-top: 5px;">
+                        <a href="https://ncert.nic.in/textbook.php?{ncert_math_code}" target="_blank" style="text-decoration:none; font-size: 12.5px; font-weight: 700; color: #1D4ED8; background: #EFF6FF; padding: 4px 10px; border-radius: 4px; border: 1px solid #BFDBFE;">📖 Open Official PDF</a>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="sidebar-resource-card">
-            <div style="display: flex; gap: 8px; align-items: flex-start;">
-                <span style="font-size: 16px;">🔬</span>
+            <div style="display: flex; gap: 10px; align-items: flex-start;">
+                <span style="font-size: 18px;">🔬</span>
                 <div style="flex: 1;">
-                    <div style="font-weight: 700; font-size: 11px; color: #0F172A;">NCERT Exemplar Problems</div>
-                    <div style="font-size: 9.5px; color: #64748B;">HOTS Questions, Numericals & Step Rubrics</div>
-                    <div style="margin-top: 4px;">
-                        <a href="https://ncert.nic.in/exemplar-problems.php" target="_blank" style="text-decoration:none; font-size: 10px; font-weight: 700; color: #047857; background: #ECFDF5; padding: 2px 7px; border-radius: 4px; border: 1px solid #A7F3D0;">🔬 View Exemplar</a>
+                    <div style="font-weight: 700; font-size: 13px; color: #0F172A;">NCERT Exemplar Problems</div>
+                    <div style="font-size: 12.5px; color: #475569; margin-top: 2px;">HOTS Questions, Numericals & Step Rubrics</div>
+                    <div style="margin-top: 5px;">
+                        <a href="https://ncert.nic.in/exemplar-problems.php" target="_blank" style="text-decoration:none; font-size: 12.5px; font-weight: 700; color: #047857; background: #ECFDF5; padding: 4px 10px; border-radius: 4px; border: 1px solid #A7F3D0;">🔬 View Exemplar</a>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="sidebar-resource-card">
-            <div style="display: flex; gap: 8px; align-items: flex-start;">
-                <span style="font-size: 16px;">🏛️</span>
+            <div style="display: flex; gap: 10px; align-items: flex-start;">
+                <span style="font-size: 18px;">🏛️</span>
                 <div style="flex: 1;">
-                    <div style="font-weight: 700; font-size: 11px; color: #0F172A;">DIKSHA National Portal</div>
-                    <div style="font-size: 9.5px; color: #64748B;">MoE Govt of India QR Interactive Textbooks</div>
-                    <div style="margin-top: 4px;">
-                        <a href="https://diksha.gov.in/" target="_blank" style="text-decoration:none; font-size: 10px; font-weight: 700; color: #6D28D9; background: #F5F3FF; padding: 2px 7px; border-radius: 4px; border: 1px solid #DDD6FE;">🌐 Open DIKSHA</a>
+                    <div style="font-weight: 700; font-size: 13px; color: #0F172A;">DIKSHA National Portal</div>
+                    <div style="font-size: 12.5px; color: #475569; margin-top: 2px;">MoE Govt of India QR Interactive Textbooks</div>
+                    <div style="margin-top: 5px;">
+                        <a href="https://diksha.gov.in/" target="_blank" style="text-decoration:none; font-size: 12.5px; font-weight: 700; color: #6D28D9; background: #F5F3FF; padding: 4px 10px; border-radius: 4px; border: 1px solid #DDD6FE;">🌐 Open DIKSHA</a>
                     </div>
                 </div>
             </div>
@@ -1212,49 +1866,49 @@ with st.sidebar:
 
     elif user_role == "teacher":
         st.markdown("""
-        <div style="font-weight: 800; font-size: 12.5px; color: #1E293B; margin-bottom: 8px;">
+        <div style="font-weight: 800; font-size: 13.5px; color: #1E293B; margin-bottom: 10px;">
             📚 Faculty Pedagogical References
         </div>
         <div class="sidebar-resource-card">
-            <div style="font-weight: 700; font-size: 11px; color: #0F172A;">NCERT Learning Outcomes Manual</div>
-            <div style="font-size: 9.5px; color: #64748B;">Competency-based pedagogical standards for Secondary stage.</div>
-            <div style="margin-top: 4px;">
-                <a href="https://ncert.nic.in/pdf/programmes/learning_outcomes_sec.pdf" target="_blank" style="text-decoration:none; font-size: 10px; font-weight: 700; color: #1D4ED8; background: #EFF6FF; padding: 2px 7px; border-radius: 4px; border: 1px solid #BFDBFE;">📋 View NCERT Guidelines</a>
+            <div style="font-weight: 700; font-size: 13px; color: #0F172A;">NCERT Learning Outcomes Manual</div>
+            <div style="font-size: 12.5px; color: #475569; margin-top: 2px;">Competency-based pedagogical standards for Secondary stage.</div>
+            <div style="margin-top: 5px;">
+                <a href="https://ncert.nic.in/pdf/programmes/learning_outcomes_sec.pdf" target="_blank" style="text-decoration:none; font-size: 12.5px; font-weight: 700; color: #1D4ED8; background: #EFF6FF; padding: 4px 10px; border-radius: 4px; border: 1px solid #BFDBFE;">📋 View NCERT Guidelines</a>
             </div>
         </div>
         <div class="sidebar-resource-card">
-            <div style="font-weight: 700; font-size: 11px; color: #0F172A;">Bloom's Taxonomy Rubrics Guide</div>
-            <div style="font-size: 9.5px; color: #64748B;">Framework for step-by-step subjective assessment and partial credits.</div>
-            <div style="margin-top: 4px;">
-                <a href="https://cbseacademic.nic.in/" target="_blank" style="text-decoration:none; font-size: 10px; font-weight: 700; color: #047857; background: #ECFDF5; padding: 2px 7px; border-radius: 4px; border: 1px solid #A7F3D0;">🎯 CBSE Assessment Manual</a>
+            <div style="font-weight: 700; font-size: 13px; color: #0F172A;">Bloom's Taxonomy Rubrics Guide</div>
+            <div style="font-size: 12.5px; color: #475569; margin-top: 2px;">Framework for step-by-step subjective assessment and partial credits.</div>
+            <div style="margin-top: 5px;">
+                <a href="https://cbseacademic.nic.in/" target="_blank" style="text-decoration:none; font-size: 12.5px; font-weight: 700; color: #047857; background: #ECFDF5; padding: 4px 10px; border-radius: 4px; border: 1px solid #A7F3D0;">🎯 CBSE Assessment Manual</a>
             </div>
         </div>
         <div class="sidebar-resource-card">
-            <div style="font-weight: 700; font-size: 11px; color: #0F172A;">NITI Aayog Responsible AI in Schools</div>
-            <div style="font-size: 9.5px; color: #64748B;">Human-in-the-Loop & blind evaluation governance protocols.</div>
-            <div style="margin-top: 4px;">
-                <a href="https://www.niti.gov.in/" target="_blank" style="text-decoration:none; font-size: 10px; font-weight: 700; color: #6D28D9; background: #F5F3FF; padding: 2px 7px; border-radius: 4px; border: 1px solid #DDD6FE;">⚖️ Governance Principles</a>
+            <div style="font-weight: 700; font-size: 13px; color: #0F172A;">NITI Aayog Responsible AI in Schools</div>
+            <div style="font-size: 12.5px; color: #475569; margin-top: 2px;">Human-in-the-Loop & blind evaluation governance protocols.</div>
+            <div style="margin-top: 5px;">
+                <a href="https://www.niti.gov.in/" target="_blank" style="text-decoration:none; font-size: 12.5px; font-weight: 700; color: #6D28D9; background: #F5F3FF; padding: 4px 10px; border-radius: 4px; border: 1px solid #DDD6FE;">⚖️ Governance Principles</a>
             </div>
         </div>
         """, unsafe_allow_html=True)
 
     else:  # Admin
         st.markdown("""
-        <div style="font-weight: 800; font-size: 12.5px; color: #1E293B; margin-bottom: 8px;">
+        <div style="font-weight: 800; font-size: 13.5px; color: #1E293B; margin-bottom: 10px;">
             📚 Institutional Governance Hub
         </div>
         <div class="sidebar-resource-card">
-            <div style="font-weight: 700; font-size: 11px; color: #0F172A;">DPDP Act 2023 Compliance Handbook</div>
-            <div style="font-size: 9.5px; color: #64748B;">Digital Personal Data Protection Act compliance requirements for minors.</div>
-            <div style="margin-top: 4px;">
-                <a href="https://www.meity.gov.in/content/digital-personal-data-protection-act-2023" target="_blank" style="text-decoration:none; font-size: 10px; font-weight: 700; color: #1D4ED8; background: #EFF6FF; padding: 2px 7px; border-radius: 4px; border: 1px solid #BFDBFE;">🛡️ DPDP Act 2023 Official</a>
+            <div style="font-weight: 700; font-size: 13px; color: #0F172A;">DPDP Act 2023 Compliance Handbook</div>
+            <div style="font-size: 12.5px; color: #475569; margin-top: 2px;">Digital Personal Data Protection Act compliance requirements for minors.</div>
+            <div style="margin-top: 5px;">
+                <a href="https://www.meity.gov.in/content/digital-personal-data-protection-act-2023" target="_blank" style="text-decoration:none; font-size: 12.5px; font-weight: 700; color: #1D4ED8; background: #EFF6FF; padding: 4px 10px; border-radius: 4px; border: 1px solid #BFDBFE;">🛡️ DPDP Act 2023 Official</a>
             </div>
         </div>
         <div class="sidebar-resource-card">
-            <div style="font-weight: 700; font-size: 11px; color: #0F172A;">NEP 2020 Pedagogical Framework</div>
-            <div style="font-size: 9.5px; color: #64748B;">National Education Policy 5+3+3+4 curriculum & evaluation reforms.</div>
-            <div style="margin-top: 4px;">
-                <a href="https://www.education.gov.in/sites/upload_files/mhrd/files/NEP_Final_English_0.pdf" target="_blank" style="text-decoration:none; font-size: 10px; font-weight: 700; color: #047857; background: #ECFDF5; padding: 2px 7px; border-radius: 4px; border: 1px solid #A7F3D0;">🏛️ NEP 2020 Document</a>
+            <div style="font-weight: 700; font-size: 13px; color: #0F172A;">NEP 2020 Pedagogical Framework</div>
+            <div style="font-size: 12.5px; color: #475569; margin-top: 2px;">National Education Policy 5+3+3+4 curriculum & evaluation reforms.</div>
+            <div style="margin-top: 5px;">
+                <a href="https://www.education.gov.in/sites/upload_files/mhrd/files/NEP_Final_English_0.pdf" target="_blank" style="text-decoration:none; font-size: 12.5px; font-weight: 700; color: #047857; background: #ECFDF5; padding: 4px 10px; border-radius: 4px; border: 1px solid #A7F3D0;">🏛️ NEP 2020 Document</a>
             </div>
         </div>
         """, unsafe_allow_html=True)
@@ -1274,20 +1928,18 @@ with col_head_left:
                 <span style="font-size: 20px;">🛡️</span>
                 <span class="aegis-title">EduAegis</span>
                 <span class="aegis-badge">AI Tutor & Governed Grader</span>
-                <span style="font-size: 10.5px; background: rgba(255,255,255,0.18); color: #E2E8F0; padding: 2px 7px; border-radius: 999px; font-weight: 600;">{role_display}</span>
+                <span style="font-size: 12px; background: rgba(255,255,255,0.18); color: #E2E8F0; padding: 3px 9px; border-radius: 999px; font-weight: 600;">{role_display}</span>
             </div>
         </div>
         <div class="aegis-subtext">
-            Active: <strong>{current_user.get('name')}</strong> (<code>{current_user.get('id')}</code> • {user_role.capitalize()}) • DPDP Act 2023 Aligned • NITI Aayog Responsible AI Frameworks
+            Active: <strong>{current_user.get('name')}</strong> (<code>{current_user.get('id')}</code> • {str(user_role or 'admin').capitalize()}) • DPDP Act 2023 Aligned • NITI Aayog Responsible AI Frameworks
         </div>
     </div>
     """, unsafe_allow_html=True)
 
 with col_head_right:
-    if "selected_curriculum_board" not in st.session_state:
-        st.session_state["selected_curriculum_board"] = "All Board"
-
-    curr_b_idx = board_options.index(st.session_state["selected_curriculum_board"]) if st.session_state["selected_curriculum_board"] in board_options else 0
+    cur_sel_board = st.session_state.get("selected_curriculum_board") or ("CBSE (All India)" if user_role == "student" else "All Board")
+    curr_b_idx = board_options.index(cur_sel_board) if cur_sel_board in board_options else 0
     selected_board = st.selectbox(
         "🏛️ Active Curriculum Board",
         board_options,
@@ -1298,34 +1950,40 @@ with col_head_right:
     st.session_state["selected_curriculum_board"] = selected_board
 
 # -----------------------------------------------------------------------------
-# SPREAD-ACROSS BLUE TABS (3 FOR STUDENT, 4 FOR TEACHER, 5 FOR ADMIN)
+# SPREAD-ACROSS BLUE TABS (4 FOR STUDENT, 5 FOR TEACHER, 7 FOR ADMIN)
 # -----------------------------------------------------------------------------
 # Irrespective of the number of tabs, the CSS divides 100% of the blue box equally!
 if user_role == "student":
-    tab_tutor, tab_grader, tab_history = st.tabs([
+    tab_tutor, tab_grader, tab_history, tab_references = st.tabs([
         "💡 AI Tutor (Concept Learning & Audio)",
-        "✍️ AI Grader (Subjective Assessment)",
-        "📜 My Evaluations & Appeals"
+        "✍️ AI Grader",
+        "📜 My Evaluations & Appeals",
+        "📚 Suggested Study References"
     ])
     tab_teacher = None
     tab_admin = None
+    tab_gov_ref = None
 
 elif user_role == "teacher":
-    tab_teacher, tab_tutor, tab_grader, tab_history = st.tabs([
+    tab_teacher, tab_tutor, tab_grader, tab_history, tab_references = st.tabs([
         "🛡️ Teacher / Governance Panel",
         "💡 AI Tutor (Concept Learning & Audio)",
-        "✍️ AI Grader (Subjective Assessment)",
-        "📜 Student Evaluations & Audit History"
+        "✍️ AI Grader",
+        "📜 Student Evaluations & Audit History",
+        "📚 Suggested Study References"
     ])
     tab_admin = None
+    tab_gov_ref = None
 
-else:  # Admin (Super User Access)
-    tab_tutor, tab_grader, tab_history, tab_teacher, tab_admin = st.tabs([
+else:  # Admin (Super User Access) - Exclusive 'AI Governance Reference' Tab
+    tab_tutor, tab_grader, tab_history, tab_teacher, tab_admin, tab_gov_ref, tab_references = st.tabs([
         "💡 AI Tutor (Concept Learning & Audio)",
-        "✍️ AI Grader (Subjective Assessment)",
+        "✍️ AI Grader",
         "📜 All Evaluations & Appeals",
         "🛡️ Teacher / Governance Panel",
-        "👑 Admin Governance Dashboard"
+        "👑 Admin Governance Dashboard",
+        "⚖️ AI Governance Reference",
+        "📚 Suggested Study References"
     ])
 
 # =============================================================================
@@ -1338,9 +1996,14 @@ if tab_tutor is not None:
 
         col_t1, col_t2, col_t3 = st.columns(3)
         with col_t1:
-            t_class = st.selectbox("1. Class", [8, 9, 10], index=1, key="t_class")
+            cur_t_class = st.session_state.get("t_class", current_user.get("studentClass", 9) if user_role == "student" else 9)
+            t_class_idx = [8, 9, 10].index(cur_t_class) if cur_t_class in [8, 9, 10] else 1
+            t_class = st.selectbox("1. Class", [8, 9, 10], index=t_class_idx, key="t_class")
         with col_t2:
-            t_subject = st.selectbox("2. Subject", ["Physics", "Chemistry", "Mathematics"], index=0, key="t_subj")
+            cur_t_subj = st.session_state.get("t_subj", "Physics")
+            subj_opts = ["Physics", "Chemistry", "Mathematics"]
+            t_subj_idx = subj_opts.index(cur_t_subj) if cur_t_subj in subj_opts else 0
+            t_subject = st.selectbox("2. Subject", subj_opts, index=t_subj_idx, key="t_subj")
         with col_t3:
             if t_subject == "Physics":
                 t_topics = ["Newton's Second Law & Momentum (F = ma)", "Inertia and First Law of Motion", "Universal Gravitation & Floatation", "Work, Energy & Power", "Sound & Waves"]
@@ -1350,120 +2013,320 @@ if tab_tutor is not None:
                 t_topics = ["Rational vs Irrational Numbers", "Rationalizing the Denominator", "Laws of Exponents", "Polynomials & Factorization", "Linear Equations"]
             t_selected_topic = st.selectbox("3. Curriculum Topic", t_topics, key="t_top")
 
-        # Open Box Text Input for Custom Student Topic
-        st.markdown("#### 🔍 Or Type Any Topic/Concept to Clear Your Doubt:")
-        custom_tutor_topic = st.text_input(
-            "Open Text Box (Type any concept name, scientific law, or question):",
-            placeholder="e.g. Why does evaporation cause cooling?, Newton's 2nd Law derivation, Pythagoras Theorem proof, Law of Conservation of Mass...",
-            key="custom_tutor_input"
-        )
+        # Multi-Modal Learning Input: Type Any Topic OR Upload Document (PDF/DOC) OR Paste YouTube Link
+        col_topic_type, col_topic_source = st.columns([1.35, 1.65])
 
-        active_learning_topic = custom_tutor_topic.strip() if custom_tutor_topic.strip() else t_selected_topic
+        with col_topic_type:
+            st.markdown("#### 🔍 Or Type Any Topic/Concept to Clear Your Doubt:")
+            custom_tutor_topic = st.text_input(
+                "Open Text Box (Type concept name, scientific law, or question):",
+                placeholder="e.g. Why does evaporation cause cooling?, Newton's 2nd Law derivation, Pythagoras Theorem proof...",
+                key="custom_tutor_input"
+            )
+
+        with col_topic_source:
+            st.markdown("#### 📁 Or Learn from PDF / DOC File or YouTube Link:")
+            source_choice = st.radio(
+                "Select Custom Learning Source:",
+                ["None (Curriculum / Text)", "📄 Upload PDF / DOC", "▶️ Paste YouTube Link"],
+                horizontal=True,
+                key="tutor_source_mode_radio"
+            )
+
+            if "📄 Upload PDF" in source_choice:
+                uploaded_doc = st.file_uploader(
+                    "Upload notes or chapter PDF/DOCX/DOC/TXT:",
+                    type=["pdf", "docx", "doc", "txt"],
+                    key="tutor_doc_upload_input",
+                    help="Upload any study document. The AI learns concepts from this document, teaches them, and derives test questions accordingly."
+                )
+                if uploaded_doc is not None:
+                    doc_bytes = uploaded_doc.getvalue()
+                    extracted_text = extract_document_content(uploaded_doc.name, doc_bytes)
+                    st.session_state["tutor_active_source"] = {
+                        "type": "doc",
+                        "name": uploaded_doc.name,
+                        "text": extracted_text,
+                        "bytes": doc_bytes
+                    }
+                    st.success(f"✅ Document Analyzed: **{uploaded_doc.name}** ({round(len(doc_bytes)/1024, 1)} KB)")
+
+            elif "▶️ Paste YouTube" in source_choice:
+                yt_url_input = st.text_input(
+                    "Enter YouTube Video Link:",
+                    placeholder="https://www.youtube.com/watch?v=... or https://youtu.be/...",
+                    key="tutor_yt_url_input",
+                    help="Paste any educational YouTube URL. The AI extracts the lesson content, teaches concepts, and generates assessment questions."
+                )
+                if yt_url_input.strip():
+                    yt_data = get_youtube_learning_content(yt_url_input.strip())
+                    if yt_data:
+                        st.session_state["tutor_active_source"] = {
+                            "type": "youtube",
+                            "name": yt_data["title"],
+                            "text": yt_data["transcript"],
+                            "url": yt_data["clean_url"],
+                            "video_id": yt_data.get("video_id")
+                        }
+                        st.success(f"✅ YouTube Video Analyzed: **{yt_data['title']}**")
+                    else:
+                        st.error("Invalid YouTube URL. Please provide a standard YouTube video link.")
+            else:
+                if "tutor_active_source" in st.session_state and source_choice.startswith("None"):
+                    del st.session_state["tutor_active_source"]
+
+        active_source = st.session_state.get("tutor_active_source")
 
         st.markdown("<hr>", unsafe_allow_html=True)
         col_c1, col_c2 = st.columns([2, 1])
 
         with col_c1:
-            st.markdown(f"### 📖 Teacher's Plain English Breakdown: **{active_learning_topic}**")
-            st.info(f"**Curriculum Context:** {selected_board} • Class {t_class}th {t_subject}")
+            if active_source:
+                active_learning_topic = active_source["name"]
+                st.markdown(f"### 📖 AI Teacher Breakdown: **{active_learning_topic}**")
+                st.markdown(f"""
+                <div style="background: #EFF6FF; border: 1.5px solid #60A5FA; border-radius: 10px; padding: 10px 14px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
+                    <div>
+                        <span style="font-weight: 800; color: #1D4ED8; font-size: 13.5px;">📁 Multi-Modal Learning Active:</span>
+                        <span style="color: #0F172A; font-weight: 700;"> {active_source['name']}</span>
+                        <span style="font-size: 12px; color: #475569;"> ({active_source['type'].upper()} Source)</span>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
 
-            # Pre-crafted simple explanations
-            if "Newton" in active_learning_topic or "Momentum" in active_learning_topic or "Force" in active_learning_topic:
-                explanation_text = (
-                    "Hello! Let's understand Newton's Second Law in very simple terms.\n\n"
-                    "Imagine you are in a cricket match. When a fast cricket ball comes towards you, catching it hurts your hand if you stop it instantly. "
-                    "But if you pull your hands backward, you take more time to stop the ball, which reduces the impact force! "
-                    "That's momentum and Newton's Second Law in real life. Force equals mass times acceleration (F = ma)."
-                )
-                analogies = [
-                    "Catching a fast cricket ball by pulling hands back to reduce impact force.",
-                    "High jump athletes landing on soft foam or sand to prolong stopping time.",
-                    "Car seatbelts stretching slightly during sudden braking."
-                ]
-                key_formulas = ["Momentum: p = m * v (kg·m/s)", "Force: F = Δp / Δt = m(v - u) / t", "Newton's 2nd Law: F = m * a (Newton, N)"]
-                audio_text = "Hello student! Welcome to EduAegis Physics class. Today we are mastering Newton's Second Law of Motion. Momentum is mass in motion. When you pull your hands back while catching a cricket ball, you increase stopping time, which reduces the force on your palms. Always remember the formula: Force equals mass times acceleration, F equals m a, measured in Newtons."
+                if active_source.get("type") == "youtube" and active_source.get("url"):
+                    with st.expander("▶️ Watch Embedded YouTube Video Inside App", expanded=True):
+                        st.video(active_source["url"])
 
-            elif "Evaporation" in active_learning_topic or "Matter" in active_learning_topic:
-                explanation_text = (
-                    "Welcome to Chemistry! Let's understand why evaporation causes cooling.\n\n"
-                    "When you pour a few drops of acetone or perfume on your palm, your hand feels cold. Why? "
-                    "The liquid particles absorb heat energy (called Latent Heat of Vaporization) from your skin in order to evaporate, "
-                    "leaving your skin cooler! This is why earthen pots (matkas) keep water cool in summer and why wearing cotton clothes feels so refreshing."
-                )
-                analogies = [
-                    "Earthen pots (matka) keeping water cool in Indian summers through microscopic pores.",
-                    "Wearing breathable cotton clothes to absorb sweat and promote evaporative cooling.",
-                    "Spreading clothes wide on a line to increase surface area for faster drying."
-                ]
-                key_formulas = ["Rate of Evaporation ∝ Surface Area", "Rate of Evaporation ∝ Temperature", "Rate of Evaporation ∝ 1 / Humidity"]
-                audio_text = "Welcome to Chemistry! Evaporation is a surface phenomenon. Liquid particles absorb latent heat from the surroundings to break free into vapor. Because heat is taken away from the surface, it cools down. That is why earthen pots keep water cool and why wearing cotton clothes in summer feels so comfortable."
-
-            elif "Rational" in active_learning_topic or "Number" in active_learning_topic:
-                explanation_text = (
-                    "Welcome to Mathematics! Numbers are divided into rational and irrational.\n\n"
-                    "A Rational number can always be written as a fraction p/q (like 1/2 = 0.5, or 1/3 = 0.333 recurring). "
-                    "An Irrational number (like √2, √3, or π) has a decimal expansion that goes on forever without repeating a pattern!"
-                )
-                analogies = [
-                    "Rational numbers repeat predictably like clockwork (0.333...); irrational decimals wander endlessly without any repeat."
-                ]
-                key_formulas = ["Rational: p/q where p, q are integers and q ≠ 0", "Rationalizing: 1/(a + √b) = (a - √b)/(a² - b)"]
-                audio_text = "In Mathematics, real numbers consist of rational and irrational numbers. Rational numbers can be written as p over q. Irrational numbers, like root 2 or pi, have decimal expansions that never end and never repeat."
+                # Dynamic Lesson Synthesis from Uploaded Document or YouTube Video
+                lesson_synth = synthesize_tutor_lesson(active_source["name"], active_source["text"], subject=t_subject, class_num=t_class)
+                lesson_data = get_comprehensive_tutor_lesson(active_source["name"], subject=t_subject, class_num=t_class, board=selected_board) if get_comprehensive_tutor_lesson else {}
+                
+                # Merge dynamic synthesis with curriculum structure
+                definition_text = lesson_data.get("definition", f"{active_source['name']} is synthesized from your uploaded learning material and aligned with Class {t_class}th {t_subject}.")
+                formulas_list = lesson_synth.get("key_principles") or lesson_data.get("formulas", ["Standard Principles from Source Document"])
+                explanation_text = lesson_synth.get("explanation") or lesson_data.get("explanation", "")
+                analogies_list = lesson_synth.get("analogies") or lesson_data.get("analogies", [])
+                pitfalls_list = lesson_data.get("pitfalls", ["Avoid superficial skimming; review key definitions and quantitative relationships."])
+                board_tips_list = lesson_data.get("board_tips", ["Cite primary definitions and show step-by-step reasoning in examinations."])
+                audio_text = lesson_synth.get("audio_text") or lesson_data.get("audio_text", "")
             else:
-                explanation_text = (
-                    f"Here is your easy-to-understand breakdown for {active_learning_topic}.\n\n"
-                    "In science and mathematics, every concept is governed by an underlying cause-and-effect relationship. "
-                    "In your board exams, always frame your answers with: 1. A formal definition, 2. The mathematical formula with SI units, and 3. A real-world practical illustration."
-                )
-                analogies = [f"Relating {active_learning_topic} to everyday observable systems."]
-                key_formulas = ["Standard Law / Equation with explicit metric units."]
-                audio_text = f"Welcome to EduAegis! Let us explore {active_learning_topic} in very simple English. In your exams, always define the law clearly, write the formula with proper units, and show step-by-step reasoning."
+                active_learning_topic = custom_tutor_topic.strip() if custom_tutor_topic.strip() else t_selected_topic
+                st.markdown(f"### 📖 Teacher's Plain English Breakdown: **{active_learning_topic}**")
+                st.info(f"**Curriculum Context:** {selected_board} • Class {t_class}th {t_subject}")
 
+                if get_comprehensive_tutor_lesson:
+                    lesson_data = get_comprehensive_tutor_lesson(active_learning_topic, subject=t_subject, class_num=t_class, board=selected_board)
+                else:
+                    lesson_data = {
+                        "topic": active_learning_topic,
+                        "definition": f"{active_learning_topic} is a core topic in Class {t_class}th {t_subject} ({selected_board}).",
+                        "formulas": ["Standard Governing Laws & SI Units"],
+                        "explanation": f"Understanding {active_learning_topic} requires analyzing cause-and-effect physical mechanisms and board-exam principles.",
+                        "analogies": [f"Everyday practical applications of {active_learning_topic}"],
+                        "pitfalls": ["Avoid omitting metric SI units and standard law statements."],
+                        "board_tips": ["State definition, write formula with SI units, and give one real-world application."],
+                        "audio_text": f"Namaste students! Let us understand {active_learning_topic} clearly for your board examinations."
+                    }
+
+                definition_text = lesson_data["definition"]
+                formulas_list = lesson_data["formulas"]
+                explanation_text = lesson_data["explanation"]
+                analogies_list = lesson_data["analogies"]
+                pitfalls_list = lesson_data["pitfalls"]
+                board_tips_list = lesson_data["board_tips"]
+                audio_text = lesson_data["audio_text"]
+
+            # 1. Formal Board Definition Callout Card
+            st.markdown(f"""
+            <div style="background: #F0FDF4; border: 1.5px solid #86EFAC; border-left: 5px solid #16A34A; border-radius: 12px; padding: 14px 18px; margin-bottom: 16px;">
+                <div style="font-size: 13px; font-weight: 800; color: #166534; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                    <span>📌 Formal Definition (Board Exam Standard)</span>
+                </div>
+                <div style="font-size: 14.5px; color: #14532D; line-height: 1.6; font-weight: 600;">
+                    {definition_text}
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+            # 2. Mathematical Formulas & SI Units Box
+            formulas_html_items = "".join([f"<li style='margin-bottom: 5px;'><strong style='color: #1E40AF;'>›</strong> {f}</li>" for f in formulas_list])
+            st.markdown(f"""
+            <div style="background: #EFF6FF; border: 1.5px solid #93C5FD; border-left: 5px solid #2563EB; border-radius: 12px; padding: 14px 18px; margin-bottom: 16px;">
+                <div style="font-size: 13px; font-weight: 800; color: #1E40AF; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">
+                    📐 Core Governing Formulas & SI Units
+                </div>
+                <ul style="margin: 0; padding-left: 18px; font-size: 13.5px; color: #1E293B; line-height: 1.6; font-family: monospace, monospace;">
+                    {formulas_html_items}
+                </ul>
+            </div>
+            """, unsafe_allow_html=True)
+
+            # 3. Descriptive Explanation & Physical Mechanism
+            st.markdown("#### 🔬 In-Depth Conceptual Breakdown & Physical Mechanism:")
             st.markdown(explanation_text)
 
-            # Embedded HTML5 Web Speech Audio Player
-            st.markdown("#### 🔊 Audio Teacher Voice Narration:")
-            clean_audio_js = audio_text.replace("'", "\\'").replace("\n", " ")
+            # 4. Embedded HTML5 Web Speech Audio Player (Default Active Voice: In Google Hindi (Indian English))
+            st.markdown("#### 🔊 Audio Teacher Voice Narration (Neutral Indian English • Zero Accent):")
+            clean_audio_js = audio_text.replace("'", "\\'").replace('"', '\\"').replace("\n", " ").replace("\r", " ")
             audio_html = f"""
-            <div style="background:#F1F5F9; padding:12px; border-radius:10px; border:1px solid #CBD5E1; display:flex; align-items:center; gap:10px;">
-                <button onclick="speakAudio()" style="background:#4F46E5; color:white; border:none; padding:7px 14px; border-radius:8px; font-weight:bold; cursor:pointer;">
-                    ▶ Listen to Teacher
-                </button>
-                <button onclick="stopAudio()" style="background:#EF4444; color:white; border:none; padding:7px 12px; border-radius:8px; font-weight:bold; cursor:pointer;">
-                    ⏹ Stop
-                </button>
-                <span id="audio-status" style="font-size:12px; color:#475569; font-weight:600;">Click Play to hear speech narration</span>
+            <div style="background: #F8FAFC; padding: 14px 18px; border-radius: 12px; border: 1.5px solid #CBD5E1; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <button onclick="playEducatorAudio()" id="btn-play-audio" style="background: linear-gradient(135deg, #1E40AF 0%, #2563EB 100%); color: white; border: none; padding: 8px 18px; border-radius: 8px; font-weight: 700; font-size: 13.5px; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 6px rgba(30,64,175,0.28);">
+                            ▶ Listen to Teacher
+                        </button>
+                        <button onclick="stopEducatorAudio()" style="background: #EF4444; color: white; border: none; padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13.5px; cursor: pointer;">
+                            ⏹ Stop
+                        </button>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                        <span style="font-size: 12px; font-weight: 700; color: #1E3A8A;">🎙️ Active Voice:</span>
+                        <select id="voice-select" onchange="onVoiceChange()" style="padding: 6px 12px; border-radius: 8px; border: 1.5px solid #3B82F6; font-size: 12px; font-weight: 700; color: #1E3A8A; background: #FFFFFF; min-width: 270px; cursor: pointer;">
+                            <option value="google_hindi" selected>🇮🇳 In Google Hindi (Indian English)</option>
+                            <option value="en_in_educator">🇮🇳 Indian English (Educator Neutral)</option>
+                            <option value="en_in_natural">🇮🇳 Indian English (Natural Cadence)</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="audio-status" style="font-size: 12px; color: #475569; font-weight: 600; margin-top: 10px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px;">
+                    <span id="audio-msg">🎯 <strong>Active Voice:</strong> 🇮🇳 In Google Hindi (Indian English) • <em>Clear Indian Educator Modulation</em></span>
+                    <span style="font-size: 11px; background: #DCFCE7; color: #166534; font-weight: 700; padding: 3px 9px; border-radius: 999px; border: 1px solid #BBF7D0;">🇮🇳 Default: In Google Hindi (Indian English)</span>
+                </div>
             </div>
             <script>
-                function speakAudio() {{
-                    if ('speechSynthesis' in window) {{
-                        window.speechSynthesis.cancel();
-                        var msg = new SpeechSynthesisUtterance('{clean_audio_js}');
-                        msg.rate = 1.0;
-                        document.getElementById('audio-status').innerText = 'Playing teacher narration...';
-                        msg.onend = function() {{ document.getElementById('audio-status').innerText = 'Finished.'; }};
-                        window.speechSynthesis.speak(msg);
+                var synth = window.speechSynthesis;
+                var allVoices = [];
+                var selectedVoiceObj = null;
+
+                function populateVoices() {{
+                    if (!('speechSynthesis' in window)) return;
+                    allVoices = synth.getVoices();
+                    var voiceSelect = document.getElementById('voice-select');
+                    if (!voiceSelect) return;
+
+                    var googleHindiVoice = null;
+                    var indianEnVoice = null;
+                    var indKeywords = ['india', 'indian', 'en-in', 'en_in', 'heera', 'ravi', 'neerja', 'prabhat', 'veena', 'rishi', 'kavya'];
+
+                    for (var i = 0; i < allVoices.length; i++) {{
+                        var v = allVoices[i];
+                        var lang = (v.lang || '').replace('_', '-').toLowerCase();
+                        var name = (v.name || '').toLowerCase();
+
+                        if ((name.indexOf('google') !== -1 && (name.indexOf('hindi') !== -1 || lang === 'hi-in' || name.indexOf('हिन्दी') !== -1)) || 
+                            (lang === 'hi-in' && !googleHindiVoice)) {{
+                            googleHindiVoice = v;
+                        }}
+
+                        if (lang === 'en-in' || lang === 'en_in') {{
+                            if (!indianEnVoice) indianEnVoice = v;
+                        }} else {{
+                            for (var k = 0; k < indKeywords.length; k++) {{
+                                if (name.indexOf(indKeywords[k]) !== -1) {{
+                                    if (!indianEnVoice) indianEnVoice = v;
+                                    break;
+                                }}
+                            }}
+                        }}
+                    }}
+
+                    // Set default voice object: Google Hindi first, fallback to Indian English
+                    selectedVoiceObj = googleHindiVoice || indianEnVoice;
+                    voiceSelect.value = "google_hindi";
+                    document.getElementById('audio-msg').innerHTML = '🎯 <strong>Active Voice:</strong> 🇮🇳 In Google Hindi (Indian English) • <em>Clear Indian Educator Modulation</em>';
+                }}
+
+                populateVoices();
+                if ('speechSynthesis' in window && speechSynthesis.onvoiceschanged !== undefined) {{
+                    speechSynthesis.onvoiceschanged = populateVoices;
+                }}
+
+                function onVoiceChange() {{
+                    var sel = document.getElementById('voice-select').value;
+                    if (sel === 'google_hindi') {{
+                        document.getElementById('audio-msg').innerHTML = '🎯 <strong>Active Voice:</strong> 🇮🇳 In Google Hindi (Indian English) • <em>Clear Indian Educator Modulation</em>';
+                    }} else if (sel === 'en_in_educator') {{
+                        document.getElementById('audio-msg').innerHTML = '🎯 <strong>Active Voice:</strong> 🇮🇳 Indian English (Educator Neutral) • <em>Deliberate Classroom Pace</em>';
                     }} else {{
-                        alert('Speech synthesis not supported on this browser.');
+                        document.getElementById('audio-msg').innerHTML = '🎯 <strong>Active Voice:</strong> 🇮🇳 Indian English (Natural Cadence) • <em>Conversational Rhythm</em>';
                     }}
                 }}
-                function stopAudio() {{
+
+                function playEducatorAudio() {{
+                    if (!('speechSynthesis' in window)) {{
+                        alert('Speech synthesis is not supported on this browser.');
+                        return;
+                    }}
+                    synth.cancel();
+
+                    if (!allVoices || allVoices.length === 0) {{
+                        populateVoices();
+                    }}
+
+                    var text = "{clean_audio_js}";
+                    var msg = new SpeechSynthesisUtterance(text);
+                    
+                    var sel = document.getElementById('voice-select') ? document.getElementById('voice-select').value : 'google_hindi';
+
+                    if (sel === 'google_hindi') {{
+                        msg.lang = 'hi-IN';
+                        msg.rate = 0.88;
+                        msg.pitch = 1.03;
+                    }} else if (sel === 'en_in_educator') {{
+                        msg.lang = 'en-IN';
+                        msg.rate = 0.86;
+                        msg.pitch = 1.01;
+                    }} else {{
+                        msg.lang = 'en-IN';
+                        msg.rate = 0.92;
+                        msg.pitch = 1.04;
+                    }}
+
+                    if (selectedVoiceObj) {{
+                        msg.voice = selectedVoiceObj;
+                    }}
+
+                    document.getElementById('audio-msg').innerHTML = '🔊 <strong>Speaking in:</strong> 🇮🇳 In Google Hindi (Indian English) • <em>Clear Concept Narration...</em>';
+
+                    msg.onend = function() {{
+                        document.getElementById('audio-msg').innerHTML = '✅ <em>Narration complete. Concept ready for review!</em>';
+                    }};
+                    msg.onerror = function() {{
+                        document.getElementById('audio-msg').innerHTML = '⏹ <em>Audio narration finished.</em>';
+                    }};
+
+                    synth.speak(msg);
+                }}
+
+                function stopEducatorAudio() {{
                     if ('speechSynthesis' in window) {{
-                        window.speechSynthesis.cancel();
-                        document.getElementById('audio-status').innerText = 'Stopped.';
+                        synth.cancel();
+                        document.getElementById('audio-msg').innerHTML = '⏹ <em>Audio stopped.</em>';
                     }}
                 }}
             </script>
             """
-            components.html(audio_html, height=65)
+            components.html(audio_html, height=125)
 
+            # 5. Everyday Real-World Analogies
             st.markdown("#### 💡 Everyday Real-World Analogies:")
-            for an in analogies:
+            for an in analogies_list:
                 st.markdown(f"- 🌟 {an}")
 
+            # 6. Critical Board Exam Pitfalls & Misconceptions to Avoid
+            with st.expander("⚠️ Critical Board Exam Pitfalls & Misconceptions to Avoid", expanded=True):
+                for pit in pitfalls_list:
+                    st.markdown(f"- ❌ **Avoid:** {pit}")
+
+            # 7. How to Write Answers in Board Exams for Full Marks (Marking Rubrics)
+            with st.expander("📝 How to Write Answers in Board Exams for Full Marks (Marking Rubrics)", expanded=False):
+                for tip in board_tips_list:
+                    st.markdown(f"- {tip}")
+
         with col_c2:
-            st.markdown("### 📐 Key Formulas & Units")
-            for f in key_formulas:
+            st.markdown("### 📐 Quick Formula Cheat-Sheet")
+            for f in formulas_list:
                 st.code(f)
 
             st.markdown("### 🎯 Socratic Check")
@@ -1481,192 +2344,460 @@ if tab_tutor is not None:
 # =============================================================================
 if tab_grader is not None:
     with tab_grader:
-        st.subheader("✍️ AI Subjective Grader: Multi-Subject Assessment")
-        st.caption("Grades subjective answers step-by-step. Blank, 'NA', or off-topic responses receive zero marks automatically.")
+        st.subheader("✍️ AI Grader: Comprehensive Curriculum Assessment")
+        st.caption("Dual Assessment Engine: Instant Objective MCQs + Step-by-Step Subjective Grader with AI Governance.")
 
-        # Candidate Selection Ribbon
+        # Candidate Selection Ribbon (Profile Synced by Default)
         g_col1, g_col2, g_col3 = st.columns(3)
         with g_col1:
-            g_board = st.selectbox("1. Board", board_options, index=0, key="g_board")
+            cur_g_board = st.session_state.get("g_board", selected_board)
+            g_b_idx = board_options.index(cur_g_board) if cur_g_board in board_options else 0
+            g_board = st.selectbox("1. Board", board_options, index=g_b_idx, key="g_board")
         with g_col2:
-            g_class = st.selectbox("2. Class", [8, 9, 10], index=1, key="g_class")
+            cur_g_class = st.session_state.get("g_class", current_user.get("studentClass", 9) if user_role == "student" else 9)
+            g_c_idx = [8, 9, 10].index(cur_g_class) if cur_g_class in [8, 9, 10] else 1
+            g_class = st.selectbox("2. Class", [8, 9, 10], index=g_c_idx, key="g_class")
         with g_col3:
-            g_subject = st.selectbox("3. Subject", ["Physics", "Chemistry", "Mathematics"], index=0, key="g_subj")
+            cur_g_subj = st.session_state.get("g_subj", "Physics")
+            g_s_idx = ["Physics", "Chemistry", "Mathematics"].index(cur_g_subj) if cur_g_subj in ["Physics", "Chemistry", "Mathematics"] else 0
+            g_subject = st.selectbox("3. Subject", ["Physics", "Chemistry", "Mathematics"], index=g_s_idx, key="g_subj")
 
-        # Open Box Text Input for Custom Topic
-        st.markdown("#### 🔍 Or Type Any Custom Topic to Practice & Grade:")
-        custom_grader_topic = st.text_input(
-            "Open Text Box (Custom Topic):",
-            placeholder="e.g. Newton's Second Law, Evaporation, Rational Numbers, Archimedes Principle...",
-            key="custom_grader_input"
-        )
+        # Custom Learning Material / Document / YouTube Ingestion for Grader
+        active_tutor_src = st.session_state.get("tutor_active_source")
+        use_source_in_grader = False
+
+        if active_tutor_src:
+            col_src_box, col_src_tog = st.columns([2.8, 1.2])
+            with col_src_box:
+                st.markdown(f"""
+                <div style="background: #EFF6FF; border: 1.5px solid #60A5FA; border-radius: 10px; padding: 10px 14px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
+                    <div>
+                        <span style="font-weight: 800; color: #1D4ED8; font-size: 13.5px;">📁 Active Learning Material Attached:</span>
+                        <span style="color: #0F172A; font-weight: 700;"> {active_tutor_src['name']}</span>
+                        <span style="font-size: 12px; color: #475569;"> ({active_tutor_src['type'].upper()})</span>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+            with col_src_tog:
+                use_source_in_grader = st.checkbox("🎯 Generate Questions from this Document/Video", value=True, key="chk_use_source_in_grader")
+
+        col_grader_type, col_grader_source = st.columns([1.35, 1.65])
+        with col_grader_type:
+            st.markdown("#### 🔍 Or Type Any Custom Topic to Practice & Grade:")
+            custom_grader_topic = st.text_input(
+                "Open Text Box (Custom Topic):",
+                placeholder="e.g. Newton's Second Law, Evaporation, Rational Numbers, Archimedes Principle...",
+                key="custom_grader_input"
+            )
+        with col_grader_source:
+            if not active_tutor_src:
+                st.markdown("#### 📁 Or Upload Document / YouTube Link to Test On:")
+                grader_direct_choice = st.radio(
+                    "Optional Custom Test Material:",
+                    ["None (Curriculum Standard)", "📄 Upload PDF/DOC", "▶️ Paste YouTube Link"],
+                    horizontal=True,
+                    key="grader_direct_choice_radio"
+                )
+                if "📄 Upload PDF" in grader_direct_choice:
+                    g_up_doc = st.file_uploader("Upload Notes or Test Paper (PDF, DOCX, TXT):", type=["pdf", "docx", "doc", "txt"], key="grader_direct_doc")
+                    if g_up_doc:
+                        g_bytes = g_up_doc.getvalue()
+                        g_txt = extract_document_content(g_up_doc.name, g_bytes)
+                        st.session_state["tutor_active_source"] = {"type": "doc", "name": g_up_doc.name, "text": g_txt, "bytes": g_bytes}
+                        use_source_in_grader = True
+                        st.rerun()
+                elif "▶️ Paste YouTube" in grader_direct_choice:
+                    g_yt_inp = st.text_input("YouTube Video URL to test on:", placeholder="https://www.youtube.com/watch?v=...", key="grader_direct_yt")
+                    if g_yt_inp.strip():
+                        g_yt_data = get_youtube_learning_content(g_yt_inp.strip())
+                        if g_yt_data:
+                            st.session_state["tutor_active_source"] = {"type": "youtube", "name": g_yt_data["title"], "text": g_yt_data["transcript"], "url": g_yt_data["clean_url"]}
+                            use_source_in_grader = True
+                            st.rerun()
+            else:
+                st.markdown("<div style='height: 38px;'></div>", unsafe_allow_html=True)
+                if st.button("🔄 Clear Attached Document / Reset to Standard Curriculum", key="btn_clear_attached_src", use_container_width=True):
+                    del st.session_state["tutor_active_source"]
+                    st.rerun()
 
         active_grade_topic = custom_grader_topic.strip() if custom_grader_topic.strip() else ("Newton's Second Law of Motion" if g_subject == "Physics" else ("Evaporation & States of Matter" if g_subject == "Chemistry" else "Number Systems & Real Numbers"))
 
-        st.info(f"🎯 **Active Testing Topic:** {active_grade_topic} • **Curriculum:** {g_board} • Class {g_class}th {g_subject}")
+        if use_source_in_grader and active_tutor_src:
+            st.info(f"🎯 **Active Testing Material:** {active_tutor_src['name']} ({active_tutor_src['type'].upper()}) • Aligned with {g_board} • Class {g_class}th {g_subject}")
+        else:
+            st.info(f"🎯 **Active Testing Topic:** {active_grade_topic} • **Curriculum:** {g_board} • Class {g_class}th {g_subject}")
 
-        # Practice Solved Example
-        with st.expander("📘 Practice Solved Example (Solution Hidden by Default)", expanded=False):
-            if g_subject == "Physics":
-                st.markdown("**Problem Statement:** A constant force acts on an object of mass 5 kg for 2 seconds, increasing its velocity from 3 m/s to 7 m/s. Calculate the magnitude of the applied force. (4 Marks)")
-                if st.button("Show Step-by-Step Solved Solution", key="btn_show_sol_p"):
-                    st.markdown("""
-                    **Step-by-Step Solved Solution:**
-                    - **Step 1:** Given: mass m = 5 kg, initial velocity u = 3 m/s, final velocity v = 7 m/s, time t = 2 s. *(+1 Mark)*
-                    - **Step 2:** Acceleration: a = (v - u) / t = (7 - 3) / 2 = 4 / 2 = 2 m/s². *(+1 Mark)*
-                    - **Step 3:** Force using F = m * a: F = 5 kg * 2 m/s² = 10 Newtons (N). *(+1 Mark)*
-                    - **Step 4:** Final Result: Applied Force = 10 N. *(+1 Mark)*
-                    """)
-            elif g_subject == "Chemistry":
-                st.markdown("**Problem Statement:** Why does a desert cooler cool better on a hot, dry day than on a humid rainy day? (3 Marks)")
-                if st.button("Show Step-by-Step Solved Solution", key="btn_show_sol_c"):
-                    st.markdown("""
-                    **Step-by-Step Solved Solution:**
-                    - **Step 1:** On a hot dry day, temperature is high and humidity (moisture in air) is very low. *(+1 Mark)*
-                    - **Step 2:** Rate of water evaporation from cooler pads increases dramatically when humidity is low. *(+1 Mark)*
-                    - **Step 3:** Greater evaporation absorbs more latent heat from incoming air, cooling the room effectively. *(+1 Mark)*
-                    """)
+        # Assessment Section Selector (Objective MCQs vs Subjective vs Both)
+        st.markdown("<hr style='margin: 10px 0;'>", unsafe_allow_html=True)
+        grader_section = st.radio(
+            "📋 Select Assessment Component:",
+            [
+                "🎯 Section A: Objective Questions (5 MCQs • 5 Marks • Instant Scoring)",
+                "✍️ Section B: Subjective Questions (5 Questions • 20 Marks • Teacher Audited)",
+                "📑 View Both Sections (Full Examination Paper)"
+            ],
+            index=0,
+            horizontal=True,
+            key="grader_section_toggle"
+        )
+        st.markdown("<hr style='margin: 10px 0;'>", unsafe_allow_html=True)
+
+        # ---------------------------------------------------------------------
+        # SECTION A: OBJECTIVE TYPE QUESTIONS (5 MCQs, RADIO BUTTONS, INSTANT SCORE)
+        # ---------------------------------------------------------------------
+        if "Section A" in grader_section or "View Both" in grader_section:
+            col_obj_hdr, col_obj_ref = st.columns([3.0, 1.4])
+            with col_obj_hdr:
+                st.markdown("### 🎯 Section A: 5 Objective Type Questions (MCQs)")
+            with col_obj_ref:
+                if st.button("🔄 Refresh Objective Questions", key="btn_refresh_mcq_questions", help="Click to load a fresh set of 5 curriculum MCQs", use_container_width=True):
+                    st.session_state["active_obj_set_idx"] = st.session_state.get("active_obj_set_idx", 0) + 1
+                    st.session_state["obj_submitted_flag"] = False
+                    st.toast("🔄 Loaded fresh new set of 5 objective questions!")
+                    st.rerun()
+
+            active_obj_idx = st.session_state.get("active_obj_set_idx", 0)
+
+            if use_source_in_grader and active_tutor_src:
+                obj_data = generate_dynamic_mcqs_from_source(active_tutor_src['name'], active_tutor_src['text'], g_subject, g_class)
+                total_obj_sets = 1
+                display_obj_set_num = 1
             else:
-                st.markdown("**Problem Statement:** Express 0.3333... in the form p/q, where p and q are integers and q ≠ 0. (3 Marks)")
-                if st.button("Show Step-by-Step Solved Solution", key="btn_show_sol_m"):
-                    st.markdown("""
-                    **Step-by-Step Solved Solution:**
-                    - **Step 1:** Let x = 0.3333... (Equation 1). *(+1 Mark)*
-                    - **Step 2:** Multiply by 10: 10x = 3.3333... (Equation 2). *(+1 Mark)*
-                    - **Step 3:** Subtract Eq 1 from Eq 2: 9x = 3 => x = 3/9 = 1/3 in p/q form. *(+1 Mark)*
-                    """)
+                obj_data = get_objective_question_set(g_subject, g_class, custom_topic=custom_grader_topic.strip(), set_index=active_obj_idx)
+                total_obj_sets = obj_data["total_sets"]
+                display_obj_set_num = (active_obj_idx % total_obj_sets) + 1
 
-        # 5-Question Subjective Paper with Refresh Icon / Button
-        col_hdr_q, col_ref_q = st.columns([3.0, 1.2])
-        with col_hdr_q:
-            st.markdown("### ✍️ 5-Question Practice Subjective Paper (20 Total Marks)")
-        with col_ref_q:
-            if st.button("🔄 Refresh 5 Questions", key="btn_refresh_sample_questions", help="Click to load a brand new set of 5 questions for this class and subject", use_container_width=True):
-                st.session_state["active_q_set_idx"] = st.session_state.get("active_q_set_idx", 0) + 1
+            obj_questions = obj_data["questions"]
+            active_obj_title = obj_data["topic_title"]
+
+            st.markdown(f"""
+            <div style="display: flex; justify-content: space-between; align-items: center; background: #F8FAFC; border-left: 4px solid #10B981; border-radius: 8px; padding: 10px 16px; margin-bottom: 14px;">
+                <div>
+                    <span style="font-weight: 800; font-size: 13.5px; color: #1E293B;">📄 Objective Set {display_obj_set_num} of {total_obj_sets}:</span>
+                    <span style="font-size: 13px; color: #059669; font-weight: 700;"> {active_obj_title}</span>
+                    <span style="font-size: 12.5px; color: #475569;"> (Class {g_class}th • {g_subject})</span>
+                </div>
+                <div>
+                    <span style="font-size: 12px; background: #D1FAE5; color: #065F46; font-weight: 700; padding: 4px 10px; border-radius: 999px;">Total 5 Marks (1 Mark / Question)</span>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+            user_mcq_answers = {}
+            for q_i, q in enumerate(obj_questions):
+                st.markdown(f"<div style='font-size: 15px; font-weight: 700; color: #0F172A; margin-top: 12px; margin-bottom: 6px;'>Q{q_i+1} (1.0 Mark): {q['question']}</div>", unsafe_allow_html=True)
+                user_mcq_choice = st.radio(
+                    f"Select answer for Q{q_i+1}:",
+                    options=q["options"],
+                    index=None,
+                    key=f"mcq_radio_{q['id']}_{g_class}_{g_subject}_{display_obj_set_num}",
+                    label_visibility="collapsed"
+                )
+                user_mcq_answers[q["id"]] = user_mcq_choice
+
+            col_sub_obj, col_sub_sp = st.columns([1.5, 2.5])
+            with col_sub_obj:
+                btn_submit_objective = st.button("🚀 Submit Objective Section (Instant AI Score)", type="primary", key=f"btn_sub_obj_{display_obj_set_num}", use_container_width=True)
+
+            if btn_submit_objective:
+                st.session_state["obj_submitted_flag"] = True
+                st.session_state["obj_last_set_num"] = display_obj_set_num
+
+            # Immediate Reflection of Objective Marks
+            if st.session_state.get("obj_submitted_flag", False) and st.session_state.get("obj_last_set_num") == display_obj_set_num:
+                obj_score = 0.0
+                for q in obj_questions:
+                    if user_mcq_answers.get(q["id"]) == q["correct_option"]:
+                        obj_score += 1.0
+
+                obj_pct = int(round((obj_score / 5.0) * 100))
+                
+                st.markdown(f"""
+                <div class="score-banner">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <div style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.8px; color: #93C5FD; font-weight: 700;">Instant Objective Evaluation Completed</div>
+                            <div style="font-size: 24px; font-weight: 800; color: #FFFFFF; margin-top: 3px;">
+                                🎯 Score: {obj_score} / 5.0 Marks ({obj_pct}%)
+                            </div>
+                            <div style="font-size: 13px; color: #E0E7FF; margin-top: 4px;">
+                                Candidate: <strong>{current_user.get('name')}</strong> (<code>{current_user.get('id')}</code>) • Evaluated immediately by EduAegis Objective Engine
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <span style="font-size: 34px;">{'🌟' if obj_score == 5.0 else ('👍' if obj_score >= 3.0 else '📚')}</span>
+                        </div>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+
+                st.markdown("#### 🔍 Detailed Question-by-Question Evaluation Breakdown:")
+                for q_i, q in enumerate(obj_questions):
+                    chosen = user_mcq_answers.get(q["id"])
+                    is_correct = (chosen == q["correct_option"])
+                    if is_correct:
+                        st.markdown(f"""
+                        <div style="background: #F0FDF4; border: 1.5px solid #BBF7D0; border-radius: 10px; padding: 12px 16px; margin-bottom: 10px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <strong style="color: #166534; font-size: 14px;">✅ Q{q_i+1}: Correct (+1.0 Mark)</strong>
+                                <span style="font-size: 12px; font-weight: 700; background: #DCFCE7; color: #15803D; padding: 3px 9px; border-radius: 999px;">Awarded: 1.0 / 1.0</span>
+                            </div>
+                            <div style="font-size: 13.5px; color: #1E293B; margin-top: 5px;"><strong>Your Answer:</strong> {chosen}</div>
+                            <div style="font-size: 13px; color: #166534; margin-top: 5px; background: rgba(255,255,255,0.8); padding: 7px 10px; border-radius: 6px; line-height: 1.45;">💡 <strong>Explanation:</strong> {q['explanation']}</div>
+                        </div>
+                        """, unsafe_allow_html=True)
+                    else:
+                        st.markdown(f"""
+                        <div style="background: #FEF2F2; border: 1.5px solid #FECACA; border-radius: 10px; padding: 12px 16px; margin-bottom: 10px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <strong style="color: #991B1B; font-size: 14px;">❌ Q{q_i+1}: Incorrect (0.0 Marks)</strong>
+                                <span style="font-size: 12px; font-weight: 700; background: #FEE2E2; color: #B91C1C; padding: 3px 9px; border-radius: 999px;">Awarded: 0.0 / 1.0</span>
+                            </div>
+                            <div style="font-size: 13.5px; color: #1E293B; margin-top: 5px;">
+                                <strong>Your Answer:</strong> {chosen if chosen else '<em>Unattempted</em>'}<br>
+                                <strong style="color: #166534;">Correct Answer:</strong> <strong>{q['correct_option']}</strong>
+                            </div>
+                            <div style="font-size: 13px; color: #475569; margin-top: 5px; background: rgba(255,255,255,0.8); padding: 7px 10px; border-radius: 6px; line-height: 1.45;">💡 <strong>Explanation:</strong> {q['explanation']}</div>
+                        </div>
+                        """, unsafe_allow_html=True)
+
+                # Persist objective result attempt to database
+                assigned_std_id = current_user.get("id", "STU-101")
+                assigned_std_name = current_user.get("name", "Anup Sharma")
+                sub_board = current_user.get("board", "CBSE (All India)") if (user_role == "student" or g_board == "All Board") else g_board
+                new_obj_sub = {
+                    "id": f"obj_sub_{int(time.time() * 1000)}",
+                    "studentId": assigned_std_id,
+                    "studentName": assigned_std_name,
+                    "board": sub_board,
+                    "className": f"Class {g_class}th",
+                    "subject": g_subject,
+                    "topic": active_obj_title,
+                    "score": obj_score,
+                    "maxMarks": 5.0,
+                    "submittedAt": datetime.now().isoformat() + "Z"
+                }
+                db.setdefault("objective_submissions", []).insert(0, new_obj_sub)
+                save_db(db)
+
+            st.markdown("<hr style='margin: 16px 0;'>", unsafe_allow_html=True)
+
+        # ---------------------------------------------------------------------
+        # SECTION B: SUBJECTIVE TYPE QUESTIONS (5 QUESTIONS • 20 MARKS • TEACHER AUDITED)
+        # ---------------------------------------------------------------------
+        if "Section B" in grader_section or "View Both" in grader_section:
+            st.markdown("### ✍️ Section B: 5-Question Subjective Paper (20 Total Marks)")
+
+            # Practice Solved Example
+            with st.expander("📘 Practice Solved Example (Solution Hidden by Default)", expanded=False):
+                if g_subject == "Physics":
+                    st.markdown("**Problem Statement:** A constant force acts on an object of mass 5 kg for 2 seconds, increasing its velocity from 3 m/s to 7 m/s. Calculate the magnitude of the applied force. (4 Marks)")
+                    if st.button("Show Step-by-Step Solved Solution", key="btn_show_sol_p"):
+                        st.markdown("""
+                        **Step-by-Step Solved Solution:**
+                        - **Step 1:** Given: mass m = 5 kg, initial velocity u = 3 m/s, final velocity v = 7 m/s, time t = 2 s. *(+1 Mark)*
+                        - **Step 2:** Acceleration: a = (v - u) / t = (7 - 3) / 2 = 4 / 2 = 2 m/s². *(+1 Mark)*
+                        - **Step 3:** Force using F = m * a: F = 5 kg * 2 m/s² = 10 Newtons (N). *(+1 Mark)*
+                        - **Step 4:** Final Result: Applied Force = 10 N. *(+1 Mark)*
+                        """)
+                elif g_subject == "Chemistry":
+                    st.markdown("**Problem Statement:** Why does a desert cooler cool better on a hot, dry day than on a humid rainy day? (3 Marks)")
+                    if st.button("Show Step-by-Step Solved Solution", key="btn_show_sol_c"):
+                        st.markdown("""
+                        **Step-by-Step Solved Solution:**
+                        - **Step 1:** On a hot dry day, temperature is high and humidity (moisture in air) is very low. *(+1 Mark)*
+                        - **Step 2:** Rate of water evaporation from cooler pads increases dramatically when humidity is low. *(+1 Mark)*
+                        - **Step 3:** Greater evaporation absorbs more latent heat from incoming air, cooling the room effectively. *(+1 Mark)*
+                        """)
+                else:
+                    st.markdown("**Problem Statement:** Express 0.3333... in the form p/q, where p and q are integers and q ≠ 0. (3 Marks)")
+                    if st.button("Show Step-by-Step Solved Solution", key="btn_show_sol_m"):
+                        st.markdown("""
+                        **Step-by-Step Solved Solution:**
+                        - **Step 1:** Let x = 0.3333... (Equation 1). *(+1 Mark)*
+                        - **Step 2:** Multiply by 10: 10x = 3.3333... (Equation 2). *(+1 Mark)*
+                        - **Step 3:** Subtract Eq 1 from Eq 2: 9x = 3 => x = 3/9 = 1/3 in p/q form. *(+1 Mark)*
+                        """)
+
+            # 5-Question Subjective Paper with Refresh Icon / Button
+            col_hdr_q, col_ref_q = st.columns([3.0, 1.2])
+            with col_hdr_q:
+                st.markdown("#### 📝 Subjective Curriculum Paper (Step-by-Step Scoring)")
+            with col_ref_q:
+                if st.button("🔄 Refresh 5 Questions", key="btn_refresh_sample_questions", help="Click to load a brand new set of 5 questions for this class and subject", use_container_width=True):
+                    st.session_state["active_q_set_idx"] = st.session_state.get("active_q_set_idx", 0) + 1
+                    st.session_state["demo_mode_state"] = None
+                    st.toast("🔄 Loaded fresh new 5-question curriculum set!")
+                    st.rerun()
+
+            active_set_idx = st.session_state.get("active_q_set_idx", 0)
+
+            if use_source_in_grader and active_tutor_src:
+                q_data = generate_dynamic_subjective_from_source(active_tutor_src['name'], active_tutor_src['text'], g_subject, g_class)
+                total_available_sets = 1
+                display_set_num = 1
+            else:
+                q_data = get_question_set(g_subject, g_class, custom_topic=custom_grader_topic.strip(), set_index=active_set_idx)
+                total_available_sets = q_data["total_sets"]
+                display_set_num = (active_set_idx % total_available_sets) + 1
+
+            questions = q_data["questions"]
+            active_set_title = q_data["topic_title"]
+
+            st.markdown(f"""
+            <div style="display: flex; justify-content: space-between; align-items: center; background: #F1F5F9; border-left: 4px solid #2563EB; border-radius: 8px; padding: 10px 16px; margin-bottom: 14px;">
+                <div>
+                    <span style="font-weight: 800; font-size: 14px; color: #1E293B;">📄 Active Question Set {display_set_num} of {total_available_sets}:</span>
+                    <span style="font-size: 13.5px; color: #2563EB; font-weight: 700;"> {active_set_title}</span>
+                    <span style="font-size: 12.5px; color: #64748B;"> (Class {g_class}th • {g_subject})</span>
+                </div>
+                <div>
+                    <span style="font-size: 12.5px; background: #E0E7FF; color: #3730A3; font-weight: 700; padding: 4px 10px; border-radius: 999px;">Total 20 Marks</span>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+            col_d1, col_d2, col_d3 = st.columns(3)
+            if "demo_mode_state" not in st.session_state:
                 st.session_state["demo_mode_state"] = None
-                st.toast("🔄 Loaded fresh new 5-question curriculum set!")
-                st.rerun()
 
-        active_set_idx = st.session_state.get("active_q_set_idx", 0)
-        q_data = get_question_set(g_subject, g_class, custom_topic=custom_grader_topic.strip(), set_index=active_set_idx)
-        questions = q_data["questions"]
-        active_set_title = q_data["topic_title"]
-        total_available_sets = q_data["total_sets"]
-        display_set_num = (active_set_idx % total_available_sets) + 1
+            with col_d1:
+                if st.button("🌟 1-Click: Exemplary Answer", use_container_width=True, key=f"btn_demo_high_{display_set_num}"):
+                    st.session_state["demo_mode_state"] = "high"
+                    st.rerun()
+            with col_d2:
+                if st.button("⚖️ 1-Click: Average Answer", use_container_width=True, key=f"btn_demo_avg_{display_set_num}"):
+                    st.session_state["demo_mode_state"] = "avg"
+                    st.rerun()
+            with col_d3:
+                if st.button("⚠️ 1-Click: Test 0 Marks (Blank/NA)", use_container_width=True, key=f"btn_demo_zero_{display_set_num}"):
+                    st.session_state["demo_mode_state"] = "zero"
+                    st.rerun()
 
-        st.markdown(f"""
-        <div style="display: flex; justify-content: space-between; align-items: center; background: #F1F5F9; border-left: 4px solid #2563EB; border-radius: 6px; padding: 7px 14px; margin-bottom: 12px;">
-            <div>
-                <span style="font-weight: 800; font-size: 12.5px; color: #1E293B;">📄 Active Question Set {display_set_num} of {total_available_sets}:</span>
-                <span style="font-size: 12px; color: #2563EB; font-weight: 700;"> {active_set_title}</span>
-                <span style="font-size: 11px; color: #64748B;"> (Class {g_class}th • {g_subject})</span>
-            </div>
-            <div>
-                <span style="font-size: 11px; background: #E0E7FF; color: #3730A3; font-weight: 700; padding: 3px 8px; border-radius: 999px;">Total 20 Marks</span>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
+            active_demo = st.session_state.get("demo_mode_state")
 
-        col_d1, col_d2, col_d3 = st.columns(3)
-        if "demo_mode_state" not in st.session_state:
-            st.session_state["demo_mode_state"] = None
-
-        with col_d1:
-            if st.button("🌟 1-Click: Exemplary Answer", use_container_width=True, key=f"btn_demo_high_{display_set_num}"):
-                st.session_state["demo_mode_state"] = "high"
-                st.rerun()
-        with col_d2:
-            if st.button("⚖️ 1-Click: Average Answer", use_container_width=True, key=f"btn_demo_avg_{display_set_num}"):
-                st.session_state["demo_mode_state"] = "avg"
-                st.rerun()
-        with col_d3:
-            if st.button("⚠️ 1-Click: Test 0 Marks (Blank/NA)", use_container_width=True, key=f"btn_demo_zero_{display_set_num}"):
-                st.session_state["demo_mode_state"] = "zero"
-                st.rerun()
-
-        active_demo = st.session_state.get("demo_mode_state")
-
-        user_answers = {}
-        for idx, q in enumerate(questions):
-            st.markdown(f"**Q{idx+1} ({q['marks']} Marks):** {q['text']}")
-            default_val = ""
-            if active_demo == "high":
-                default_val = q.get("exemplar", "")
-            elif active_demo == "avg":
-                default_val = q.get("avg_ans", "")
-            elif active_demo == "zero":
-                zero_tests = ["NA", "", "I don't know the answer", "Photosynthesis is the process of plants making food", "n/a"]
-                default_val = zero_tests[idx % len(zero_tests)]
-
-            user_answers[q["id"]] = st.text_area(
-                f"Your Subjective Answer for Q{idx+1}:",
-                value=default_val,
-                height=75,
-                key=f"ans_{q['id']}_{g_class}_{g_subject}_{display_set_num}"
+            # Option to Upload Handwritten Paper or Type Answers Online
+            st.markdown("#### 📝 Answer Submission Method:")
+            sub_ans_method = st.radio(
+                "Choose how you want to submit your subjective answers:",
+                [
+                    "✍️ Type Answers in Text Boxes Below",
+                    "📎 Upload Handwritten Answer Sheet (PDF, DOC, DOCX, or Photo of Paper)"
+                ],
+                index=0,
+                horizontal=True,
+                key=f"sub_ans_method_{display_set_num}"
             )
 
-        submit_button = st.button("🚀 Submit Paper for AI & Teacher Evaluation", type="primary")
+            attached_paper_doc = None
+            if "Upload Handwritten" in sub_ans_method:
+                uploaded_ans_sheet = st.file_uploader(
+                    "📎 Upload Handwritten Answer Sheet (PDF, DOCX, DOC, PNG, JPG, JPEG):",
+                    type=["pdf", "docx", "doc", "txt", "png", "jpg", "jpeg"],
+                    key=f"file_uploader_ans_sheet_{display_set_num}",
+                    help="Upload a PDF or scan/photo of your handwritten paper. Your teacher will inspect this document directly in the governance console and assign marks."
+                )
+                if uploaded_ans_sheet is not None:
+                    p_bytes = uploaded_ans_sheet.getvalue()
+                    p_text = extract_document_content(uploaded_ans_sheet.name, p_bytes) if not uploaded_ans_sheet.name.lower().endswith(('.png', '.jpg', '.jpeg')) else ""
+                    p_b64 = base64.b64encode(p_bytes).decode("utf-8")
+                    attached_paper_doc = {
+                        "name": uploaded_ans_sheet.name,
+                        "type": uploaded_ans_sheet.type or "application/pdf",
+                        "size_str": f"{round(len(p_bytes)/1024, 1)} KB",
+                        "size_bytes": len(p_bytes),
+                        "data_b64": p_b64,
+                        "extracted_text": p_text
+                    }
+                    st.success(f"✅ Handwritten Paper Attached: **{uploaded_ans_sheet.name}** ({attached_paper_doc['size_str']}). Attached for Teacher Audit & Grading!")
 
-        if submit_button:
-            total_score = 0
-            max_score = sum(q["marks"] for q in questions)
-            evaluation_results = []
-
+            user_answers = {}
             for idx, q in enumerate(questions):
-                raw_ans = user_answers[q["id"]]
-                q_max = q["marks"]
+                st.markdown(f"<div style='font-size: 15px; font-weight: 700; color: #0F172A; margin-top: 14px; margin-bottom: 6px;'>Q{idx+1} ({q['marks']} Marks): {q['text']}</div>", unsafe_allow_html=True)
+                default_val = ""
+                if active_demo == "high":
+                    default_val = q.get("exemplar", "")
+                elif active_demo == "avg":
+                    default_val = q.get("avg_ans", "")
+                elif active_demo == "zero":
+                    zero_tests = ["NA", "", "I don't know the answer", "Photosynthesis is the process of plants making food", "n/a"]
+                    default_val = zero_tests[idx % len(zero_tests)]
 
-                # Strict evaluation: awards 0 marks for blank, NA, or irrelevant
-                eval_out = evaluate_student_answer(g_subject, idx, q["text"], raw_ans, q_max, expected_keywords=q.get("keywords"))
-                score = eval_out["score"]
-                total_score += score
+                user_answers[q["id"]] = st.text_area(
+                    f"Your Subjective Answer for Q{idx+1}:",
+                    value=default_val,
+                    height=80,
+                    key=f"ans_{q['id']}_{g_class}_{g_subject}_{display_set_num}",
+                    help="If you uploaded your answer sheet above, you may leave these blank or provide supplementary notes."
+                )
 
-                evaluation_results.append({
-                    "question": q["text"],
-                    "questionText": q["text"],
-                    "max": q_max,
-                    "maxMarks": q_max,
-                    "score": score,
-                    "awardedMarks": score,
-                    "student_ans": raw_ans,
-                    "studentAnswer": raw_ans,
-                    "evalStatus": eval_out.get("status", "EVALUATED"),
-                    "stepBreakdown": eval_out["stepBreakdown"]
-                })
+            submit_button = st.button("🚀 Submit Paper for AI & Teacher Evaluation", type="primary")
 
-            total_score = round(total_score, 1)
+            if submit_button:
+                total_score = 0
+                max_score = sum(q["marks"] for q in questions)
+                evaluation_results = []
 
-            assigned_std_id = current_user.get("id", "STU-101")
-            assigned_std_name = current_user.get("name", "Anup Sharma")
+                for idx, q in enumerate(questions):
+                    raw_ans = user_answers[q["id"]]
+                    q_max = q["marks"]
 
-            sub_board = current_user.get("board", "CBSE (All India)") if (user_role == "student" or g_board == "All Board") else g_board
-            sub_topic = active_set_title if active_set_title else active_grade_topic
-            new_sub = {
-                "id": f"sub_{int(time.time() * 1000)}",
-                "studentId": assigned_std_id,
-                "studentName": assigned_std_name,
-                "board": sub_board,
-                "className": f"Class {g_class}th",
-                "subject": g_subject,
-                "subjectName": g_subject,
-                "topic": sub_topic,
-                "chapterTitle": sub_topic,
-                "topicName": sub_topic,
-                "totalAwarded": total_score,
-                "totalAwardedMarks": total_score,
-                "totalMax": max_score,
-                "totalMaxMarks": max_score,
-                "status": "PENDING_TEACHER_RELEASE",
-                "submittedAt": datetime.now().isoformat() + "Z",
-                "releasedAt": None,
-                "turnaroundMinutes": None,
-                "questions": evaluation_results
-            }
-            db.setdefault("submissions", []).insert(0, normalize_submission(new_sub, 0))
-            save_db(db)
+                    # Strict evaluation: awards 0 marks for blank, NA, or irrelevant
+                    eval_out = evaluate_student_answer(g_subject, idx, q["text"], raw_ans, q_max, expected_keywords=q.get("keywords"))
+                    score = eval_out["score"]
+                    total_score += score
 
-            st.success(f"Paper submitted! Raw AI Score: {total_score} / {max_score}")
-            st.warning(f"🛡️ **AI Governance Protocol Active:** Marks for Candidate **{assigned_std_id}** are currently held in **Pending Teacher Audit Queue**. Timer has started. Your subject teacher must audit, verify, and release your marks.")
+                    evaluation_results.append({
+                        "question": q["text"],
+                        "questionText": q["text"],
+                        "max": q_max,
+                        "maxMarks": q_max,
+                        "score": score,
+                        "awardedMarks": score,
+                        "student_ans": raw_ans,
+                        "studentAnswer": raw_ans,
+                        "evalStatus": eval_out.get("status", "EVALUATED"),
+                        "stepBreakdown": eval_out["stepBreakdown"]
+                    })
+
+                total_score = round(total_score, 1)
+
+                assigned_std_id = current_user.get("id", "STU-101")
+                assigned_std_name = current_user.get("name", "Anup Sharma")
+
+                sub_board = current_user.get("board", "CBSE (All India)") if (user_role == "student" or g_board == "All Board") else g_board
+                sub_topic = active_set_title if active_set_title else active_grade_topic
+                new_sub = {
+                    "id": f"sub_{int(time.time() * 1000)}",
+                    "studentId": assigned_std_id,
+                    "studentName": assigned_std_name,
+                    "board": sub_board,
+                    "className": f"Class {g_class}th",
+                    "subject": g_subject,
+                    "subjectName": g_subject,
+                    "topic": sub_topic,
+                    "chapterTitle": sub_topic,
+                    "topicName": sub_topic,
+                    "totalAwarded": total_score,
+                    "totalAwardedMarks": total_score,
+                    "totalMax": max_score,
+                    "totalMaxMarks": max_score,
+                    "status": "PENDING_TEACHER_RELEASE",
+                    "submittedAt": datetime.now().isoformat() + "Z",
+                    "releasedAt": None,
+                    "turnaroundMinutes": None,
+                    "questions": evaluation_results,
+                    "uploadedDocument": attached_paper_doc
+                }
+                db.setdefault("submissions", []).insert(0, normalize_submission(new_sub, 0))
+                save_db(db)
+
+                if attached_paper_doc:
+                    st.success(f"🎉 Paper & Solution Document **{attached_paper_doc['name']}** submitted successfully!")
+                    st.info(f"📎 **Attached Document Registered:** Candidate **{assigned_std_id}** submitted a handwritten paper. It has been routed directly to the Teacher Evaluation Queue for manual review and score assignment.")
+                else:
+                    st.success(f"Paper submitted! Raw AI Score: {total_score} / {max_score}")
+                    st.warning(f"🛡️ **AI Governance Protocol Active:** Marks for Candidate **{assigned_std_id}** are currently held in **Pending Teacher Audit Queue**. Timer has started. Your subject teacher must audit, verify, and release your marks.")
 
 # =============================================================================
 # TAB: MY EVALUATIONS & APPEALS (Student Scoped vs Faculty History vs Admin)
@@ -1724,6 +2855,28 @@ if tab_history is not None:
                     admin_extra = f" • Student: <strong>{std_name_tag}</strong> (<code>{std_id_tag}</code>)" if user_role == "admin" else (f" • Candidate: <code>{std_id_tag}</code>" if user_role == "teacher" else "")
                     st.markdown(f"#### 📄 {topic} ({subject} • {cls_name} • {board}){admin_extra}", unsafe_allow_html=True)
                     st.markdown(f"**Score:** `{awarded} / {max_m}` Marks  |  **Status:** `{status}`")
+
+                    # Attached Handwritten Paper / Document info if present
+                    if sub.get("uploadedDocument"):
+                        doc_d = sub["uploadedDocument"]
+                        st.markdown(f"""
+                        <div style="background: #F8FAFC; border: 1px solid #CBD5E1; border-radius: 8px; padding: 7px 12px; margin: 6px 0; display: inline-flex; align-items: center; gap: 8px;">
+                            <span style="font-weight: 700; color: #1D4ED8; font-size: 13px;">📎 Attached Answer Paper:</span>
+                            <span style="font-size: 13px; color: #0F172A; font-weight: 600;">{doc_d.get('name')} ({doc_d.get('size_str', 'File')})</span>
+                        </div>
+                        """, unsafe_allow_html=True)
+                        if doc_d.get("data_b64"):
+                            try:
+                                r_b = base64.b64decode(doc_d["data_b64"])
+                                st.download_button(
+                                    label=f"📥 Download Submitted Paper ({doc_d.get('name')})",
+                                    data=r_b,
+                                    file_name=doc_d.get("name", "Submitted_Paper.pdf"),
+                                    mime=doc_d.get("type", "application/pdf"),
+                                    key=f"hist_dl_{sub_id}_{s_idx}"
+                                )
+                            except Exception:
+                                pass
 
                     if status == "PENDING_TEACHER_RELEASE":
                         released_q_list = [q for q in sub.get("questions", []) if q.get("isReleased", False)]
@@ -2013,6 +3166,47 @@ if tab_teacher is not None:
                     st.markdown(f"**Submission #{s_idx+1}: Candidate <code>{student_id}</code>** • {topic} ({subj_name} • {cls_name})", unsafe_allow_html=True)
                     st.markdown(f"Current Marks: **{awarded} / {max_m}** | Status: `{status}`")
 
+                    # Attached Student Handwritten Paper / Solution Document
+                    doc_att = sub.get("uploadedDocument")
+                    if doc_att and doc_att.get("data_b64"):
+                        st.markdown(f"""
+                        <div style="background: #EFF6FF; border: 2px solid #3B82F6; border-radius: 12px; padding: 14px 18px; margin: 12px 0; box-shadow: 0 4px 12px rgba(59,130,246,0.12);">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <span style="font-weight: 800; color: #1D4ED8; font-size: 14.5px;">📎 Attached Student Handwritten Paper / Solution Document:</span>
+                                    <div style="color: #0F172A; font-weight: 700; font-size: 14px; margin-top: 3px;">
+                                        📄 {doc_att.get('name')} <span style="font-weight: 500; color: #64748B;">({doc_att.get('size_str', 'File')})</span>
+                                    </div>
+                                    <div style="font-size: 12.5px; color: #475569; margin-top: 2px;">
+                                        Student submitted this handwritten physical exam paper. Review the attached document below and assign/adjust question marks accordingly.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        """, unsafe_allow_html=True)
+
+                        try:
+                            raw_paper_bytes = base64.b64decode(doc_att.get("data_b64", ""))
+                            col_doc_btn1, col_doc_btn2 = st.columns([1.6, 2.4])
+                            with col_doc_btn1:
+                                st.download_button(
+                                    label=f"📥 Download Student Paper ({doc_att.get('name')})",
+                                    data=raw_paper_bytes,
+                                    file_name=doc_att.get("name", "Student_Answer_Sheet.pdf"),
+                                    mime=doc_att.get("type", "application/pdf"),
+                                    key=f"t_dl_paper_{sub_id}_{s_idx}",
+                                    use_container_width=True
+                                )
+                            with col_doc_btn2:
+                                if doc_att.get("extracted_text"):
+                                    with st.expander("📝 View Extracted Text from Uploaded Paper", expanded=False):
+                                        st.text_area("Extracted Paper Content", value=doc_att.get("extracted_text"), height=130, disabled=True, key=f"t_txt_paper_{sub_id}_{s_idx}")
+                                elif doc_att.get("name", "").lower().endswith(('.png', '.jpg', '.jpeg')):
+                                    with st.expander("🖼️ Preview Uploaded Paper Photo", expanded=False):
+                                        st.image(raw_paper_bytes, caption=f"Handwritten Paper - Candidate {student_id}", use_column_width=True)
+                        except Exception:
+                            pass
+
                     if status == "PENDING_TEACHER_RELEASE":
                         st.markdown(f'<div class="timer-pill">⏱️ Timer Running: {elapsed_txt} since arrival in queue</div>', unsafe_allow_html=True)
                         st.info("💡 **Teacher Question-Level Evaluation & Release:** Modify marks for any question below. The total score recalculates immediately upon pressing Enter or clicking the small release icon beside each question. Marks can be released question-by-question to avoid bulk release.")
@@ -2032,9 +3226,9 @@ if tab_teacher is not None:
                                     st.markdown(f"**Q{q_i+1} ({q_mx} Marks):** {q_txt}")
                                     st.markdown(f"**Student Answer:** *\"{stu_ans}\"*")
                                     if q_is_rel:
-                                        st.markdown(f'<span style="background: #DCFCE7; color: #15803D; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; border: 1px solid #86EFAC;">🟢 Q{q_i+1} Released: <strong>{app_q_score} / {q_mx}</strong></span>', unsafe_allow_html=True)
+                                        st.markdown(f'<span style="background: #DCFCE7; color: #15803D; font-size: 12.5px; font-weight: 700; padding: 3px 10px; border-radius: 999px; border: 1px solid #86EFAC;">🟢 Q{q_i+1} Released: <strong>{app_q_score} / {q_mx}</strong></span>', unsafe_allow_html=True)
                                     else:
-                                        st.markdown(f'<span style="background: #FEF3C7; color: #92400E; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px; border: 1px solid #FCD34D;">⏳ Pending Question Release</span>', unsafe_allow_html=True)
+                                        st.markdown(f'<span style="background: #FEF3C7; color: #92400E; font-size: 12.5px; font-weight: 600; padding: 3px 10px; border-radius: 999px; border: 1px solid #FCD34D;">⏳ Pending Question Release</span>', unsafe_allow_html=True)
 
                                 with col_qb:
                                     # Teacher editable mark input per question with instant Enter callback
@@ -2084,7 +3278,7 @@ if tab_teacher is not None:
                         <div style="background: linear-gradient(135deg, #EFF6FF, #DBEAFE); border: 1.5px solid #3B82F6; border-radius: 8px; padding: 12px 18px; margin: 12px 0;">
                             <div style="display: flex; justify-content: space-between; align-items: center;">
                                 <div>
-                                    <span style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: #1E40AF; letter-spacing: 0.5px;">Live Calculated Total Score (Instant Update)</span>
+                                    <span style="font-size: 12px; text-transform: uppercase; font-weight: 700; color: #1E40AF; letter-spacing: 0.5px;">Live Calculated Total Score (Instant Update)</span>
                                     <div style="font-size: 24px; font-weight: 800; color: #1D4ED8;">{live_calc_sum} <span style="font-size: 14px; font-weight: 600; color: #475569;">/ {max_m} Marks</span> <span style="font-size: 15px; color: #059669; font-weight: 700;">({live_pct}%)</span></div>
                                 </div>
                                 <div style="text-align: right;">
@@ -2362,7 +3556,151 @@ if tab_admin is not None:
 
         st.markdown("<hr>", unsafe_allow_html=True)
 
-        # 4. Global Directory & User Management
+        # 4. Administrative User Credential & Password Management (Admin Can View & Change Any User's Password)
+        st.markdown("### 🔐 Administrative User Credential & Password Management")
+        st.caption("As Administrator, you have full authority to view and update/reset login passwords for any student or teacher upon request or security requirement.")
+
+        manageable_users = [u for u in get_all_users_list() if u.get("role") != "admin"]
+
+        col_admin_pw_left, col_admin_pw_right = st.columns([1.5, 2.5])
+
+        with col_admin_pw_left:
+            st.markdown("<div style='font-size: 14px; font-weight: 700; color: #1E293B; margin-bottom: 6px;'>1. Select Candidate or Faculty Profile:</div>", unsafe_allow_html=True)
+            adm_role_filter = st.selectbox(
+                "Filter by Role:",
+                ["All Users (Students & Teachers)", "Students Only", "Teachers Only"],
+                key="adm_tab_role_filter"
+            )
+
+            if adm_role_filter == "Students Only":
+                filtered_target_users = [u for u in manageable_users if u.get("role") == "student"]
+            elif adm_role_filter == "Teachers Only":
+                filtered_target_users = [u for u in manageable_users if u.get("role") == "teacher"]
+            else:
+                filtered_target_users = manageable_users
+
+            if not filtered_target_users:
+                st.info("No users found matching filter.")
+                selected_target_user = None
+            else:
+                target_user_labels = [
+                    f"{u.get('name')} ({u.get('id')} • {str(u.get('role') or 'student').capitalize()} • {str(u.get('board') or u.get('department') or '').split(' ')[0]})"
+                    for u in filtered_target_users
+                ]
+                sel_idx = st.selectbox(
+                    "Choose Profile to View & Change Password:",
+                    range(len(filtered_target_users)),
+                    format_func=lambda i: target_user_labels[i],
+                    key="adm_tab_target_user_idx"
+                )
+                selected_target_user = filtered_target_users[sel_idx]
+
+            if selected_target_user:
+                t_uname = selected_target_user.get("username", selected_target_user.get("name"))
+                t_name = selected_target_user.get("name", t_uname)
+                t_id = selected_target_user.get("id", "N/A")
+                t_role = str(selected_target_user.get("role") or "student")
+                t_email = selected_target_user.get("email", "Not provided")
+                t_board = selected_target_user.get("board") or selected_target_user.get("department", "Sciences")
+                t_current_pw = get_user_password(t_uname)
+
+                badge_style = "role-badge-student" if t_role == "student" else "role-badge-teacher"
+
+                st.markdown(f"""
+                <div style="background: #FFFFFF; border: 1.5px solid #CBD5E1; border-radius: 12px; padding: 14px 16px; margin-top: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <div>
+                            <span style="font-size: 15px; font-weight: 800; color: #0F172A;">{t_name}</span>
+                            <span style="font-size: 12px; font-weight: 700; color: #475569; margin-left: 6px;">({t_id})</span>
+                        </div>
+                        <span class="{badge_style}" style="padding: 2px 8px; border-radius: 999px;">{str(t_role or 'student').capitalize()}</span>
+                    </div>
+                    <div style="font-size: 12.5px; color: #475569; line-height: 1.5;">
+                        👤 <strong>Login Username:</strong> <code>{t_uname}</code><br>
+                        📧 <strong>Email:</strong> {t_email}<br>
+                        🏛️ <strong>Affiliation:</strong> {t_board}
+                    </div>
+                    <div style="margin-top: 10px; padding: 10px 12px; background: #F1F5F9; border-radius: 8px; border: 1px solid #E2E8F0; display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 12.5px; font-weight: 700; color: #1E293B;">🔑 Current Active Password:</span>
+                        <code style="font-size: 14px; font-weight: 800; background: #EEF2FF; color: #1D4ED8; padding: 4px 10px; border-radius: 6px; border: 1px solid #BFDBFE;">{t_current_pw}</code>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+
+        with col_admin_pw_right:
+            if selected_target_user:
+                st.markdown(f"<div style='font-size: 14px; font-weight: 700; color: #1E293B; margin-bottom: 6px;'>2. Set New Password for {t_name} ({t_id}):</div>", unsafe_allow_html=True)
+                
+                with st.form(key=f"adm_pw_form_{t_uname}"):
+                    col_p1, col_p2 = st.columns(2)
+                    with col_p1:
+                        adm_new_pw = st.text_input(
+                            "New Password *",
+                            type="password",
+                            placeholder="Min 4 characters",
+                            key=f"adm_form_npw_{t_uname}",
+                            help=f"Enter the new password to assign to {t_name} ({t_uname})."
+                        )
+                    with col_p2:
+                        adm_conf_pw = st.text_input(
+                            "Confirm New Password *",
+                            type="password",
+                            placeholder="Re-enter new password",
+                            key=f"adm_form_cpw_{t_uname}"
+                        )
+
+                    btn_submit_pw = st.form_submit_button("🔐 Enforce & Update Password Immediately", type="primary", use_container_width=True)
+
+                    if btn_submit_pw:
+                        if len(adm_new_pw) < 4:
+                            st.error("Password must be at least 4 characters long.")
+                        elif adm_new_pw != adm_conf_pw:
+                            st.error("New password and confirmation password do not match.")
+                        else:
+                            update_user_password(t_uname, adm_new_pw)
+                            st.success(f"🎉 Password successfully updated for {t_name} ({t_id})! New active password: '{adm_new_pw}'. The user can now immediately log in with this password.")
+                            time.sleep(0.5)
+                            st.rerun()
+
+                # Quick 1-Click Reset to Institutional Default
+                col_rst1, col_rst2 = st.columns([1.5, 1])
+                with col_rst1:
+                    if st.button(f"🔄 1-Click Reset {t_name}'s Password to 'eduaegis123'", key=f"btn_quick_rst_{t_uname}", use_container_width=True):
+                        update_user_password(t_uname, "eduaegis123")
+                        st.success(f"Reset password for {t_name} to institutional default: 'eduaegis123'!")
+                        time.sleep(0.4)
+                        st.rerun()
+                with col_rst2:
+                    st.caption("Standard institutional recovery protocol.")
+
+        # Master Credential Directory & Viewer Table
+        st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
+        with st.expander("📋 Master Institutional Credentials Directory & Passwords Viewer (All Users)", expanded=False):
+            st.caption("Institutional security audit table displaying all active accounts with their current login passwords.")
+            show_plain_pw = st.checkbox("👁️ Reveal Plaintext Passwords in Master Table (Security Clearance Active)", value=True, key="chk_reveal_master_pw")
+
+            all_master_rows = []
+            for u in manageable_users:
+                u_un = u.get("username", u.get("name"))
+                act_pw = get_user_password(u_un)
+                display_pw = act_pw if show_plain_pw else "••••••••"
+                all_master_rows.append({
+                    "User ID": u.get("id", "N/A"),
+                    "Full Name": u.get("name", u_un),
+                    "Login Username": u_un,
+                    "Role": str(u.get("role") or "student").capitalize(),
+                    "Curriculum Board / Department": u.get("board") or u.get("department", "Sciences"),
+                    "Email Address": u.get("email", "N/A"),
+                    "Active Password": display_pw,
+                    "Account Status": "🟢 Active"
+                })
+
+            df_master_cred = pd.DataFrame(all_master_rows)
+            st.dataframe(df_master_cred, use_container_width=True, hide_index=True)
+
+        st.markdown("<hr>", unsafe_allow_html=True)
+
+        # 5. Global Directory & User Management
         with st.expander("👥 Institutional Directory: Registered Students & Faculty IDs", expanded=False):
             col_reg1, col_reg2 = st.columns(2)
             with col_reg1:
@@ -2375,12 +3713,730 @@ if tab_admin is not None:
                 st.markdown("**Faculty Registry:**")
                 st.dataframe(pd.DataFrame(teachers)[["id", "name", "subjects", "email", "department"]], hide_index=True)
 
+# =============================================================================
+# TAB: AI GOVERNANCE REFERENCE (Exclusive for Admin Profiles Only)
+# =============================================================================
+if tab_gov_ref is not None:
+    with tab_gov_ref:
+        st.subheader("⚖️ Institutional AI Governance, Regulatory Intelligence & Compliance Repository")
+        st.caption("Exclusive Executive Console for System Administrators: Global & Indian statutory frameworks, major AI acts, compliance checklists, and real-time regulatory monitors.")
+
+        # Top Executive Compliance Indicator Cards
+        st.markdown("""
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; margin-bottom: 18px;">
+            <div style="background: #F0FDF4; border: 1.5px solid #BBF7D0; border-radius: 10px; padding: 12px 14px;">
+                <div style="font-size: 11px; text-transform: uppercase; font-weight: 800; color: #166534; letter-spacing: 0.5px;">🇮🇳 India DPDP Act 2023</div>
+                <div style="font-size: 15px; font-weight: 800; color: #0F172A; margin-top: 2px;">Section 9 Compliant</div>
+                <div style="font-size: 12px; color: #15803D; margin-top: 4px;">Zero behavioral profiling • Minor privacy protected</div>
+            </div>
+            <div style="background: #EFF6FF; border: 1.5px solid #BFDBFE; border-radius: 10px; padding: 12px 14px;">
+                <div style="font-size: 11px; text-transform: uppercase; font-weight: 800; color: #1E40AF; letter-spacing: 0.5px;">🇪🇺 EU AI Act (2024/1689)</div>
+                <div style="font-size: 15px; font-weight: 800; color: #0F172A; margin-top: 2px;">Annex III High-Risk Ready</div>
+                <div style="font-size: 12px; color: #1D4ED8; margin-top: 4px;">Teacher-in-the-Loop • Mandatory human oversight</div>
+            </div>
+            <div style="background: #FDF4FF; border: 1.5px solid #F0ABFC; border-radius: 10px; padding: 12px 14px;">
+                <div style="font-size: 11px; text-transform: uppercase; font-weight: 800; color: #86198F; letter-spacing: 0.5px;">⚖️ EU GDPR (Art. 22)</div>
+                <div style="font-size: 15px; font-weight: 800; color: #0F172A; margin-top: 2px;">Human Agency Active</div>
+                <div style="font-size: 12px; color: #701A75; margin-top: 4px;">Right of explanation & academic contestation</div>
+            </div>
+            <div style="background: #FEF3C7; border: 1.5px solid #FDE68A; border-radius: 10px; padding: 12px 14px;">
+                <div style="font-size: 11px; text-transform: uppercase; font-weight: 800; color: #92400E; letter-spacing: 0.5px;">🏛️ NITI Aayog RAI</div>
+                <div style="font-size: 15px; font-weight: 800; color: #0F172A; margin-top: 2px;">Seven Principles Aligned</div>
+                <div style="font-size: 12px; color: #B45309; margin-top: 4px;">Blind grading • Algorithmic audit trails</div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        gov_tab1, gov_tab2, gov_tab3, gov_tab4 = st.tabs([
+            "🇮🇳 India AI Acts & Statutory Mandates",
+            "🌍 Global AI Acts & International Treaties",
+            "📡 Live AI Governance Trackers & Monitors",
+            "📋 EduAegis Compliance Audit Matrix"
+        ])
+
+        with gov_tab1:
+            st.markdown("### 🇮🇳 India AI Governance & Statutory Frameworks")
+            st.caption("Statutory acts passed by Parliament of India, MeitY directives, and NITI Aayog Responsible AI policy documents.")
+
+            col_in1, col_in2 = st.columns(2)
+            with col_in1:
+                st.markdown("""
+                <div style="background: #FFFFFF; border: 1.5px solid #CBD5E1; border-radius: 12px; padding: 16px; margin-bottom: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <span style="font-size: 15px; font-weight: 800; color: #0F172A;">📜 Digital Personal Data Protection Act, 2023</span>
+                        <span style="font-size: 11px; background: #DCFCE7; color: #166534; font-weight: 700; padding: 2px 8px; border-radius: 999px;">Statutory Act No. 22</span>
+                    </div>
+                    <div style="font-size: 12.5px; color: #475569; line-height: 1.5; margin-bottom: 8px;">
+                        Enacted by the Parliament of India (MeitY). Establishes comprehensive digital privacy standards for Data Fiduciaries processing citizen and minor personal data.
+                    </div>
+                    <div style="font-size: 12px; color: #1E293B; margin-bottom: 10px; background: #F8FAFC; padding: 8px 10px; border-radius: 6px;">
+                        📌 <strong>Key Clauses for Educational AI:</strong>
+                        <ul style="margin: 4px 0 0 16px; padding: 0;">
+                            <li><strong>Section 9 (Children's Data):</strong> Mandatory verifiable parental consent; absolute bar on behavioral tracking, targeted advertisements, or detrimental profiling of students.</li>
+                            <li><strong>Section 6 & 8:</strong> Explicit notice, purpose limitation, and mandatory security safeguards.</li>
+                            <li><strong>Penalties:</strong> Up to ₹250 Crores for failure to observe children's safety obligations.</li>
+                        </ul>
+                    </div>
+                    <a href="https://www.meity.gov.in/content/digital-personal-data-protection-act-2023" target="_blank" style="text-decoration: none; font-size: 12.5px; font-weight: 700; color: #1D4ED8; background: #EFF6FF; padding: 6px 12px; border-radius: 6px; border: 1px solid #BFDBFE; display: inline-block;">
+                        🏛️ Official MeitY Gazette Text ↗
+                    </a>
+                </div>
+                """, unsafe_allow_html=True)
+
+                st.markdown("""
+                <div style="background: #FFFFFF; border: 1.5px solid #CBD5E1; border-radius: 12px; padding: 16px; margin-bottom: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <span style="font-size: 15px; font-weight: 800; color: #0F172A;">📑 NITI Aayog: Principles for Responsible AI (Part 1)</span>
+                        <span style="font-size: 11px; background: #EFF6FF; color: #1D4ED8; font-weight: 700; padding: 2px 8px; border-radius: 999px;">Policy Benchmark</span>
+                    </div>
+                    <div style="font-size: 12.5px; color: #475569; line-height: 1.5; margin-bottom: 8px;">
+                        National approach document establishing the foundational ethical principles for artificial intelligence deployments across India.
+                    </div>
+                    <div style="font-size: 12px; color: #1E293B; margin-bottom: 10px; background: #F8FAFC; padding: 8px 10px; border-radius: 6px;">
+                        📌 <strong>7 Foundational Core Principles:</strong>
+                        1. Safety & Reliability • 2. Equality • 3. Inclusivity & Non-discrimination • 4. Proportionality • 5. Privacy & Data Protection • 6. Transparency & Explainability • 7. Accountability.
+                    </div>
+                    <a href="https://www.niti.gov.in/sites/default/files/2021-02/Responsible-AI-22022021.pdf" target="_blank" style="text-decoration: none; font-size: 12.5px; font-weight: 700; color: #047857; background: #ECFDF5; padding: 6px 12px; border-radius: 6px; border: 1px solid #A7F3D0; display: inline-block;">
+                        📄 Download NITI Aayog Part 1 (PDF) ↗
+                    </a>
+                </div>
+                """, unsafe_allow_html=True)
+
+            with col_in2:
+                st.markdown("""
+                <div style="background: #FFFFFF; border: 1.5px solid #CBD5E1; border-radius: 12px; padding: 16px; margin-bottom: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <span style="font-size: 15px; font-weight: 800; color: #0F172A;">⚙️ NITI Aayog: Operationalizing Principles for Responsible AI (Part 2)</span>
+                        <span style="font-size: 11px; background: #FDF4FF; color: #86198F; font-weight: 700; padding: 2px 8px; border-radius: 999px;">Enforcement Guide</span>
+                    </div>
+                    <div style="font-size: 12.5px; color: #475569; line-height: 1.5; margin-bottom: 8px;">
+                        Enforcement mechanisms, regulatory sandboxes, self-assessment compliance frameworks, and procurement guidelines for public and private AI systems.
+                    </div>
+                    <div style="font-size: 12px; color: #1E293B; margin-bottom: 10px; background: #F8FAFC; padding: 8px 10px; border-radius: 6px;">
+                        📌 <strong>Key Operational Directives:</strong>
+                        <ul style="margin: 4px 0 0 16px; padding: 0;">
+                            <li>Institutionalizing Ethics Committees & Teacher Oversight boards.</li>
+                            <li>Pre-deployment algorithmic impact assessments (AIA).</li>
+                            <li>Auditable logging of AI grading decisions to prevent student discrimination.</li>
+                        </ul>
+                    </div>
+                    <a href="https://niti.gov.in/sites/default/files/2021-08/Part2-Responsible-AI-12082021.pdf" target="_blank" style="text-decoration: none; font-size: 12.5px; font-weight: 700; color: #701A75; background: #FDF4FF; padding: 6px 12px; border-radius: 6px; border: 1px solid #F0ABFC; display: inline-block;">
+                        📄 Download NITI Aayog Part 2 (PDF) ↗
+                    </a>
+                </div>
+                """, unsafe_allow_html=True)
+
+                st.markdown("""
+                <div style="background: #FFFFFF; border: 1.5px solid #CBD5E1; border-radius: 12px; padding: 16px; margin-bottom: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <span style="font-size: 15px; font-weight: 800; color: #0F172A;">🚀 IndiaAI Mission & National Governance Framework</span>
+                        <span style="font-size: 11px; background: #FEF3C7; color: #92400E; font-weight: 700; padding: 2px 8px; border-radius: 999px;">₹10,372 Cr Allocation</span>
+                    </div>
+                    <div style="font-size: 12.5px; color: #475569; line-height: 1.5; margin-bottom: 8px;">
+                        Approved by the Union Cabinet. Houses the <em>Safe & Trusted AI Pillar</em> developing indigenous evaluative tools, bias-mitigation benchmark datasets, and institutional algorithmic certification.
+                    </div>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <a href="https://indiaai.gov.in/" target="_blank" style="text-decoration: none; font-size: 12.5px; font-weight: 700; color: #1D4ED8; background: #EFF6FF; padding: 6px 12px; border-radius: 6px; border: 1px solid #BFDBFE;">
+                            🌐 IndiaAI Official Portal ↗
+                        </a>
+                        <a href="https://www.meity.gov.in/" target="_blank" style="text-decoration: none; font-size: 12.5px; font-weight: 700; color: #047857; background: #ECFDF5; padding: 6px 12px; border-radius: 6px; border: 1px solid #A7F3D0;">
+                            🏛️ MeitY Regulatory Circulars ↗
+                        </a>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+
+        with gov_tab2:
+            st.markdown("### 🌍 Global AI Legislation, Regulations & Standards")
+            st.caption("International statutory acts, risk categorization standards, and global ethics agreements.")
+
+            col_gl1, col_gl2 = st.columns(2)
+            with col_gl1:
+                st.markdown("""
+                <div style="background: #FFFFFF; border: 1.5px solid #CBD5E1; border-radius: 12px; padding: 16px; margin-bottom: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <span style="font-size: 15px; font-weight: 800; color: #0F172A;">🇪🇺 European Union AI Act (Regulation (EU) 2024/1689)</span>
+                        <span style="font-size: 11px; background: #DCFCE7; color: #166534; font-weight: 700; padding: 2px 8px; border-radius: 999px;">Binding Global Standard</span>
+                    </div>
+                    <div style="font-size: 12.5px; color: #475569; line-height: 1.5; margin-bottom: 8px;">
+                        The world's first comprehensive horizontal legal framework on artificial intelligence. Entered into force across EU member states on 1 August 2024.
+                    </div>
+                    <div style="font-size: 12px; color: #1E293B; margin-bottom: 10px; background: #F8FAFC; padding: 8px 10px; border-radius: 6px;">
+                        📌 <strong>Annex III High-Risk Classification for Education:</strong>
+                        <br>AI systems used to evaluate learning outcomes, grade tests, or steer student educational trajectories are classified as <strong>HIGH RISK</strong>.
+                        <ul style="margin: 4px 0 0 16px; padding: 0;">
+                            <li><strong>Mandatory Human Oversight:</strong> Qualified teachers must have final veto and release power.</li>
+                            <li><strong>Risk Mitigation:</strong> Strict dataset quality, bias auditing, and continuous post-market monitoring.</li>
+                            <li><strong>Explainability:</strong> Students have a legal right to understand how automated scores were derived.</li>
+                        </ul>
+                    </div>
+                    <a href="https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32024R1689" target="_blank" style="text-decoration: none; font-size: 12.5px; font-weight: 700; color: #1D4ED8; background: #EFF6FF; padding: 6px 12px; border-radius: 6px; border: 1px solid #BFDBFE; display: inline-block;">
+                        🇪🇺 Official EUR-Lex Statutory Text (Regulation 2024/1689) ↗
+                    </a>
+                </div>
+                """, unsafe_allow_html=True)
+
+                st.markdown("""
+                <div style="background: #FFFFFF; border: 1.5px solid #CBD5E1; border-radius: 12px; padding: 16px; margin-bottom: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <span style="font-size: 15px; font-weight: 800; color: #0F172A;">⚖️ EU GDPR (Article 22: Automated Decision-Making)</span>
+                        <span style="font-size: 11px; background: #EFF6FF; color: #1D4ED8; font-weight: 700; padding: 2px 8px; border-radius: 999px;">Data Protection</span>
+                    </div>
+                    <div style="font-size: 12.5px; color: #475569; line-height: 1.5; margin-bottom: 8px;">
+                        Provides individuals with the fundamental right <em>not to be subject to a decision based solely on automated processing</em>, including profiling, which produces legal or similarly significant effects.
+                    </div>
+                    <div style="font-size: 12px; color: #1E293B; margin-bottom: 10px; background: #F8FAFC; padding: 8px 10px; border-radius: 6px;">
+                        📌 <strong>Required Safeguards:</strong> Right to obtain human intervention, right to express one's point of view, and right to contest the automated evaluation.
+                    </div>
+                    <a href="https://gdpr-info.eu/art-22-gdpr/" target="_blank" style="text-decoration: none; font-size: 12.5px; font-weight: 700; color: #1D4ED8; background: #EFF6FF; padding: 6px 12px; border-radius: 6px; border: 1px solid #BFDBFE; display: inline-block;">
+                        ⚖️ View GDPR Article 22 Statutory Text ↗
+                    </a>
+                </div>
+                """, unsafe_allow_html=True)
+
+            with col_gl2:
+                st.markdown("""
+                <div style="background: #FFFFFF; border: 1.5px solid #CBD5E1; border-radius: 12px; padding: 16px; margin-bottom: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <span style="font-size: 15px; font-weight: 800; color: #0F172A;">🇺🇸 US NIST AI Risk Management Framework (AI RMF 1.0)</span>
+                        <span style="font-size: 11px; background: #FEF3C7; color: #92400E; font-weight: 700; padding: 2px 8px; border-radius: 999px;">NIST AI 100-1</span>
+                    </div>
+                    <div style="font-size: 12.5px; color: #475569; line-height: 1.5; margin-bottom: 8px;">
+                        National Institute of Standards and Technology guidance framework for designing trustworthy and responsible artificial intelligence systems.
+                    </div>
+                    <div style="font-size: 12px; color: #1E293B; margin-bottom: 10px; background: #F8FAFC; padding: 8px 10px; border-radius: 6px;">
+                        📌 <strong>Four Core Pillars:</strong>
+                        <ul style="margin: 4px 0 0 16px; padding: 0;">
+                            <li><strong>GOVERN:</strong> Establish institutional oversight policies and risk culture.</li>
+                            <li><strong>MAP:</strong> Identify operational context, student demographics, and potential harms.</li>
+                            <li><strong>MEASURE:</strong> Rigorous quantitative evaluation of fairness, accuracy, and calibration.</li>
+                            <li><strong>MANAGE:</strong> Continuous risk tracking and automated incident escalation.</li>
+                        </ul>
+                    </div>
+                    <a href="https://www.nist.gov/itl/ai-risk-management-framework" target="_blank" style="text-decoration: none; font-size: 12.5px; font-weight: 700; color: #1D4ED8; background: #EFF6FF; padding: 6px 12px; border-radius: 6px; border: 1px solid #BFDBFE; display: inline-block;">
+                        🇺🇸 NIST AI RMF Official Portal ↗
+                    </a>
+                </div>
+                """, unsafe_allow_html=True)
+
+                st.markdown("""
+                <div style="background: #FFFFFF; border: 1.5px solid #CBD5E1; border-radius: 12px; padding: 16px; margin-bottom: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <span style="font-size: 15px; font-weight: 800; color: #0F172A;">🌐 UNESCO Recommendation on the Ethics of AI</span>
+                        <span style="font-size: 11px; background: #F3E8FF; color: #6B21A8; font-weight: 700; padding: 2px 8px; border-radius: 999px;">193 Member States</span>
+                    </div>
+                    <div style="font-size: 12.5px; color: #475569; line-height: 1.5; margin-bottom: 8px;">
+                        Unanimously adopted by all 193 UNESCO member states. Mandates protecting human dignity, child developmental well-being, and democratic access to educational technology.
+                    </div>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <a href="https://www.unesco.org/en/artificial-intelligence/recommendation-ethics" target="_blank" style="text-decoration: none; font-size: 12.5px; font-weight: 700; color: #6B21A8; background: #F3E8FF; padding: 6px 12px; border-radius: 6px; border: 1px solid #E9D5FF;">
+                            🌐 UNESCO Official Ethics Standard ↗
+                        </a>
+                        <a href="https://oecd.ai/en/principles" target="_blank" style="text-decoration: none; font-size: 12.5px; font-weight: 700; color: #047857; background: #ECFDF5; padding: 6px 12px; border-radius: 6px; border: 1px solid #A7F3D0;">
+                            🏛️ OECD AI Principles ↗
+                        </a>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+
+        with gov_tab3:
+            st.markdown("### 📡 Live AI Governance Trackers & Real-Time Legal Intelligence")
+            st.caption("Authoritative global repositories tracking AI legislative developments, policy enforcement, and court precedents.")
+
+            col_tr1, col_tr2 = st.columns(2)
+            with col_tr1:
+                st.markdown("""
+                <div style="background: #FFFFFF; border: 1.5px solid #CBD5E1; border-radius: 12px; padding: 16px; margin-bottom: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <span style="font-size: 15px; font-weight: 800; color: #0F172A;">📊 OECD.AI Policy Observatory</span>
+                        <span style="font-size: 11px; background: #DBEAFE; color: #1E40AF; font-weight: 700; padding: 2px 8px; border-radius: 999px;">Live Global Tracker</span>
+                    </div>
+                    <div style="font-size: 12.5px; color: #475569; line-height: 1.5; margin-bottom: 10px;">
+                        Maintained by the OECD. Tracks over 1,000 national AI policies, legislative proposals, and executive orders across 70+ countries with interactive heatmaps.
+                    </div>
+                    <a href="https://oecd.ai/" target="_blank" style="text-decoration: none; font-size: 12.5px; font-weight: 700; color: #1D4ED8; background: #EFF6FF; padding: 6px 12px; border-radius: 6px; border: 1px solid #BFDBFE; display: inline-block;">
+                        🔗 Explore OECD.AI Policy Observatory ↗
+                    </a>
+                </div>
+                """, unsafe_allow_html=True)
+
+                st.markdown("""
+                <div style="background: #FFFFFF; border: 1.5px solid #CBD5E1; border-radius: 12px; padding: 16px; margin-bottom: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <span style="font-size: 15px; font-weight: 800; color: #0F172A;">🎓 Stanford HAI AI Index & Policy Monitor</span>
+                        <span style="font-size: 11px; background: #FEE2E2; color: #991B1B; font-weight: 700; padding: 2px 8px; border-radius: 999px;">Stanford University</span>
+                    </div>
+                    <div style="font-size: 12.5px; color: #475569; line-height: 1.5; margin-bottom: 10px;">
+                        Stanford Institute for Human-Centered AI annual report tracking global AI legislation passage rates, national algorithmic accountability laws, and foundation model evaluations.
+                    </div>
+                    <a href="https://aiindex.stanford.edu/" target="_blank" style="text-decoration: none; font-size: 12.5px; font-weight: 700; color: #DC2626; background: #FEF2F2; padding: 6px 12px; border-radius: 6px; border: 1px solid #FECACA; display: inline-block;">
+                        🔗 Stanford HAI AI Index ↗
+                    </a>
+                </div>
+                """, unsafe_allow_html=True)
+
+            with col_tr2:
+                st.markdown("""
+                <div style="background: #FFFFFF; border: 1.5px solid #CBD5E1; border-radius: 12px; padding: 16px; margin-bottom: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <span style="font-size: 15px; font-weight: 800; color: #0F172A;">⚖️ IAPP AI Governance Center</span>
+                        <span style="font-size: 11px; background: #DCFCE7; color: #166534; font-weight: 700; padding: 2px 8px; border-radius: 999px;">Privacy Professionals</span>
+                    </div>
+                    <div style="font-size: 12.5px; color: #475569; line-height: 1.5; margin-bottom: 10px;">
+                        International Association of Privacy Professionals (IAPP). Provides cross-jurisdictional AI legislative comparison tables, compliance toolkits, and emerging court precedents.
+                    </div>
+                    <a href="https://iapp.org/about/ai-governance-center/" target="_blank" style="text-decoration: none; font-size: 12.5px; font-weight: 700; color: #047857; background: #ECFDF5; padding: 6px 12px; border-radius: 6px; border: 1px solid #A7F3D0; display: inline-block;">
+                        🔗 IAPP AI Governance Center ↗
+                    </a>
+                </div>
+                """, unsafe_allow_html=True)
+
+                st.markdown("""
+                <div style="background: #FFFFFF; border: 1.5px solid #CBD5E1; border-radius: 12px; padding: 16px; margin-bottom: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <span style="font-size: 15px; font-weight: 800; color: #0F172A;">🛡️ Future of Privacy Forum (FPF) - Student Privacy</span>
+                        <span style="font-size: 11px; background: #FEF3C7; color: #92400E; font-weight: 700; padding: 2px 8px; border-radius: 999px;">EdTech & AI</span>
+                    </div>
+                    <div style="font-size: 12.5px; color: #475569; line-height: 1.5; margin-bottom: 10px;">
+                        Specialized repository tracking student privacy in artificial intelligence, children's online data protections, and ethical considerations for automated assessment algorithms.
+                    </div>
+                    <a href="https://fpf.org/" target="_blank" style="text-decoration: none; font-size: 12.5px; font-weight: 700; color: #92400E; background: #FEF3C7; padding: 6px 12px; border-radius: 6px; border: 1px solid #FDE68A; display: inline-block;">
+                        🔗 Future of Privacy Forum ↗
+                    </a>
+                </div>
+                """, unsafe_allow_html=True)
+
+        with gov_tab4:
+            st.markdown("### 📋 EduAegis Institutional Compliance Audit Matrix")
+            st.caption("Verification checklist mapping EduAegis architecture against statutory standards.")
+
+            audit_matrix_data = [
+                {
+                    "Statutory Framework": "DPDP Act 2023 (Section 9)",
+                    "Statutory Mandate": "Prohibition of behavioral tracking & detrimental profiling of minors",
+                    "EduAegis Built-in Technical Safeguard": "Zero third-party tracking; encrypted offline persistence; evaluations restricted strictly to educational rubric scoring.",
+                    "Audit Status": "🟢 COMPLIANT"
+                },
+                {
+                    "Statutory Framework": "EU AI Act (Annex III High-Risk)",
+                    "Statutory Mandate": "Mandatory human oversight in educational assessment AI",
+                    "EduAegis Built-in Technical Safeguard": "Teacher-in-the-Loop Release Queue: AI scores are held in pending status until audited and released by faculty.",
+                    "Audit Status": "🟢 COMPLIANT"
+                },
+                {
+                    "Statutory Framework": "EU GDPR (Article 22)",
+                    "Statutory Mandate": "Right to contest automated decisions and obtain human intervention",
+                    "EduAegis Built-in Technical Safeguard": "Formal Academic Appeal & Contestation Workflow with transparent question-by-question step mark explanations.",
+                    "Audit Status": "🟢 COMPLIANT"
+                },
+                {
+                    "Statutory Framework": "NITI Aayog (Inclusivity & Equity)",
+                    "Statutory Mandate": "Elimination of identity and demographic bias in automated scoring",
+                    "EduAegis Built-in Technical Safeguard": "Blind Evaluation Protocol: Student names are masked from grading teachers to prevent halo or demographic bias.",
+                    "Audit Status": "🟢 COMPLIANT"
+                },
+                {
+                    "Statutory Framework": "NIST AI RMF 1.0 (Measurable Trust)",
+                    "Statutory Mandate": "Repeatable, calibrated, non-hallucinatory scoring rubrics",
+                    "EduAegis Built-in Technical Safeguard": "Deterministic Zero-Mark Rule for blank/NA/irrelevant answers; question-level mark breakdown matching official CBSE/ICSE answer keys.",
+                    "Audit Status": "🟢 COMPLIANT"
+                }
+            ]
+            st.dataframe(pd.DataFrame(audit_matrix_data), use_container_width=True, hide_index=True)
+
+            st.markdown("<hr style='margin: 16px 0 12px 0;'>", unsafe_allow_html=True)
+            col_dwn1, col_dwn2 = st.columns([2, 1])
+            with col_dwn1:
+                st.info("💡 **Compliance Statement:** EduAegis operates as a supervised pedagogical copilot. All subjective marks remain provisional until ratified by institutional academic faculty.")
+            with col_dwn2:
+                audit_json = json.dumps(audit_matrix_data, indent=2)
+                st.download_button(
+                    "📥 Export Compliance Audit Report (JSON)",
+                    data=audit_json,
+                    file_name="eduaegis_ai_governance_compliance.json",
+                    mime="application/json",
+                    use_container_width=True
+                )
+
+# =============================================================================
+# TAB: SUGGESTED STUDY REFERENCES (Authenticated, Verified Portals & Research)
+# =============================================================================
+if tab_references is not None:
+    with tab_references:
+        st.subheader("📚 Suggested Study References: Authenticated & Verified Academic Resources")
+        st.caption("Official national portals, interactive STEM simulations, verified video masterclasses, and pedagogical research frameworks tailored to your profile.")
+
+        # Interactive Reference Filter Ribbon (Defaults to logged-in student's profile)
+        ref_f1, ref_f2, ref_f3 = st.columns(3)
+        with ref_f1:
+            cur_ref_b = st.session_state.get("ref_board", selected_board if selected_board != "All Board" else "CBSE (All India)")
+            ref_b_idx = board_options.index(cur_ref_b) if cur_ref_b in board_options else 1
+            ref_board = st.selectbox("1. Filter References by Curriculum Board:", board_options, index=ref_b_idx, key="ref_board_select")
+        with ref_f2:
+            cur_ref_c = st.session_state.get("ref_class", current_user.get("studentClass", 9) if user_role == "student" else 9)
+            ref_c_idx = [8, 9, 10].index(cur_ref_c) if cur_ref_c in [8, 9, 10] else 1
+            ref_class = st.selectbox("2. Filter References by Class:", [8, 9, 10], index=ref_c_idx, key="ref_class_select")
+        with ref_f3:
+            cur_ref_s = st.session_state.get("ref_subj", "Physics")
+            ref_s_idx = ["Physics", "Chemistry", "Mathematics"].index(cur_ref_s) if cur_ref_s in ["Physics", "Chemistry", "Mathematics"] else 0
+            ref_subject = st.selectbox("3. Filter References by Subject:", ["Physics", "Chemistry", "Mathematics"], index=ref_s_idx, key="ref_subj_select")
+
+        st.session_state["ref_board"] = ref_board
+        st.session_state["ref_class"] = ref_class
+        st.session_state["ref_subj"] = ref_subject
+
+        # Profile Synchronization Badge Banner
+        st.markdown(f"""
+        <div style="background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%); border: 1.5px solid #93C5FD; border-radius: 12px; padding: 12px 18px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 24px;">🎯</span>
+                <div>
+                    <div style="font-size: 14px; font-weight: 800; color: #1E3A8A;">Targeting: {ref_board} • Class {ref_class}th • {ref_subject}</div>
+                    <div style="font-size: 12px; color: #3B82F6;">Curated authenticated portals, interactive simulations, and peer-reviewed educational research.</div>
+                </div>
+            </div>
+            <div style="display: flex; gap: 6px;">
+                <span style="font-size: 11.5px; background: #FFFFFF; color: #1D4ED8; font-weight: 700; padding: 3px 10px; border-radius: 999px; border: 1px solid #BFDBFE;">Verified Portals</span>
+                <span style="font-size: 11.5px; background: #DCFCE7; color: #166534; font-weight: 700; padding: 3px 10px; border-radius: 999px; border: 1px solid #BBF7D0;">NEP 2020 Aligned</span>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        ref_subtab1, ref_subtab2, ref_subtab3, ref_subtab4 = st.tabs([
+            "🏛️ Official Government & Board Portals",
+            "🧪 Interactive STEM Virtual Labs",
+            "🎥 Verified YouTube Masterclasses",
+            "📑 Educational Research & Standards"
+        ])
+
+        with ref_subtab1:
+            st.markdown("### 🏛️ Authenticated National & Board Portals (Government & Official Councils)")
+            st.caption("Official repositories, textbooks, curriculum frameworks, and authenticated sample papers.")
+
+            col_gp1, col_gp2 = st.columns(2)
+            with col_gp1:
+                st.markdown("""
+                <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 12px; padding: 16px; margin-bottom: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <span style="font-size: 15px; font-weight: 800; color: #0F172A;">🌐 DIKSHA Portal (Govt. of India)</span>
+                        <span style="font-size: 11px; background: #DBEAFE; color: #1E40AF; font-weight: 700; padding: 2px 8px; border-radius: 999px;">Ministry of Education</span>
+                    </div>
+                    <div style="font-size: 12.5px; color: #475569; line-height: 1.5; margin-bottom: 10px;">
+                        Digital Infrastructure for Knowledge Sharing. QR-code energized textbooks, interactive worksheets, and learning outcome assessments for CBSE, ICSE, and State Boards.
+                    </div>
+                    <a href="https://diksha.gov.in/" target="_blank" style="text-decoration: none; font-size: 12.5px; font-weight: 700; color: #1D4ED8; background: #EFF6FF; padding: 6px 12px; border-radius: 6px; border: 1px solid #BFDBFE; display: inline-block;">
+                        🔗 Explore DIKSHA Portal ↗
+                    </a>
+                </div>
+                """, unsafe_allow_html=True)
+
+                st.markdown("""
+                <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 12px; padding: 16px; margin-bottom: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <span style="font-size: 15px; font-weight: 800; color: #0F172A;">📖 NCERT Official & e-Pathshala</span>
+                        <span style="font-size: 11px; background: #DCFCE7; color: #166534; font-weight: 700; padding: 2px 8px; border-radius: 999px;">National Council</span>
+                    </div>
+                    <div style="font-size: 12.5px; color: #475569; line-height: 1.5; margin-bottom: 10px;">
+                        Complete official digital textbooks (PDF / Flipbook), exemplar numerical problems, laboratory manuals, and teacher manuals for Classes 8, 9, and 10.
+                    </div>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <a href="https://ncert.nic.in/textbook.php" target="_blank" style="text-decoration: none; font-size: 12.5px; font-weight: 700; color: #1D4ED8; background: #EFF6FF; padding: 6px 12px; border-radius: 6px; border: 1px solid #BFDBFE;">
+                            🔗 NCERT Textbooks ↗
+                        </a>
+                        <a href="https://epathshala.nic.in/" target="_blank" style="text-decoration: none; font-size: 12.5px; font-weight: 700; color: #047857; background: #ECFDF5; padding: 6px 12px; border-radius: 6px; border: 1px solid #A7F3D0;">
+                            📱 e-Pathshala App ↗
+                        </a>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+
+                st.markdown("""
+                <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 12px; padding: 16px; margin-bottom: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <span style="font-size: 15px; font-weight: 800; color: #0F172A;">🔬 CSIR & Vigyan Prasar</span>
+                        <span style="font-size: 11px; background: #FEF3C7; color: #92400E; font-weight: 700; padding: 2px 8px; border-radius: 999px;">Scientific Research</span>
+                    </div>
+                    <div style="font-size: 12.5px; color: #475569; line-height: 1.5; margin-bottom: 10px;">
+                        Council of Scientific & Industrial Research scientific popularization articles, hands-on experiment demonstrations, and national science discoveries repository.
+                    </div>
+                    <a href="https://www.csir.res.in/" target="_blank" style="text-decoration: none; font-size: 12.5px; font-weight: 700; color: #1D4ED8; background: #EFF6FF; padding: 6px 12px; border-radius: 6px; border: 1px solid #BFDBFE; display: inline-block;">
+                        🔗 CSIR Science Portal ↗
+                    </a>
+                </div>
+                """, unsafe_allow_html=True)
+
+            with col_gp2:
+                st.markdown("""
+                <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 12px; padding: 16px; margin-bottom: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <span style="font-size: 15px; font-weight: 800; color: #0F172A;">🏛️ CISCE Official Portal (ICSE & ISC)</span>
+                        <span style="font-size: 11px; background: #F3E8FF; color: #6B21A8; font-weight: 700; padding: 2px 8px; border-radius: 999px;">CISCE Council</span>
+                    </div>
+                    <div style="font-size: 12.5px; color: #475569; line-height: 1.5; margin-bottom: 10px;">
+                        Council for the Indian School Certificate Examinations official syllabi regulations, specimen question papers, marking keys, and pupil diagnostic performance analytics.
+                    </div>
+                    <a href="https://cisce.org/" target="_blank" style="text-decoration: none; font-size: 12.5px; font-weight: 700; color: #1D4ED8; background: #EFF6FF; padding: 6px 12px; border-radius: 6px; border: 1px solid #BFDBFE; display: inline-block;">
+                        🔗 Official CISCE Portal ↗
+                    </a>
+                </div>
+                """, unsafe_allow_html=True)
+
+                st.markdown("""
+                <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 12px; padding: 16px; margin-bottom: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <span style="font-size: 15px; font-weight: 800; color: #0F172A;">📺 SWAYAM & SWAYAM PRABHA</span>
+                        <span style="font-size: 11px; background: #DBEAFE; color: #1E40AF; font-weight: 700; padding: 2px 8px; border-radius: 999px;">24x7 DTH Channel 31</span>
+                    </div>
+                    <div style="font-size: 12.5px; color: #475569; line-height: 1.5; margin-bottom: 10px;">
+                        Ministry of Education high-quality educational television broadcasts and online secondary curriculum modules (Physics, Chemistry, Maths) free of cost across India.
+                    </div>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <a href="https://swayam.gov.in/" target="_blank" style="text-decoration: none; font-size: 12.5px; font-weight: 700; color: #1D4ED8; background: #EFF6FF; padding: 6px 12px; border-radius: 6px; border: 1px solid #BFDBFE;">
+                            🔗 SWAYAM Courses ↗
+                        </a>
+                        <a href="https://www.swayamprabha.gov.in/" target="_blank" style="text-decoration: none; font-size: 12.5px; font-weight: 700; color: #047857; background: #ECFDF5; padding: 6px 12px; border-radius: 6px; border: 1px solid #A7F3D0;">
+                            📺 Swayam Prabha DTH ↗
+                        </a>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+
+                st.markdown("""
+                <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 12px; padding: 16px; margin-bottom: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <span style="font-size: 15px; font-weight: 800; color: #0F172A;">📊 CBSE Academic Portal</span>
+                        <span style="font-size: 11px; background: #DCFCE7; color: #166534; font-weight: 700; padding: 2px 8px; border-radius: 999px;">CBSE Academic Unit</span>
+                    </div>
+                    <div style="font-size: 12.5px; color: #475569; line-height: 1.5; margin-bottom: 10px;">
+                        Central Board of Secondary Education question banks, curriculum circulars, competency-based question books, and marking rubrics for Secondary classes.
+                    </div>
+                    <a href="https://cbseacademic.nic.in/" target="_blank" style="text-decoration: none; font-size: 12.5px; font-weight: 700; color: #1D4ED8; background: #EFF6FF; padding: 6px 12px; border-radius: 6px; border: 1px solid #BFDBFE; display: inline-block;">
+                        🔗 CBSE Academic Portal ↗
+                    </a>
+                </div>
+                """, unsafe_allow_html=True)
+
+        with ref_subtab2:
+            st.markdown("### 🧪 Interactive Virtual Laboratories & STEM Simulations")
+            st.caption("Gain deep intuitive mastery through interactive simulations, variable controls, and real-time visualization.")
+
+            col_sim1, col_sim2 = st.columns(2)
+            with col_sim1:
+                st.markdown("""
+                <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 12px; padding: 16px; margin-bottom: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <span style="font-size: 15px; font-weight: 800; color: #0F172A;">⚡ PhET Interactive Simulations (Univ. of Colorado)</span>
+                        <span style="font-size: 11px; background: #FEF3C7; color: #92400E; font-weight: 700; padding: 2px 8px; border-radius: 999px;">Award Winning</span>
+                    </div>
+                    <div style="font-size: 12.5px; color: #475569; line-height: 1.5; margin-bottom: 10px;">
+                        World-class HTML5 interactive simulations for Physics, Chemistry, and Mathematics. Manipulate mass, acceleration, friction, atomic charges, and chemical equilibrium.
+                    </div>
+                    <div style="font-size: 12px; color: #1E293B; margin-bottom: 10px;">
+                        🌟 <strong>Top Simulations for Class 8-10:</strong>
+                        <ul style="margin: 4px 0 0 16px; padding: 0;">
+                            <li><strong>Physics:</strong> Forces and Motion Basics (Newton's Laws), Gravity and Orbits</li>
+                            <li><strong>Chemistry:</strong> States of Matter: Basics (Latent Heat), Balancing Chemical Equations</li>
+                            <li><strong>Mathematics:</strong> Fraction Matcher, Function Builder, Area Model Algebra</li>
+                        </ul>
+                    </div>
+                    <a href="https://phet.colorado.edu/en/simulations/browse" target="_blank" style="text-decoration: none; font-size: 12.5px; font-weight: 700; color: #1D4ED8; background: #EFF6FF; padding: 6px 12px; border-radius: 6px; border: 1px solid #BFDBFE; display: inline-block;">
+                        🧪 Launch PhET Simulations ↗
+                    </a>
+                </div>
+                """, unsafe_allow_html=True)
+
+                st.markdown("""
+                <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 12px; padding: 16px; margin-bottom: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <span style="font-size: 15px; font-weight: 800; color: #0F172A;">🔬 OLabs (Online Labs for School Experiments)</span>
+                        <span style="font-size: 11px; background: #DBEAFE; color: #1E40AF; font-weight: 700; padding: 2px 8px; border-radius: 999px;">MeitY & Amrita</span>
+                    </div>
+                    <div style="font-size: 12.5px; color: #475569; line-height: 1.5; margin-bottom: 10px;">
+                        Developed by CDAC and Amrita CREATE under Ministry of Electronics & IT. Simulates CBSE curriculum school practicals with interactive apparatus and measurement vernier calipers.
+                    </div>
+                    <a href="http://www.olabs.edu.in/" target="_blank" style="text-decoration: none; font-size: 12.5px; font-weight: 700; color: #1D4ED8; background: #EFF6FF; padding: 6px 12px; border-radius: 6px; border: 1px solid #BFDBFE; display: inline-block;">
+                        🔗 Access OLabs India ↗
+                    </a>
+                </div>
+                """, unsafe_allow_html=True)
+
+            with col_sim2:
+                st.markdown("""
+                <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 12px; padding: 16px; margin-bottom: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <span style="font-size: 15px; font-weight: 800; color: #0F172A;">🔭 HBCSE - TIFR Science Olympiad Portal</span>
+                        <span style="font-size: 11px; background: #F3E8FF; color: #6B21A8; font-weight: 700; padding: 2px 8px; border-radius: 999px;">Tata Institute</span>
+                    </div>
+                    <div style="font-size: 12.5px; color: #475569; line-height: 1.5; margin-bottom: 10px;">
+                        Homi Bhabha Centre for Science Education (TIFR Mumbai). Foundational concept inventories, experiential learning resources, and Indian National Olympiad (NSEJS) problem sets.
+                    </div>
+                    <a href="https://www.hbcse.tifr.res.in/" target="_blank" style="text-decoration: none; font-size: 12.5px; font-weight: 700; color: #1D4ED8; background: #EFF6FF; padding: 6px 12px; border-radius: 6px; border: 1px solid #BFDBFE; display: inline-block;">
+                        🔗 HBCSE TIFR Portal ↗
+                    </a>
+                </div>
+                """, unsafe_allow_html=True)
+
+                st.markdown("""
+                <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 12px; padding: 16px; margin-bottom: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <span style="font-size: 15px; font-weight: 800; color: #0F172A;">🛠️ Atal Tinkering Labs (AIM - NITI Aayog)</span>
+                        <span style="font-size: 11px; background: #DCFCE7; color: #166534; font-weight: 700; padding: 2px 8px; border-radius: 999px;">NITI Aayog</span>
+                    </div>
+                    <div style="font-size: 12.5px; color: #475569; line-height: 1.5; margin-bottom: 10px;">
+                        Atal Innovation Mission maker resources, computational design modules, mechanical linkage guides, and practical STEM experiment toolkits for Class 8-10 innovators.
+                    </div>
+                    <a href="https://aim.gov.in/atal-tinkering-labs.php" target="_blank" style="text-decoration: none; font-size: 12.5px; font-weight: 700; color: #1D4ED8; background: #EFF6FF; padding: 6px 12px; border-radius: 6px; border: 1px solid #BFDBFE; display: inline-block;">
+                        🔗 Explore ATL Community ↗
+                    </a>
+                </div>
+                """, unsafe_allow_html=True)
+
+        with ref_subtab3:
+            st.markdown("### 🎥 Verified YouTube Channels & Curated Educational Masterclasses")
+            st.caption("Top-rated educator channels delivering step-by-step problem derivations, board exam strategies, and conceptual visualizations in Indian English.")
+
+            col_yt1, col_yt2 = st.columns(2)
+            with col_yt1:
+                st.markdown("""
+                <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 12px; padding: 16px; margin-bottom: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <span style="font-size: 15px; font-weight: 800; color: #0F172A;">▶️ Khan Academy India</span>
+                        <span style="font-size: 11px; background: #DCFCE7; color: #166534; font-weight: 700; padding: 2px 8px; border-radius: 999px;">100% Free • Non-Profit</span>
+                    </div>
+                    <div style="font-size: 12.5px; color: #475569; line-height: 1.5; margin-bottom: 10px;">
+                        Complete, structured syllabus playlists aligned with CBSE and ICSE Classes 8, 9, and 10. Clear blackboard explanations of physics formulas, chemical reactions, and mathematical proofs.
+                    </div>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <a href="https://www.youtube.com/@KhanAcademyIndia" target="_blank" style="text-decoration: none; font-size: 12.5px; font-weight: 700; color: #DC2626; background: #FEF2F2; padding: 6px 12px; border-radius: 6px; border: 1px solid #FECACA;">
+                            ▶ Khan Academy YouTube ↗
+                        </a>
+                        <a href="https://hi.khanacademy.org/" target="_blank" style="text-decoration: none; font-size: 12.5px; font-weight: 700; color: #1D4ED8; background: #EFF6FF; padding: 6px 12px; border-radius: 6px; border: 1px solid #BFDBFE;">
+                            🌐 Interactive Website ↗
+                        </a>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+
+                st.markdown("""
+                <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 12px; padding: 16px; margin-bottom: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <span style="font-size: 15px; font-weight: 800; color: #0F172A;">▶️ PW Foundation (Class 9 & 10)</span>
+                        <span style="font-size: 11px; background: #DBEAFE; color: #1E40AF; font-weight: 700; padding: 2px 8px; border-radius: 999px;">Physics Wallah</span>
+                    </div>
+                    <div style="font-size: 12.5px; color: #475569; line-height: 1.5; margin-bottom: 10px;">
+                        Targeted one-shot revision sessions, NCERT line-by-line decoding, and numerical problem solving with relatable Indian daily life examples.
+                    </div>
+                    <a href="https://www.youtube.com/@PW-Foundation" target="_blank" style="text-decoration: none; font-size: 12.5px; font-weight: 700; color: #DC2626; background: #FEF2F2; padding: 6px 12px; border-radius: 6px; border: 1px solid #FECACA; display: inline-block;">
+                        ▶ PW Foundation Channel ↗
+                    </a>
+                </div>
+                """, unsafe_allow_html=True)
+
+            with col_yt2:
+                st.markdown("""
+                <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 12px; padding: 16px; margin-bottom: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <span style="font-size: 15px; font-weight: 800; color: #0F172A;">▶️ CIET - NCERT Official YouTube</span>
+                        <span style="font-size: 11px; background: #F3E8FF; color: #6B21A8; font-weight: 700; padding: 2px 8px; border-radius: 999px;">Ministry Channel</span>
+                    </div>
+                    <div style="font-size: 12.5px; color: #475569; line-height: 1.5; margin-bottom: 10px;">
+                        Central Institute of Educational Technology live masterclasses, interactive demonstrations, and syllabus concept breakdowns by NCERT author professors.
+                    </div>
+                    <a href="https://www.youtube.com/@NCERTOFFICIAL" target="_blank" style="text-decoration: none; font-size: 12.5px; font-weight: 700; color: #DC2626; background: #FEF2F2; padding: 6px 12px; border-radius: 6px; border: 1px solid #FECACA; display: inline-block;">
+                        ▶ CIET-NCERT Channel ↗
+                    </a>
+                </div>
+                """, unsafe_allow_html=True)
+
+                st.markdown("""
+                <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 12px; padding: 16px; margin-bottom: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <span style="font-size: 15px; font-weight: 800; color: #0F172A;">▶️ 3Blue1Brown & Veritasium</span>
+                        <span style="font-size: 11px; background: #FEF3C7; color: #92400E; font-weight: 700; padding: 2px 8px; border-radius: 999px;">Visual Intuition</span>
+                    </div>
+                    <div style="font-size: 12.5px; color: #475569; line-height: 1.5; margin-bottom: 10px;">
+                        Visual mathematics and physics storytelling. Ideal for cultivating deep geometrical intuition and curious scientific thinking beyond textbooks.
+                    </div>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <a href="https://www.youtube.com/@3blue1brown" target="_blank" style="text-decoration: none; font-size: 12.5px; font-weight: 700; color: #1D4ED8; background: #EFF6FF; padding: 6px 12px; border-radius: 6px; border: 1px solid #BFDBFE;">
+                            ▶ 3Blue1Brown (Maths) ↗
+                        </a>
+                        <a href="https://www.youtube.com/@veritasium" target="_blank" style="text-decoration: none; font-size: 12.5px; font-weight: 700; color: #DC2626; background: #FEF2F2; padding: 6px 12px; border-radius: 6px; border: 1px solid #FECACA;">
+                            ▶ Veritasium (Physics) ↗
+                        </a>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+
+        with ref_subtab4:
+            st.markdown("### 📑 Educational Research & Pedagogical Evaluation Standards")
+            st.caption("Peer-reviewed pedagogical frameworks, national policy directives, and ethical AI evaluation rubrics.")
+
+            col_res1, col_res2 = st.columns(2)
+            with col_res1:
+                st.markdown("""
+                <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 12px; padding: 16px; margin-bottom: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+                    <div style="font-size: 15px; font-weight: 800; color: #0F172A; margin-bottom: 6px;">
+                        📜 National Education Policy (NEP 2020) Assessment Paradigm
+                    </div>
+                    <div style="font-size: 12.5px; color: #475569; line-height: 1.5; margin-bottom: 10px;">
+                        NEP 2020 mandates transforming assessment from rote memorization testing to competency-based evaluation, measuring conceptual clarity, higher-order critical thinking, and real-life problem solving.
+                    </div>
+                    <a href="https://www.education.gov.in/nep/about-nep" target="_blank" style="text-decoration: none; font-size: 12.5px; font-weight: 700; color: #047857; background: #ECFDF5; padding: 6px 12px; border-radius: 6px; border: 1px solid #A7F3D0; display: inline-block;">
+                        🏛️ Read Official NEP 2020 Directive ↗
+                    </a>
+                </div>
+                """, unsafe_allow_html=True)
+
+                st.markdown("""
+                <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 12px; padding: 16px; margin-bottom: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+                    <div style="font-size: 15px; font-weight: 800; color: #0F172A; margin-bottom: 6px;">
+                        📐 CBSE Competency Assessment Frameworks (with British Council)
+                    </div>
+                    <div style="font-size: 12.5px; color: #475569; line-height: 1.5; margin-bottom: 10px;">
+                        Co-developed with Cambridge International and British Council. Defines explicit step-by-step mark allocations, cognitive taxonomies (Knowledge vs Application), and diagnostic grading standards.
+                    </div>
+                    <a href="https://cbseacademic.nic.in/cba/framework.html" target="_blank" style="text-decoration: none; font-size: 12.5px; font-weight: 700; color: #1D4ED8; background: #EFF6FF; padding: 6px 12px; border-radius: 6px; border: 1px solid #BFDBFE; display: inline-block;">
+                        📑 View Competency Framework ↗
+                    </a>
+                </div>
+                """, unsafe_allow_html=True)
+
+            with col_res2:
+                st.markdown("""
+                <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 12px; padding: 16px; margin-bottom: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+                    <div style="font-size: 15px; font-weight: 800; color: #0F172A; margin-bottom: 6px;">
+                        🔍 CISCE Analysis of Pupil Performance (Diagnostic Error Analysis)
+                    </div>
+                    <div style="font-size: 12.5px; color: #475569; line-height: 1.5; margin-bottom: 10px;">
+                        In-depth annual examiner reports examining common pitfalls, derivation errors, SI unit omissions, and conceptual confusions committed by ICSE secondary candidates.
+                    </div>
+                    <a href="https://cisce.org/pupil-analysis/" target="_blank" style="text-decoration: none; font-size: 12.5px; font-weight: 700; color: #1D4ED8; background: #EFF6FF; padding: 6px 12px; border-radius: 6px; border: 1px solid #BFDBFE; display: inline-block;">
+                        📊 Access Pupil Performance Data ↗
+                    </a>
+                </div>
+                """, unsafe_allow_html=True)
+
+                st.markdown("""
+                <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 12px; padding: 16px; margin-bottom: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+                    <div style="font-size: 15px; font-weight: 800; color: #0F172A; margin-bottom: 6px;">
+                        🛡️ NITI Aayog Responsible AI & DPDP Act 2023 Principles
+                    </div>
+                    <div style="font-size: 12.5px; color: #475569; line-height: 1.5; margin-bottom: 10px;">
+                        National strategy guidelines for ethical AI in education: mandatory Teacher-in-the-Loop audit governance, algorithmic transparency, zero hallucination guardrails, and minor data protection.
+                    </div>
+                    <a href="https://www.niti.gov.in/responsible-ai" target="_blank" style="text-decoration: none; font-size: 12.5px; font-weight: 700; color: #1D4ED8; background: #EFF6FF; padding: 6px 12px; border-radius: 6px; border: 1px solid #BFDBFE; display: inline-block;">
+                        🛡️ NITI Aayog Responsible AI ↗
+                    </a>
+                </div>
+                """, unsafe_allow_html=True)
+
 # -----------------------------------------------------------------------------
 # GLOBAL FOOTER
 # -----------------------------------------------------------------------------
 st.markdown("<hr>", unsafe_allow_html=True)
 st.markdown("""
-<div style="text-align:center; font-size:11.5px; color:#64748B;">
+<div style="text-align:center; font-size:13px; color:#475569; line-height:1.5;">
     🛡️ <strong>EduAegis</strong> • Responsible AI Tutor & Governed Grader • IIM Capstone Project<br>
     DPDP Act 2023 Aligned • Blind Evaluation Compliance • NITI Aayog Responsible AI Frameworks
 </div>

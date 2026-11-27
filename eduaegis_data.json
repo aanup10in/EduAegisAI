@@ -9,7 +9,8 @@
       "email": "anup.sharma@school.edu",
       "phone": "+91 98765 43210",
       "cityState": "Bangalore, Karnataka",
-      "createdAt": "2025-11-15T10:00:00Z"
+      "createdAt": "2025-11-15T10:00:00Z",
+      "role": "student"
     },
     {
       "id": "STU-102",
@@ -20,7 +21,8 @@
       "email": "nandita.roy@school.edu",
       "phone": "+91 91234 56789",
       "cityState": "Kolkata, West Bengal",
-      "createdAt": "2025-11-20T11:30:00Z"
+      "createdAt": "2025-11-20T11:30:00Z",
+      "role": "student"
     },
     {
       "id": "STU-103",
@@ -31,7 +33,19 @@
       "board": "ICSE / CISCE",
       "email": "daksh.gupta@eduaegis.com",
       "cityState": "Pune",
-      "password": "eduaegis123"
+      "password": "daksh@123"
+    },
+    {
+      "id": "STU-104",
+      "username": "Daksh_1",
+      "name": "Daksh",
+      "role": "student",
+      "password": "Daksh@123",
+      "studentClass": 9,
+      "board": "CBSE (All India)",
+      "cityState": "Pune",
+      "email": "daksh@gmail.com",
+      "phone": "+91 98000 00000"
     }
   ],
   "teacherInstructions": {
@@ -63,8 +77,8 @@
       "topic": "Newton's Second Law of Motion",
       "chapterTitle": "Newton's Second Law of Motion",
       "topicName": "Newton's Second Law of Motion",
-      "totalAwarded": 0.0,
-      "totalAwardedMarks": 0.0,
+      "totalAwarded": 0.5,
+      "totalAwardedMarks": 0.5,
       "totalMax": 20.0,
       "totalMaxMarks": 20.0,
       "status": "PENDING_TEACHER_RELEASE",
@@ -161,8 +175,8 @@
           "questionText": "A 1200 kg car slows from 90 km/h to 18 km/h in 4 s. Calculate acceleration and force.",
           "max": 5.0,
           "maxMarks": 5.0,
-          "score": 0.0,
-          "awardedMarks": 0.0,
+          "score": 0.5,
+          "awardedMarks": 0.5,
           "student_ans": "dont know",
           "studentAnswer": "dont know",
           "evalStatus": "EVASIVE_OR_NA",
@@ -932,11 +946,11 @@
       "subjectName": "Chemistry",
       "topic": "Evaporation & Factors Affecting Rate of Evaporation",
       "totalMax": 20.0,
-      "totalAwarded": 16.0,
-      "status": "PENDING_TEACHER_RELEASE",
+      "totalAwarded": 4.0,
+      "status": "RELEASED",
       "submittedAt": "2026-11-25T12:50:00Z",
-      "releasedAt": null,
-      "turnaroundMinutes": null,
+      "releasedAt": "2026-11-27T14:31:27.585064Z",
+      "turnaroundMinutes": 2981.5,
       "questions": [
         {
           "question": "Define Evaporation. Explain four factors affecting evaporation with examples.",
@@ -963,13 +977,14 @@
           "awardedMarks": 4.0,
           "maxMarks": 5.0,
           "studentAnswer": "Evaporation is the transition of liquid into vapor below boiling point. Factors: Surface area, temperature, humidity, and wind speed.",
-          "isReleased": false
+          "isReleased": true
         }
       ],
       "chapterTitle": "Evaporation & Factors Affecting Rate of Evaporation",
       "topicName": "Evaporation & Factors Affecting Rate of Evaporation",
-      "totalAwardedMarks": 16.0,
-      "totalMaxMarks": 20.0
+      "totalAwardedMarks": 4.0,
+      "totalMaxMarks": 20.0,
+      "teacherRemarks": "Step-by-step marks verified and approved by faculty."
     },
     {
       "id": "sub_pend_m1",
@@ -981,11 +996,11 @@
       "subjectName": "Mathematics",
       "topic": "Rationalizing the Denominator and Real Numbers",
       "totalMax": 20.0,
-      "totalAwarded": 17.0,
-      "status": "PENDING_TEACHER_RELEASE",
+      "totalAwarded": 3.0,
+      "status": "RELEASED",
       "submittedAt": "2026-11-25T10:35:00Z",
-      "releasedAt": null,
-      "turnaroundMinutes": null,
+      "releasedAt": "2026-11-27T14:31:25.026124Z",
+      "turnaroundMinutes": 3116.4,
       "questions": [
         {
           "question": "Rationalize the denominator of 1 / (7 + 3*sqrt(2)).",
@@ -1012,13 +1027,14 @@
           "awardedMarks": 3.0,
           "maxMarks": 3.0,
           "studentAnswer": "Multiply numerator and denominator by conjugate (7 - 3*sqrt(2)). Result is (7 - 3*sqrt(2)) / 31.",
-          "isReleased": false
+          "isReleased": true
         }
       ],
       "chapterTitle": "Rationalizing the Denominator and Real Numbers",
       "topicName": "Rationalizing the Denominator and Real Numbers",
-      "totalAwardedMarks": 17.0,
-      "totalMaxMarks": 20.0
+      "totalAwardedMarks": 3.0,
+      "totalMaxMarks": 20.0,
+      "teacherRemarks": "Step-by-step marks verified and approved by faculty."
     }
   ],
   "teachers": [
@@ -1051,6 +1067,214 @@
     "Nandita": "eduaegis123",
     "Ankur": "eduaegis123",
     "Akanksha": "eduaegis123",
-    "Admin": "eduaegis123"
-  }
+    "Admin": "eduaegis123",
+    "Daksh_1": "Daksh@123",
+    "Daksh": "daksh@123"
+  },
+  "objective_submissions": [
+    {
+      "id": "obj_sub_1795786933500",
+      "studentId": "STU-101",
+      "studentName": "Anup Sharma",
+      "board": "CBSE (All India)",
+      "className": "Class 9th",
+      "subject": "Physics",
+      "topic": "Motion (Kinematics, Graphs & Equations)",
+      "score": 4.0,
+      "maxMarks": 5.0,
+      "submittedAt": "2026-11-27T19:12:13.500194Z"
+    },
+    {
+      "id": "obj_sub_1795755034549",
+      "studentId": "TCH-202",
+      "studentName": "Akanksha Singh",
+      "board": "CBSE (All India)",
+      "className": "Class 9th",
+      "subject": "Physics",
+      "topic": "Motion (Kinematics, Graphs & Equations)",
+      "score": 1.0,
+      "maxMarks": 5.0,
+      "submittedAt": "2026-11-27T10:20:34.549521Z"
+    },
+    {
+      "id": "obj_sub_1795755031921",
+      "studentId": "TCH-202",
+      "studentName": "Akanksha Singh",
+      "board": "CBSE (All India)",
+      "className": "Class 9th",
+      "subject": "Physics",
+      "topic": "Motion (Kinematics, Graphs & Equations)",
+      "score": 1.0,
+      "maxMarks": 5.0,
+      "submittedAt": "2026-11-27T10:20:31.921676Z"
+    },
+    {
+      "id": "obj_sub_1795755021838",
+      "studentId": "TCH-202",
+      "studentName": "Akanksha Singh",
+      "board": "CBSE (All India)",
+      "className": "Class 9th",
+      "subject": "Physics",
+      "topic": "Motion (Kinematics, Graphs & Equations)",
+      "score": 1.0,
+      "maxMarks": 5.0,
+      "submittedAt": "2026-11-27T10:20:21.838997Z"
+    },
+    {
+      "id": "obj_sub_1795718953146",
+      "studentId": "TCH-201",
+      "studentName": "Ankur Verma",
+      "board": "CBSE (All India)",
+      "className": "Class 9th",
+      "subject": "Physics",
+      "topic": "Motion (Kinematics, Graphs & Equations)",
+      "score": 5.0,
+      "maxMarks": 5.0,
+      "submittedAt": "2026-11-27T00:19:13.146637Z"
+    },
+    {
+      "id": "obj_sub_1795718369764",
+      "studentId": "TCH-201",
+      "studentName": "Ankur Verma",
+      "board": "CBSE (All India)",
+      "className": "Class 9th",
+      "subject": "Physics",
+      "topic": "Motion (Kinematics, Graphs & Equations)",
+      "score": 2.0,
+      "maxMarks": 5.0,
+      "submittedAt": "2026-11-27T00:09:29.764554Z"
+    },
+    {
+      "id": "obj_sub_1795718312838",
+      "studentId": "STU-102",
+      "studentName": "Nandita Roy",
+      "board": "ICSE / CISCE",
+      "className": "Class 9th",
+      "subject": "Physics",
+      "topic": "Motion (Kinematics, Graphs & Equations)",
+      "score": 2.0,
+      "maxMarks": 5.0,
+      "submittedAt": "2026-11-27T00:08:32.838881Z"
+    },
+    {
+      "id": "obj_sub_1795718311556",
+      "studentId": "STU-102",
+      "studentName": "Nandita Roy",
+      "board": "ICSE / CISCE",
+      "className": "Class 9th",
+      "subject": "Physics",
+      "topic": "Motion (Kinematics, Graphs & Equations)",
+      "score": 3.0,
+      "maxMarks": 5.0,
+      "submittedAt": "2026-11-27T00:08:31.556124Z"
+    },
+    {
+      "id": "obj_sub_1795718300229",
+      "studentId": "STU-102",
+      "studentName": "Nandita Roy",
+      "board": "ICSE / CISCE",
+      "className": "Class 9th",
+      "subject": "Physics",
+      "topic": "Motion (Kinematics, Graphs & Equations)",
+      "score": 4.0,
+      "maxMarks": 5.0,
+      "submittedAt": "2026-11-27T00:08:20.229268Z"
+    },
+    {
+      "id": "obj_sub_1795718212590",
+      "studentId": "STU-102",
+      "studentName": "Nandita Roy",
+      "board": "ICSE / CISCE",
+      "className": "Class 9th",
+      "subject": "Physics",
+      "topic": "Motion (Kinematics, Graphs & Equations)",
+      "score": 4.0,
+      "maxMarks": 5.0,
+      "submittedAt": "2026-11-27T00:06:52.590994Z"
+    },
+    {
+      "id": "obj_sub_1795718207189",
+      "studentId": "STU-102",
+      "studentName": "Nandita Roy",
+      "board": "ICSE / CISCE",
+      "className": "Class 9th",
+      "subject": "Physics",
+      "topic": "Motion (Kinematics, Graphs & Equations)",
+      "score": 4.0,
+      "maxMarks": 5.0,
+      "submittedAt": "2026-11-27T00:06:47.189263Z"
+    },
+    {
+      "id": "obj_sub_1795718205492",
+      "studentId": "STU-102",
+      "studentName": "Nandita Roy",
+      "board": "ICSE / CISCE",
+      "className": "Class 9th",
+      "subject": "Physics",
+      "topic": "Motion (Kinematics, Graphs & Equations)",
+      "score": 4.0,
+      "maxMarks": 5.0,
+      "submittedAt": "2026-11-27T00:06:45.492029Z"
+    },
+    {
+      "id": "obj_sub_1795718204221",
+      "studentId": "STU-102",
+      "studentName": "Nandita Roy",
+      "board": "ICSE / CISCE",
+      "className": "Class 9th",
+      "subject": "Physics",
+      "topic": "Motion (Kinematics, Graphs & Equations)",
+      "score": 3.0,
+      "maxMarks": 5.0,
+      "submittedAt": "2026-11-27T00:06:44.221575Z"
+    },
+    {
+      "id": "obj_sub_1795718202640",
+      "studentId": "STU-102",
+      "studentName": "Nandita Roy",
+      "board": "ICSE / CISCE",
+      "className": "Class 9th",
+      "subject": "Physics",
+      "topic": "Motion (Kinematics, Graphs & Equations)",
+      "score": 4.0,
+      "maxMarks": 5.0,
+      "submittedAt": "2026-11-27T00:06:42.640728Z"
+    },
+    {
+      "id": "obj_sub_1795718118914",
+      "studentId": "STU-102",
+      "studentName": "Nandita Roy",
+      "board": "ICSE / CISCE",
+      "className": "Class 9th",
+      "subject": "Physics",
+      "topic": "Motion (Kinematics, Graphs & Equations)",
+      "score": 4.0,
+      "maxMarks": 5.0,
+      "submittedAt": "2026-11-27T00:05:18.914600Z"
+    },
+    {
+      "id": "obj_sub_1795718116013",
+      "studentId": "STU-102",
+      "studentName": "Nandita Roy",
+      "board": "ICSE / CISCE",
+      "className": "Class 9th",
+      "subject": "Physics",
+      "topic": "Motion (Kinematics, Graphs & Equations)",
+      "score": 4.0,
+      "maxMarks": 5.0,
+      "submittedAt": "2026-11-27T00:05:16.013422Z"
+    },
+    {
+      "id": "obj_sub_1795718104380",
+      "studentId": "STU-102",
+      "studentName": "Nandita Roy",
+      "board": "ICSE / CISCE",
+      "className": "Class 9th",
+      "subject": "Physics",
+      "topic": "Motion (Kinematics, Graphs & Equations)",
+      "score": 4.0,
+      "maxMarks": 5.0,
+      "submittedAt": "2026-11-27T00:05:04.380784Z"
+    }
+  ]
 }
