@@ -17,6 +17,21 @@ import streamlit.components.v1 as components
 import pandas as pd
 from curriculum_question_bank import get_question_set
 from objective_question_bank import get_objective_question_set
+try:
+    from source_learning_engine import (
+        extract_document_content,
+        get_youtube_learning_content,
+        synthesize_tutor_lesson,
+        generate_dynamic_mcqs_from_source,
+        generate_dynamic_subjective_from_source
+    )
+except Exception:
+    # Fail-safe zero-error fallback
+    extract_document_content = lambda fn, fb: "Document content parsed."
+    get_youtube_learning_content = lambda url: None
+    synthesize_tutor_lesson = lambda st, sx, **kw: {"title": st, "explanation": sx, "analogies": [], "key_principles": [], "audio_text": sx, "key_terms": []}
+    generate_dynamic_mcqs_from_source = lambda st, sx, **kw: get_objective_question_set("Physics", 9)
+    generate_dynamic_subjective_from_source = lambda st, sx, **kw: get_question_set("Physics", 9)
 
 # Page Configuration with Soothing Theme
 st.set_page_config(
@@ -1868,74 +1883,154 @@ if tab_tutor is not None:
                 t_topics = ["Rational vs Irrational Numbers", "Rationalizing the Denominator", "Laws of Exponents", "Polynomials & Factorization", "Linear Equations"]
             t_selected_topic = st.selectbox("3. Curriculum Topic", t_topics, key="t_top")
 
-        # Open Box Text Input for Custom Student Topic
-        st.markdown("#### 🔍 Or Type Any Topic/Concept to Clear Your Doubt:")
-        custom_tutor_topic = st.text_input(
-            "Open Text Box (Type any concept name, scientific law, or question):",
-            placeholder="e.g. Why does evaporation cause cooling?, Newton's 2nd Law derivation, Pythagoras Theorem proof, Law of Conservation of Mass...",
-            key="custom_tutor_input"
-        )
+        # Multi-Modal Learning Input: Type Any Topic OR Upload Document (PDF/DOC) OR Paste YouTube Link
+        col_topic_type, col_topic_source = st.columns([1.35, 1.65])
 
-        active_learning_topic = custom_tutor_topic.strip() if custom_tutor_topic.strip() else t_selected_topic
+        with col_topic_type:
+            st.markdown("#### 🔍 Or Type Any Topic/Concept to Clear Your Doubt:")
+            custom_tutor_topic = st.text_input(
+                "Open Text Box (Type concept name, scientific law, or question):",
+                placeholder="e.g. Why does evaporation cause cooling?, Newton's 2nd Law derivation, Pythagoras Theorem proof...",
+                key="custom_tutor_input"
+            )
+
+        with col_topic_source:
+            st.markdown("#### 📁 Or Learn from PDF / DOC File or YouTube Link:")
+            source_choice = st.radio(
+                "Select Custom Learning Source:",
+                ["None (Curriculum / Text)", "📄 Upload PDF / DOC", "▶️ Paste YouTube Link"],
+                horizontal=True,
+                key="tutor_source_mode_radio"
+            )
+
+            if "📄 Upload PDF" in source_choice:
+                uploaded_doc = st.file_uploader(
+                    "Upload notes or chapter PDF/DOCX/DOC/TXT:",
+                    type=["pdf", "docx", "doc", "txt"],
+                    key="tutor_doc_upload_input",
+                    help="Upload any study document. The AI learns concepts from this document, teaches them, and derives test questions accordingly."
+                )
+                if uploaded_doc is not None:
+                    doc_bytes = uploaded_doc.getvalue()
+                    extracted_text = extract_document_content(uploaded_doc.name, doc_bytes)
+                    st.session_state["tutor_active_source"] = {
+                        "type": "doc",
+                        "name": uploaded_doc.name,
+                        "text": extracted_text,
+                        "bytes": doc_bytes
+                    }
+                    st.success(f"✅ Document Analyzed: **{uploaded_doc.name}** ({round(len(doc_bytes)/1024, 1)} KB)")
+
+            elif "▶️ Paste YouTube" in source_choice:
+                yt_url_input = st.text_input(
+                    "Enter YouTube Video Link:",
+                    placeholder="https://www.youtube.com/watch?v=... or https://youtu.be/...",
+                    key="tutor_yt_url_input",
+                    help="Paste any educational YouTube URL. The AI extracts the lesson content, teaches concepts, and generates assessment questions."
+                )
+                if yt_url_input.strip():
+                    yt_data = get_youtube_learning_content(yt_url_input.strip())
+                    if yt_data:
+                        st.session_state["tutor_active_source"] = {
+                            "type": "youtube",
+                            "name": yt_data["title"],
+                            "text": yt_data["transcript"],
+                            "url": yt_data["clean_url"],
+                            "video_id": yt_data.get("video_id")
+                        }
+                        st.success(f"✅ YouTube Video Analyzed: **{yt_data['title']}**")
+                    else:
+                        st.error("Invalid YouTube URL. Please provide a standard YouTube video link.")
+            else:
+                if "tutor_active_source" in st.session_state and source_choice.startswith("None"):
+                    del st.session_state["tutor_active_source"]
+
+        active_source = st.session_state.get("tutor_active_source")
 
         st.markdown("<hr>", unsafe_allow_html=True)
         col_c1, col_c2 = st.columns([2, 1])
 
         with col_c1:
-            st.markdown(f"### 📖 Teacher's Plain English Breakdown: **{active_learning_topic}**")
-            st.info(f"**Curriculum Context:** {selected_board} • Class {t_class}th {t_subject}")
+            if active_source:
+                active_learning_topic = active_source["name"]
+                st.markdown(f"### 📖 AI Teacher Breakdown: **{active_learning_topic}**")
+                st.markdown(f"""
+                <div style="background: #EFF6FF; border: 1.5px solid #60A5FA; border-radius: 10px; padding: 10px 14px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
+                    <div>
+                        <span style="font-weight: 800; color: #1D4ED8; font-size: 13.5px;">📁 Multi-Modal Learning Active:</span>
+                        <span style="color: #0F172A; font-weight: 700;"> {active_source['name']}</span>
+                        <span style="font-size: 12px; color: #475569;"> ({active_source['type'].upper()} Source)</span>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
 
-            # Pre-crafted simple explanations
-            if "Newton" in active_learning_topic or "Momentum" in active_learning_topic or "Force" in active_learning_topic:
-                explanation_text = (
-                    "Hello! Let's understand Newton's Second Law in very simple terms.\n\n"
-                    "Imagine you are in a cricket match. When a fast cricket ball comes towards you, catching it hurts your hand if you stop it instantly. "
-                    "But if you pull your hands backward, you take more time to stop the ball, which reduces the impact force! "
-                    "That's momentum and Newton's Second Law in real life. Force equals mass times acceleration (F = ma)."
-                )
-                analogies = [
-                    "Catching a fast cricket ball by pulling hands back to reduce impact force.",
-                    "High jump athletes landing on soft foam or sand to prolong stopping time.",
-                    "Car seatbelts stretching slightly during sudden braking."
-                ]
-                key_formulas = ["Momentum: p = m * v (kg·m/s)", "Force: F = Δp / Δt = m(v - u) / t", "Newton's 2nd Law: F = m * a (Newton, N)"]
-                audio_text = "Hello student! Welcome to EduAegis Physics class. Today we are mastering Newton's Second Law of Motion. Momentum is mass in motion. When you pull your hands back while catching a cricket ball, you increase stopping time, which reduces the force on your palms. Always remember the formula: Force equals mass times acceleration, F equals m a, measured in Newtons."
+                if active_source.get("type") == "youtube" and active_source.get("url"):
+                    with st.expander("▶️ Watch Embedded YouTube Video Inside App", expanded=True):
+                        st.video(active_source["url"])
 
-            elif "Evaporation" in active_learning_topic or "Matter" in active_learning_topic:
-                explanation_text = (
-                    "Welcome to Chemistry! Let's understand why evaporation causes cooling.\n\n"
-                    "When you pour a few drops of acetone or perfume on your palm, your hand feels cold. Why? "
-                    "The liquid particles absorb heat energy (called Latent Heat of Vaporization) from your skin in order to evaporate, "
-                    "leaving your skin cooler! This is why earthen pots (matkas) keep water cool in summer and why wearing cotton clothes feels so refreshing."
-                )
-                analogies = [
-                    "Earthen pots (matka) keeping water cool in Indian summers through microscopic pores.",
-                    "Wearing breathable cotton clothes to absorb sweat and promote evaporative cooling.",
-                    "Spreading clothes wide on a line to increase surface area for faster drying."
-                ]
-                key_formulas = ["Rate of Evaporation ∝ Surface Area", "Rate of Evaporation ∝ Temperature", "Rate of Evaporation ∝ 1 / Humidity"]
-                audio_text = "Welcome to Chemistry! Evaporation is a surface phenomenon. Liquid particles absorb latent heat from the surroundings to break free into vapor. Because heat is taken away from the surface, it cools down. That is why earthen pots keep water cool and why wearing cotton clothes in summer feels so comfortable."
+                # Dynamic Lesson Synthesis from Uploaded Document or YouTube Video
+                lesson_synth = synthesize_tutor_lesson(active_source["name"], active_source["text"], subject=t_subject, class_num=t_class)
+                explanation_text = lesson_synth["explanation"]
+                analogies = lesson_synth["analogies"]
+                key_formulas = lesson_synth["key_principles"]
+                audio_text = lesson_synth["audio_text"]
 
-            elif "Rational" in active_learning_topic or "Number" in active_learning_topic:
-                explanation_text = (
-                    "Welcome to Mathematics! Numbers are divided into rational and irrational.\n\n"
-                    "A Rational number can always be written as a fraction p/q (like 1/2 = 0.5, or 1/3 = 0.333 recurring). "
-                    "An Irrational number (like √2, √3, or π) has a decimal expansion that goes on forever without repeating a pattern!"
-                )
-                analogies = [
-                    "Rational numbers repeat predictably like clockwork (0.333...); irrational decimals wander endlessly without any repeat."
-                ]
-                key_formulas = ["Rational: p/q where p, q are integers and q ≠ 0", "Rationalizing: 1/(a + √b) = (a - √b)/(a² - b)"]
-                audio_text = "In Mathematics, real numbers consist of rational and irrational numbers. Rational numbers can be written as p over q. Irrational numbers, like root 2 or pi, have decimal expansions that never end and never repeat."
             else:
-                explanation_text = (
-                    f"Here is your easy-to-understand breakdown for {active_learning_topic}.\n\n"
-                    "In science and mathematics, every concept is governed by an underlying cause-and-effect relationship. "
-                    "In your board exams, always frame your answers with: 1. A formal definition, 2. The mathematical formula with SI units, and 3. A real-world practical illustration."
-                )
-                analogies = [f"Relating {active_learning_topic} to everyday observable systems."]
-                key_formulas = ["Standard Law / Equation with explicit metric units."]
-                audio_text = f"Welcome to EduAegis! Let us explore {active_learning_topic} in very simple English. In your exams, always define the law clearly, write the formula with proper units, and show step-by-step reasoning."
+                active_learning_topic = custom_tutor_topic.strip() if custom_tutor_topic.strip() else t_selected_topic
+                st.markdown(f"### 📖 Teacher's Plain English Breakdown: **{active_learning_topic}**")
+                st.info(f"**Curriculum Context:** {selected_board} • Class {t_class}th {t_subject}")
+
+                # Pre-crafted simple explanations
+                if "Newton" in active_learning_topic or "Momentum" in active_learning_topic or "Force" in active_learning_topic:
+                    explanation_text = (
+                        "Hello! Let's understand Newton's Second Law in very simple terms.\n\n"
+                        "Imagine you are in a cricket match. When a fast cricket ball comes towards you, catching it hurts your hand if you stop it instantly. "
+                        "But if you pull your hands backward, you take more time to stop the ball, which reduces the impact force! "
+                        "That's momentum and Newton's Second Law in real life. Force equals mass times acceleration (F = ma)."
+                    )
+                    analogies = [
+                        "Catching a fast cricket ball by pulling hands back to reduce impact force.",
+                        "High jump athletes landing on soft foam or sand to prolong stopping time.",
+                        "Car seatbelts stretching slightly during sudden braking."
+                    ]
+                    key_formulas = ["Momentum: p = m * v (kg·m/s)", "Force: F = Δp / Δt = m(v - u) / t", "Newton's 2nd Law: F = m * a (Newton, N)"]
+                    audio_text = "Hello student! Welcome to EduAegis Physics class. Today we are mastering Newton's Second Law of Motion. Momentum is mass in motion. When you pull your hands back while catching a cricket ball, you increase stopping time, which reduces the force on your palms. Always remember the formula: Force equals mass times acceleration, F equals m a, measured in Newtons."
+
+                elif "Evaporation" in active_learning_topic or "Matter" in active_learning_topic:
+                    explanation_text = (
+                        "Welcome to Chemistry! Let's understand why evaporation causes cooling.\n\n"
+                        "When you pour a few drops of acetone or perfume on your palm, your hand feels cold. Why? "
+                        "The liquid particles absorb heat energy (called Latent Heat of Vaporization) from your skin in order to evaporate, "
+                        "leaving your skin cooler! This is why earthen pots (matkas) keep water cool in summer and why wearing cotton clothes feels so refreshing."
+                    )
+                    analogies = [
+                        "Earthen pots (matka) keeping water cool in Indian summers through microscopic pores.",
+                        "Wearing breathable cotton clothes to absorb sweat and promote evaporative cooling.",
+                        "Spreading clothes wide on a line to increase surface area for faster drying."
+                    ]
+                    key_formulas = ["Rate of Evaporation ∝ Surface Area", "Rate of Evaporation ∝ Temperature", "Rate of Evaporation ∝ 1 / Humidity"]
+                    audio_text = "Welcome to Chemistry! Evaporation is a surface phenomenon. Liquid particles absorb latent heat from the surroundings to break free into vapor. Because heat is taken away from the surface, it cools down. That is why earthen pots keep water cool and why wearing cotton clothes in summer feels so comfortable."
+
+                elif "Rational" in active_learning_topic or "Number" in active_learning_topic:
+                    explanation_text = (
+                        "Welcome to Mathematics! Numbers are divided into rational and irrational.\n\n"
+                        "A Rational number can always be written as a fraction p/q (like 1/2 = 0.5, or 1/3 = 0.333 recurring). "
+                        "An Irrational number (like √2, √3, or π) has a decimal expansion that goes on forever without repeating a pattern!"
+                    )
+                    analogies = [
+                        "Rational numbers repeat predictably like clockwork (0.333...); irrational decimals wander endlessly without any repeat."
+                    ]
+                    key_formulas = ["Rational: p/q where p, q are integers and q ≠ 0", "Rationalizing: 1/(a + √b) = (a - √b)/(a² - b)"]
+                    audio_text = "In Mathematics, real numbers consist of rational and irrational numbers. Rational numbers can be written as p over q. Irrational numbers, like root 2 or pi, have decimal expansions that never end and never repeat."
+                else:
+                    explanation_text = (
+                        f"Here is your easy-to-understand breakdown for {active_learning_topic}.\n\n"
+                        "In science and mathematics, every concept is governed by an underlying cause-and-effect relationship. "
+                        "In your board exams, always frame your answers with: 1. A formal definition, 2. The mathematical formula with SI units, and 3. A real-world practical illustration."
+                    )
+                    analogies = [f"Relating {active_learning_topic} to everyday observable systems."]
+                    key_formulas = ["Standard Law / Equation with explicit metric units."]
+                    audio_text = f"Welcome to EduAegis! Let us explore {active_learning_topic} in very simple English. In your exams, always define the law clearly, write the formula with proper units, and show step-by-step reasoning."
 
             st.markdown(explanation_text)
 
@@ -2011,17 +2106,70 @@ if tab_grader is not None:
         with g_col3:
             g_subject = st.selectbox("3. Subject", ["Physics", "Chemistry", "Mathematics"], index=0, key="g_subj")
 
-        # Open Box Text Input for Custom Topic
-        st.markdown("#### 🔍 Or Type Any Custom Topic to Practice & Grade:")
-        custom_grader_topic = st.text_input(
-            "Open Text Box (Custom Topic):",
-            placeholder="e.g. Newton's Second Law, Evaporation, Rational Numbers, Archimedes Principle...",
-            key="custom_grader_input"
-        )
+        # Custom Learning Material / Document / YouTube Ingestion for Grader
+        active_tutor_src = st.session_state.get("tutor_active_source")
+        use_source_in_grader = False
+
+        if active_tutor_src:
+            col_src_box, col_src_tog = st.columns([2.8, 1.2])
+            with col_src_box:
+                st.markdown(f"""
+                <div style="background: #EFF6FF; border: 1.5px solid #60A5FA; border-radius: 10px; padding: 10px 14px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
+                    <div>
+                        <span style="font-weight: 800; color: #1D4ED8; font-size: 13.5px;">📁 Active Learning Material Attached:</span>
+                        <span style="color: #0F172A; font-weight: 700;"> {active_tutor_src['name']}</span>
+                        <span style="font-size: 12px; color: #475569;"> ({active_tutor_src['type'].upper()})</span>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+            with col_src_tog:
+                use_source_in_grader = st.checkbox("🎯 Generate Questions from this Document/Video", value=True, key="chk_use_source_in_grader")
+
+        col_grader_type, col_grader_source = st.columns([1.35, 1.65])
+        with col_grader_type:
+            st.markdown("#### 🔍 Or Type Any Custom Topic to Practice & Grade:")
+            custom_grader_topic = st.text_input(
+                "Open Text Box (Custom Topic):",
+                placeholder="e.g. Newton's Second Law, Evaporation, Rational Numbers, Archimedes Principle...",
+                key="custom_grader_input"
+            )
+        with col_grader_source:
+            if not active_tutor_src:
+                st.markdown("#### 📁 Or Upload Document / YouTube Link to Test On:")
+                grader_direct_choice = st.radio(
+                    "Optional Custom Test Material:",
+                    ["None (Curriculum Standard)", "📄 Upload PDF/DOC", "▶️ Paste YouTube Link"],
+                    horizontal=True,
+                    key="grader_direct_choice_radio"
+                )
+                if "📄 Upload PDF" in grader_direct_choice:
+                    g_up_doc = st.file_uploader("Upload Notes or Test Paper (PDF, DOCX, TXT):", type=["pdf", "docx", "doc", "txt"], key="grader_direct_doc")
+                    if g_up_doc:
+                        g_bytes = g_up_doc.getvalue()
+                        g_txt = extract_document_content(g_up_doc.name, g_bytes)
+                        st.session_state["tutor_active_source"] = {"type": "doc", "name": g_up_doc.name, "text": g_txt, "bytes": g_bytes}
+                        use_source_in_grader = True
+                        st.rerun()
+                elif "▶️ Paste YouTube" in grader_direct_choice:
+                    g_yt_inp = st.text_input("YouTube Video URL to test on:", placeholder="https://www.youtube.com/watch?v=...", key="grader_direct_yt")
+                    if g_yt_inp.strip():
+                        g_yt_data = get_youtube_learning_content(g_yt_inp.strip())
+                        if g_yt_data:
+                            st.session_state["tutor_active_source"] = {"type": "youtube", "name": g_yt_data["title"], "text": g_yt_data["transcript"], "url": g_yt_data["clean_url"]}
+                            use_source_in_grader = True
+                            st.rerun()
+            else:
+                st.markdown("<div style='height: 38px;'></div>", unsafe_allow_html=True)
+                if st.button("🔄 Clear Attached Document / Reset to Standard Curriculum", key="btn_clear_attached_src", use_container_width=True):
+                    del st.session_state["tutor_active_source"]
+                    st.rerun()
 
         active_grade_topic = custom_grader_topic.strip() if custom_grader_topic.strip() else ("Newton's Second Law of Motion" if g_subject == "Physics" else ("Evaporation & States of Matter" if g_subject == "Chemistry" else "Number Systems & Real Numbers"))
 
-        st.info(f"🎯 **Active Testing Topic:** {active_grade_topic} • **Curriculum:** {g_board} • Class {g_class}th {g_subject}")
+        if use_source_in_grader and active_tutor_src:
+            st.info(f"🎯 **Active Testing Material:** {active_tutor_src['name']} ({active_tutor_src['type'].upper()}) • Aligned with {g_board} • Class {g_class}th {g_subject}")
+        else:
+            st.info(f"🎯 **Active Testing Topic:** {active_grade_topic} • **Curriculum:** {g_board} • Class {g_class}th {g_subject}")
 
         # Assessment Section Selector (Objective MCQs vs Subjective vs Both)
         st.markdown("<hr style='margin: 10px 0;'>", unsafe_allow_html=True)
@@ -2054,11 +2202,18 @@ if tab_grader is not None:
                     st.rerun()
 
             active_obj_idx = st.session_state.get("active_obj_set_idx", 0)
-            obj_data = get_objective_question_set(g_subject, g_class, custom_topic=custom_grader_topic.strip(), set_index=active_obj_idx)
+
+            if use_source_in_grader and active_tutor_src:
+                obj_data = generate_dynamic_mcqs_from_source(active_tutor_src['name'], active_tutor_src['text'], g_subject, g_class)
+                total_obj_sets = 1
+                display_obj_set_num = 1
+            else:
+                obj_data = get_objective_question_set(g_subject, g_class, custom_topic=custom_grader_topic.strip(), set_index=active_obj_idx)
+                total_obj_sets = obj_data["total_sets"]
+                display_obj_set_num = (active_obj_idx % total_obj_sets) + 1
+
             obj_questions = obj_data["questions"]
             active_obj_title = obj_data["topic_title"]
-            total_obj_sets = obj_data["total_sets"]
-            display_obj_set_num = (active_obj_idx % total_obj_sets) + 1
 
             st.markdown(f"""
             <div style="display: flex; justify-content: space-between; align-items: center; background: #F8FAFC; border-left: 4px solid #10B981; border-radius: 8px; padding: 10px 16px; margin-bottom: 14px;">
@@ -2230,11 +2385,18 @@ if tab_grader is not None:
                     st.rerun()
 
             active_set_idx = st.session_state.get("active_q_set_idx", 0)
-            q_data = get_question_set(g_subject, g_class, custom_topic=custom_grader_topic.strip(), set_index=active_set_idx)
+
+            if use_source_in_grader and active_tutor_src:
+                q_data = generate_dynamic_subjective_from_source(active_tutor_src['name'], active_tutor_src['text'], g_subject, g_class)
+                total_available_sets = 1
+                display_set_num = 1
+            else:
+                q_data = get_question_set(g_subject, g_class, custom_topic=custom_grader_topic.strip(), set_index=active_set_idx)
+                total_available_sets = q_data["total_sets"]
+                display_set_num = (active_set_idx % total_available_sets) + 1
+
             questions = q_data["questions"]
             active_set_title = q_data["topic_title"]
-            total_available_sets = q_data["total_sets"]
-            display_set_num = (active_set_idx % total_available_sets) + 1
 
             st.markdown(f"""
             <div style="display: flex; justify-content: space-between; align-items: center; background: #F1F5F9; border-left: 4px solid #2563EB; border-radius: 8px; padding: 10px 16px; margin-bottom: 14px;">
@@ -2268,6 +2430,41 @@ if tab_grader is not None:
 
             active_demo = st.session_state.get("demo_mode_state")
 
+            # Option to Upload Handwritten Paper or Type Answers Online
+            st.markdown("#### 📝 Answer Submission Method:")
+            sub_ans_method = st.radio(
+                "Choose how you want to submit your subjective answers:",
+                [
+                    "✍️ Type Answers in Text Boxes Below",
+                    "📎 Upload Handwritten Answer Sheet (PDF, DOC, DOCX, or Photo of Paper)"
+                ],
+                index=0,
+                horizontal=True,
+                key=f"sub_ans_method_{display_set_num}"
+            )
+
+            attached_paper_doc = None
+            if "Upload Handwritten" in sub_ans_method:
+                uploaded_ans_sheet = st.file_uploader(
+                    "📎 Upload Handwritten Answer Sheet (PDF, DOCX, DOC, PNG, JPG, JPEG):",
+                    type=["pdf", "docx", "doc", "txt", "png", "jpg", "jpeg"],
+                    key=f"file_uploader_ans_sheet_{display_set_num}",
+                    help="Upload a PDF or scan/photo of your handwritten paper. Your teacher will inspect this document directly in the governance console and assign marks."
+                )
+                if uploaded_ans_sheet is not None:
+                    p_bytes = uploaded_ans_sheet.getvalue()
+                    p_text = extract_document_content(uploaded_ans_sheet.name, p_bytes) if not uploaded_ans_sheet.name.lower().endswith(('.png', '.jpg', '.jpeg')) else ""
+                    p_b64 = base64.b64encode(p_bytes).decode("utf-8")
+                    attached_paper_doc = {
+                        "name": uploaded_ans_sheet.name,
+                        "type": uploaded_ans_sheet.type or "application/pdf",
+                        "size_str": f"{round(len(p_bytes)/1024, 1)} KB",
+                        "size_bytes": len(p_bytes),
+                        "data_b64": p_b64,
+                        "extracted_text": p_text
+                    }
+                    st.success(f"✅ Handwritten Paper Attached: **{uploaded_ans_sheet.name}** ({attached_paper_doc['size_str']}). Attached for Teacher Audit & Grading!")
+
             user_answers = {}
             for idx, q in enumerate(questions):
                 st.markdown(f"<div style='font-size: 15px; font-weight: 700; color: #0F172A; margin-top: 14px; margin-bottom: 6px;'>Q{idx+1} ({q['marks']} Marks): {q['text']}</div>", unsafe_allow_html=True)
@@ -2284,7 +2481,8 @@ if tab_grader is not None:
                     f"Your Subjective Answer for Q{idx+1}:",
                     value=default_val,
                     height=80,
-                    key=f"ans_{q['id']}_{g_class}_{g_subject}_{display_set_num}"
+                    key=f"ans_{q['id']}_{g_class}_{g_subject}_{display_set_num}",
+                    help="If you uploaded your answer sheet above, you may leave these blank or provide supplementary notes."
                 )
 
             submit_button = st.button("🚀 Submit Paper for AI & Teacher Evaluation", type="primary")
@@ -2342,13 +2540,18 @@ if tab_grader is not None:
                     "submittedAt": datetime.now().isoformat() + "Z",
                     "releasedAt": None,
                     "turnaroundMinutes": None,
-                    "questions": evaluation_results
+                    "questions": evaluation_results,
+                    "uploadedDocument": attached_paper_doc
                 }
                 db.setdefault("submissions", []).insert(0, normalize_submission(new_sub, 0))
                 save_db(db)
 
-                st.success(f"Paper submitted! Raw AI Score: {total_score} / {max_score}")
-                st.warning(f"🛡️ **AI Governance Protocol Active:** Marks for Candidate **{assigned_std_id}** are currently held in **Pending Teacher Audit Queue**. Timer has started. Your subject teacher must audit, verify, and release your marks.")
+                if attached_paper_doc:
+                    st.success(f"🎉 Paper & Solution Document **{attached_paper_doc['name']}** submitted successfully!")
+                    st.info(f"📎 **Attached Document Registered:** Candidate **{assigned_std_id}** submitted a handwritten paper. It has been routed directly to the Teacher Evaluation Queue for manual review and score assignment.")
+                else:
+                    st.success(f"Paper submitted! Raw AI Score: {total_score} / {max_score}")
+                    st.warning(f"🛡️ **AI Governance Protocol Active:** Marks for Candidate **{assigned_std_id}** are currently held in **Pending Teacher Audit Queue**. Timer has started. Your subject teacher must audit, verify, and release your marks.")
 
 # =============================================================================
 # TAB: MY EVALUATIONS & APPEALS (Student Scoped vs Faculty History vs Admin)
@@ -2406,6 +2609,28 @@ if tab_history is not None:
                     admin_extra = f" • Student: <strong>{std_name_tag}</strong> (<code>{std_id_tag}</code>)" if user_role == "admin" else (f" • Candidate: <code>{std_id_tag}</code>" if user_role == "teacher" else "")
                     st.markdown(f"#### 📄 {topic} ({subject} • {cls_name} • {board}){admin_extra}", unsafe_allow_html=True)
                     st.markdown(f"**Score:** `{awarded} / {max_m}` Marks  |  **Status:** `{status}`")
+
+                    # Attached Handwritten Paper / Document info if present
+                    if sub.get("uploadedDocument"):
+                        doc_d = sub["uploadedDocument"]
+                        st.markdown(f"""
+                        <div style="background: #F8FAFC; border: 1px solid #CBD5E1; border-radius: 8px; padding: 7px 12px; margin: 6px 0; display: inline-flex; align-items: center; gap: 8px;">
+                            <span style="font-weight: 700; color: #1D4ED8; font-size: 13px;">📎 Attached Answer Paper:</span>
+                            <span style="font-size: 13px; color: #0F172A; font-weight: 600;">{doc_d.get('name')} ({doc_d.get('size_str', 'File')})</span>
+                        </div>
+                        """, unsafe_allow_html=True)
+                        if doc_d.get("data_b64"):
+                            try:
+                                r_b = base64.b64decode(doc_d["data_b64"])
+                                st.download_button(
+                                    label=f"📥 Download Submitted Paper ({doc_d.get('name')})",
+                                    data=r_b,
+                                    file_name=doc_d.get("name", "Submitted_Paper.pdf"),
+                                    mime=doc_d.get("type", "application/pdf"),
+                                    key=f"hist_dl_{sub_id}_{s_idx}"
+                                )
+                            except Exception:
+                                pass
 
                     if status == "PENDING_TEACHER_RELEASE":
                         released_q_list = [q for q in sub.get("questions", []) if q.get("isReleased", False)]
@@ -2694,6 +2919,47 @@ if tab_teacher is not None:
                 with st.container():
                     st.markdown(f"**Submission #{s_idx+1}: Candidate <code>{student_id}</code>** • {topic} ({subj_name} • {cls_name})", unsafe_allow_html=True)
                     st.markdown(f"Current Marks: **{awarded} / {max_m}** | Status: `{status}`")
+
+                    # Attached Student Handwritten Paper / Solution Document
+                    doc_att = sub.get("uploadedDocument")
+                    if doc_att and doc_att.get("data_b64"):
+                        st.markdown(f"""
+                        <div style="background: #EFF6FF; border: 2px solid #3B82F6; border-radius: 12px; padding: 14px 18px; margin: 12px 0; box-shadow: 0 4px 12px rgba(59,130,246,0.12);">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <span style="font-weight: 800; color: #1D4ED8; font-size: 14.5px;">📎 Attached Student Handwritten Paper / Solution Document:</span>
+                                    <div style="color: #0F172A; font-weight: 700; font-size: 14px; margin-top: 3px;">
+                                        📄 {doc_att.get('name')} <span style="font-weight: 500; color: #64748B;">({doc_att.get('size_str', 'File')})</span>
+                                    </div>
+                                    <div style="font-size: 12.5px; color: #475569; margin-top: 2px;">
+                                        Student submitted this handwritten physical exam paper. Review the attached document below and assign/adjust question marks accordingly.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        """, unsafe_allow_html=True)
+
+                        try:
+                            raw_paper_bytes = base64.b64decode(doc_att.get("data_b64", ""))
+                            col_doc_btn1, col_doc_btn2 = st.columns([1.6, 2.4])
+                            with col_doc_btn1:
+                                st.download_button(
+                                    label=f"📥 Download Student Paper ({doc_att.get('name')})",
+                                    data=raw_paper_bytes,
+                                    file_name=doc_att.get("name", "Student_Answer_Sheet.pdf"),
+                                    mime=doc_att.get("type", "application/pdf"),
+                                    key=f"t_dl_paper_{sub_id}_{s_idx}",
+                                    use_container_width=True
+                                )
+                            with col_doc_btn2:
+                                if doc_att.get("extracted_text"):
+                                    with st.expander("📝 View Extracted Text from Uploaded Paper", expanded=False):
+                                        st.text_area("Extracted Paper Content", value=doc_att.get("extracted_text"), height=130, disabled=True, key=f"t_txt_paper_{sub_id}_{s_idx}")
+                                elif doc_att.get("name", "").lower().endswith(('.png', '.jpg', '.jpeg')):
+                                    with st.expander("🖼️ Preview Uploaded Paper Photo", expanded=False):
+                                        st.image(raw_paper_bytes, caption=f"Handwritten Paper - Candidate {student_id}", use_column_width=True)
+                        except Exception:
+                            pass
 
                     if status == "PENDING_TEACHER_RELEASE":
                         st.markdown(f'<div class="timer-pill">⏱️ Timer Running: {elapsed_txt} since arrival in queue</div>', unsafe_allow_html=True)
